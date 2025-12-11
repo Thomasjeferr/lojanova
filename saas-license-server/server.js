@@ -3693,3 +3693,112 @@ function startServer(port) {
 }
 
 startServer(PORT);
+
+            .limit(limit);
+        
+        const totalNotifications = await Notification.countDocuments(query);
+        const totalPages = Math.ceil(totalNotifications / limit);
+        const totalUnread = await Notification.countDocuments({ read: false });
+        
+        res.render('notifications', {
+            notifications,
+            currentPage: 'notificacoes',
+            notificationsMenu: {
+                unread: notifications.filter(n => !n.read),
+                totalUnread: totalUnread
+            },
+            pagination: {
+                page,
+                limit,
+                totalPages,
+                totalNotifications,
+                hasNext: page < totalPages,
+                hasPrev: page > 1
+            },
+            filterType,
+            filterRead,
+            totalUnread
+        });
+    } catch (e) {
+        res.redirect('/admin?error=' + encodeURIComponent(e.message));
+    }
+});
+
+// Exportar lista de clientes (CSV)
+app.get('/admin/export-csv', requireAdmin, async (req, res) => {
+    try {
+        // Filtrar por produto se especificado
+        const query = {};
+        if (req.query.product && req.query.product !== 'all') {
+            query.productSlug = req.query.product;
+        }
+        
+        const licenses = await License.find(query).populate('productId', 'name slug').sort({ createdAt: -1 });
+        
+        // Cabeçalho CSV (incluindo produto)
+        let csv = 'Email,Chave de Licença,Produto,Plano,Domínio,Status,Data de Criação,Última Atualização\n';
+        
+        // Dados
+        licenses.forEach(license => {
+            const email = `"${license.email}"`;
+            const key = `"${license.key}"`;
+            const plan = license.plan;
+            const domain = license.domain ? `"${license.domain}"` : '';
+            const product = (license.productId && typeof license.productId === 'object' && license.productId.name) 
+                          ? license.productId.name 
+                          : (license.productSlug || 'Padrão');
+            const status = license.active ? 'Ativo' : 'Bloqueado';
+            const createdAt = new Date(license.createdAt).toLocaleString('pt-BR');
+            const updatedAt = license.updatedAt ? new Date(license.updatedAt).toLocaleString('pt-BR') : '';
+            
+            csv += `${email},${key},${product},${plan},${domain},${status},${createdAt},${updatedAt}\n`;
+        });
+        
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename=clientes-${new Date().toISOString().split('T')[0]}.csv`);
+        res.send('\ufeff' + csv); // BOM para Excel reconhecer UTF-8
+    } catch (e) {
+        res.status(500).send('Erro ao exportar: ' + e.message);
+    }
+});
+
+// 8. Documentação
+app.get('/docs', (req, res) => {
+    res.render('docs');
+});
+
+// Endpoint para documentação OpenAPI/Swagger
+app.get('/api-docs', (req, res) => {
+    const swaggerDoc = require('./swagger.json');
+    res.json(swaggerDoc);
+});
+
+// Swagger UI (se swagger-ui-express estiver instalado)
+let swaggerUi = null;
+try {
+    swaggerUi = require('swagger-ui-express');
+    const swaggerDocument = require('./swagger.json');
+    app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    console.log('✅ Swagger UI disponível em /api-docs-ui');
+} catch (e) {
+    console.log('⚠️ swagger-ui-express não instalado. Para habilitar interface Swagger, execute: npm install swagger-ui-express');
+    console.log('📖 Documentação OpenAPI disponível em /api-docs (JSON)');
+}
+
+function startServer(port) {
+    const server = app.listen(port, () => {
+        console.log(`\n✅ Servidor rodando: http://localhost:${port}`);
+        console.log(`📋 Acesse: http://localhost:${port}`);
+        console.log(`🔐 Admin: http://localhost:${port}/acesso-admin`);
+    });
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`⚠️ Porta ${port} ocupada, tentando ${port + 1}...`);
+            startServer(port + 1);
+        } else {
+            console.error('❌ Erro ao iniciar servidor:', err.message);
+        }
+    });
+}
+
+startServer(PORT);

@@ -2434,8 +2434,8 @@
                         </button>
                     </div>
                 </form>
-            </div>
         </div>
+    </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -2461,39 +2461,39 @@
             console.log('✅ Bootstrap carregado, definindo funções do modal');
             
             // FUNÇÃO PARA ABRIR MODAL - VERSÃO SIMPLIFICADA
-            window.openNewClientModal = function() {
-                try {
-                    console.log('🔍 Tentando abrir modal...');
+        window.openNewClientModal = function() {
+            try {
+                console.log('🔍 Tentando abrir modal...');
                     const modalElement = document.getElementById('newClientModal');
                     if (!modalElement) {
-                        console.error('❌ Modal newClientModal não encontrado!');
-                        alert('Erro: Modal não encontrado. Recarregue a página.');
-                        return;
-                    }
-                    
-                    // Verificar se Bootstrap está disponível
+                    console.error('❌ Modal newClientModal não encontrado!');
+                    alert('Erro: Modal não encontrado. Recarregue a página.');
+                    return;
+                }
+                
+                // Verificar se Bootstrap está disponível
                     if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
-                        console.error('❌ Bootstrap não está carregado!');
-                        alert('Erro: Bootstrap não está disponível. Recarregue a página.');
-                        return;
-                    }
-                    
-                    console.log('✅ Modal encontrado, Bootstrap disponível');
-                    
+                    console.error('❌ Bootstrap não está carregado!');
+                    alert('Erro: Bootstrap não está disponível. Recarregue a página.');
+                    return;
+                }
+                
+                console.log('✅ Modal encontrado, Bootstrap disponível');
+                
                     // Método 1: Tentar usar Bootstrap Modal API
                     try {
                         let bsModal = bootstrap.Modal.getInstance(modalElement);
-                        if (!bsModal) {
+                if (!bsModal) {
                             console.log('📦 Criando nova instância do modal Bootstrap...');
                             bsModal = new bootstrap.Modal(modalElement, {
-                                backdrop: true,
-                                keyboard: true,
-                                focus: true
-                            });
-                        }
-                        
+                        backdrop: true,
+                        keyboard: true,
+                        focus: true
+                    });
+                }
+                
                         if (bsModal && typeof bsModal.show === 'function') {
-                            bsModal.show();
+                bsModal.show();
                     // Ocultar área de resultado do diagnóstico ao abrir o modal
                     const diagnosticResult = document.getElementById('diagnosticResult');
                     if (diagnosticResult) {
@@ -2544,21 +2544,21 @@
                     }, 100);
                     
                     console.log('✅ Modal aberto manualmente!');
-                } catch (error) {
-                    console.error('❌ Erro ao abrir modal:', error);
+            } catch (error) {
+                console.error('❌ Erro ao abrir modal:', error);
                     console.error('Stack trace:', error.stack);
-                    alert('Erro ao abrir modal: ' + error.message);
-                }
-            };
-            
+                alert('Erro ao abrir modal: ' + error.message);
+            }
+        };
+        
             // FUNÇÃO PARA FECHAR MODAL
-            window.closeNewClientModal = function() {
-                try {
-                    const modal = document.getElementById('newClientModal');
-                    if (modal && typeof bootstrap !== 'undefined') {
-                        const bsModal = bootstrap.Modal.getInstance(modal);
-                        if (bsModal) {
-                            bsModal.hide();
+        window.closeNewClientModal = function() {
+            try {
+                const modal = document.getElementById('newClientModal');
+                if (modal && typeof bootstrap !== 'undefined') {
+                    const bsModal = bootstrap.Modal.getInstance(modal);
+                    if (bsModal) {
+                        bsModal.hide();
                         } else {
                             // Fallback: remover manualmente
                             modal.classList.remove('show');
@@ -2566,17 +2566,17 @@
                             document.body.classList.remove('modal-open');
                             const backdrop = document.getElementById('modalBackdrop');
                             if (backdrop) backdrop.remove();
-                        }
                     }
-                } catch (error) {
-                    console.error('Erro ao fechar modal:', error);
                 }
-            };
+            } catch (error) {
+                console.error('Erro ao fechar modal:', error);
+            }
+        };
         } // FIM DA FUNÇÃO initModalFunctions
         
         // FUNÇÃO PARA SUBMETER FORMULÁRIO
         let isSubmitting = false; // Flag global para prevenir múltiplos envios
-
+        
         window.submitNewClient = async function(event) {
             event.preventDefault();
             
@@ -2625,7 +2625,7 @@
                     headers['CSRF-Token'] = csrfToken;
                     headers['X-CSRF-Token'] = csrfToken;
                 }
-
+                
                 const response = await fetch('/admin/create-client', {
                     method: 'POST',
                     headers: headers,
@@ -2674,9 +2674,9 @@
                 alert('Erro: ' + error.message);
                 
                 isSubmitting = false;
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
         };
 
         // Botão de diagnóstico: faz um POST de teste para /admin/create-client com dados falsos
@@ -2917,6 +2917,503 @@
                             },
                             x: {
                                 ticks: {
+                                    color: '#c9d1d9'
+                                },
+                                grid: {
+                                    color: '#30363d'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Sistema de Toast Notifications
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--info)'};
+                color: #fff;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: transparent; border: none; color: #fff; margin-left: auto; cursor: pointer; padding: 0.25rem;">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+        
+        // Adicionar animações CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Mensagens de sucesso/erro (usando toasts)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success')) {
+            showToast('Alterações salvas com sucesso!', 'success');
+        }
+        if (urlParams.get('error')) {
+            showToast('Erro: ' + urlParams.get('error'), 'error');
+        }
+        
+        // Toggle Sidebar (global)
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('adminSidebar');
+            const icon = document.getElementById('sidebarToggleIcon');
+            if (sidebar && icon) {
+                sidebar.classList.toggle('collapsed');
+                icon.classList.toggle('fa-chevron-left');
+                icon.classList.toggle('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+        };
+        
+        // Restaurar estado da sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                const sidebar = document.getElementById('adminSidebar');
+                const icon = document.getElementById('sidebarToggleIcon');
+                if (sidebar && icon) {
+                    sidebar.classList.add('collapsed');
+                    icon.classList.remove('fa-chevron-left');
+                    icon.classList.add('fa-chevron-right');
+                }
+            }
+        });
+        
+        // Toggle User Menu (global)
+        window.toggleUserMenu = function() {
+            const userMenu = document.getElementById('userMenu');
+            if (userMenu) {
+                userMenu.classList.toggle('active');
+            }
+        };
+        
+        // Fechar user menu ao clicar fora
+        document.addEventListener('click', (e) => {
+            const userMenu = document.getElementById('userMenu');
+            if (userMenu && !userMenu.contains(e.target)) {
+                userMenu.classList.remove('active');
+            }
+        });
+
+        // Função para regenerar chave
+        async function regenerateKey(email) {
+            if (!confirm('Tem certeza que deseja regenerar a chave de licença? A chave antiga será invalidada.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/manage-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        action: 'regenerate-key'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Chave regenerada com sucesso!');
+                    location.reload();
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            } catch (error) {
+                alert('Erro ao regenerar chave: ' + error.message);
+            }
+        }
+
+        // Função para copiar chave
+        function copyKey(key) {
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-success"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 2000);
+            });
+        }
+
+        // Marcar notificação como lida
+        async function markAsRead(notificationId) {
+            try {
+                const response = await fetch(`/admin/notification/${notificationId}/read`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Erro ao marcar notificação como lida:', error);
+            }
+        }
+
+        // Função para expandir/colapsar detalhes da linha
+        function toggleRowDetails(index) {
+            const detailsRow = document.getElementById(`details-${index}`);
+            const mainRow = document.querySelector(`[data-license-id="license-${index}"]`);
+            const expandBtn = mainRow.querySelector('.btn-expand-row');
+            
+            if (detailsRow.style.display === 'none' || !detailsRow.style.display) {
+                detailsRow.style.display = 'table-row';
+                mainRow.classList.add('expanded');
+                expandBtn.classList.add('expanded');
+            } else {
+                detailsRow.style.display = 'none';
+                mainRow.classList.remove('expanded');
+                expandBtn.classList.remove('expanded');
+            }
+        }
+        
+        // TESTE: Função simplificada para placeholders - removendo estilos inline que podem interferir
+        // COMENTADO TEMPORARIAMENTE PARA TESTAR SE OS ESTILOS CSS ESTÁTICOS SÃO SUFICIENTES
+        /*
+        function forcePlaceholderStyles() {
+            // REMOVIDO: Aplicação de estilos inline que podem interferir com placeholders
+            // REMOVIDO: Criação dinâmica de múltiplos elementos <style>
+            // REMOVIDO: Múltiplas execuções com setTimeouts
+            
+            console.log('⚠️ Função forcePlaceholderStyles DESABILITADA para teste');
+        }
+        
+        // DESABILITADO: Execução automática
+        // if (document.readyState === 'loading') {
+        //     document.addEventListener('DOMContentLoaded', forcePlaceholderStyles);
+        // } else {
+        //     forcePlaceholderStyles();
+        // }
+        // setTimeout(forcePlaceholderStyles, 50);
+        // setTimeout(forcePlaceholderStyles, 200);
+        // setTimeout(forcePlaceholderStyles, 500);
+        // setTimeout(forcePlaceholderStyles, 1000);
+        // setTimeout(forcePlaceholderStyles, 2000);
+        
+        // DESABILITADO: MutationObserver que executava a função múltiplas vezes
+        // const observer = new MutationObserver(function(mutations) {
+        //     mutations.forEach(function(mutation) {
+        //         if (mutation.addedNodes.length) {
+        //             forcePlaceholderStyles();
+        //         }
+        //     });
+        // });
+        // observer.observe(document.body, { childList: true, subtree: true });
+        
+        // DESABILITADO: Event listener de foco
+        // document.addEventListener('focusin', function(e) {
+        //     if (e.target && e.target.classList && e.target.classList.contains('form-control')) {
+        //         setTimeout(forcePlaceholderStyles, 10);
+        //     }
+        // });
+        */
+        
+        console.log('✅ JavaScript de placeholders DESABILITADO - usando apenas CSS estático para teste');
+
+        // Permitir clicar na linha principal para expandir (exceto em botões e links)
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainRows = document.querySelectorAll('.table-row-main');
+            mainRows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // Não expandir se clicar em botões, links ou selects
+                    if (e.target.closest('button, a, select, form')) {
+                        return;
+                    }
+                    const licenseId = row.getAttribute('data-license-id');
+                    const index = licenseId.replace('license-', '');
+                    toggleRowDetails(index);
+                });
+            });
+        });
+        
+        // Função para adicionar event listener ao botão (como fallback caso data-bs-toggle não funcione)
+        function setupButtonListener() {
+            const btnNovoCliente = document.getElementById('btnNovoCliente');
+            if (btnNovoCliente) {
+                // Adicionar listener adicional como backup
+                btnNovoCliente.addEventListener('click', function(e) {
+                    // Se o data-bs-toggle não funcionar, usar nossa função
+                    setTimeout(function() {
+                        const modal = document.getElementById('newClientModal');
+                        if (modal && !modal.classList.contains('show')) {
+                            console.log('🔄 data-bs-toggle não funcionou, usando função manual...');
+                            if (typeof window.openNewClientModal === 'function') {
+                                window.openNewClientModal();
+                            }
+                        }
+                    }, 100);
+                });
+                console.log('✅ Event listener de backup adicionado ao botão Novo Cliente');
+                return true;
+            } else {
+                console.warn('⚠️ Botão btnNovoCliente não encontrado, tentando novamente em 100ms...');
+                setTimeout(setupButtonListener, 100);
+                return false;
+            }
+        }
+        
+        // Função para adicionar listener ao botão de diagnóstico (usando event delegation)
+        function setupDiagnosticButton() {
+            // Usar event delegation no modal para garantir que funcione sempre
+            const modal = document.getElementById('newClientModal');
+            if (!modal) {
+                console.warn('⚠️ Modal não encontrado para anexar listener de diagnóstico');
+                return;
+            }
+            
+            // Remover listener anterior se existir (usando uma flag)
+            if (modal._diagnosticListenerAttached) {
+                console.log('ℹ️ Listener de diagnóstico já anexado');
+                return;
+            }
+            
+            // Usar event delegation no modal - funciona mesmo se o botão for criado depois
+            modal.addEventListener('click', function(e) {
+                // Verificar se o clique foi no botão de diagnóstico
+                if (e.target && (e.target.id === 'btnDiagnostic' || e.target.closest('#btnDiagnostic'))) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔍 Botão de diagnóstico clicado via event delegation!');
+                    if (typeof window.runCreateClientDiagnostic === 'function') {
+                        window.runCreateClientDiagnostic();
+                    } else {
+                        console.error('❌ Função runCreateClientDiagnostic não está definida!');
+                        alert('Erro: Função de diagnóstico não está disponível. Recarregue a página.');
+                    }
+                }
+            });
+            
+            modal._diagnosticListenerAttached = true;
+            console.log('✅ Event delegation de diagnóstico anexado ao modal');
+        }
+
+        // Atualiza a área de resultado do diagnóstico dentro do modal
+        function updateDiagnosticResult(title, message, details = '', type = 'info') {
+            console.log('📝 updateDiagnosticResult chamado:', { title, message, details, type });
+            const resultDiv = document.getElementById('diagnosticResult');
+            const iconEl = document.getElementById('diagnosticIcon');
+            const titleEl = document.getElementById('diagnosticTitle');
+            const messageEl = document.getElementById('diagnosticMessage');
+            const detailsEl = document.getElementById('diagnosticDetails');
+            
+            if (!resultDiv) {
+                console.error('❌ Elemento diagnosticResult não encontrado!');
+                return;
+            }
+            console.log('✅ Elemento diagnosticResult encontrado, exibindo...');
+            
+            // Mostrar área de resultado
+            resultDiv.style.display = 'block';
+            
+            // Configurar cores e ícones baseado no tipo
+            const config = {
+                info: {
+                    icon: 'fa-spinner fa-spin',
+                    color: '#3b82f6',
+                    bgColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: 'rgba(59, 130, 246, 0.4)'
+                },
+                success: {
+                    icon: 'fa-check-circle',
+                    color: '#10b981',
+                    bgColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: 'rgba(16, 185, 129, 0.4)'
+                },
+                error: {
+                    icon: 'fa-times-circle',
+                    color: '#ef4444',
+                    bgColor: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: 'rgba(239, 68, 68, 0.4)'
+                }
+            };
+            
+            const cfg = config[type] || config.info;
+            
+            // Atualizar ícone e título
+            if (iconEl) {
+                iconEl.className = `fa-solid ${cfg.icon} me-2`;
+                iconEl.style.color = cfg.color;
+            }
+            if (titleEl) {
+                titleEl.textContent = title;
+                titleEl.style.color = cfg.color;
+            }
+            
+            // Atualizar mensagem
+            if (messageEl) {
+                messageEl.innerHTML = message;
+                messageEl.style.color = 'var(--text-primary)';
+            }
+            
+            // Atualizar detalhes
+            if (detailsEl) {
+                if (details) {
+                    detailsEl.innerHTML = `<strong>Detalhes:</strong> ${details}`;
+                    detailsEl.style.display = 'block';
+                } else {
+                    detailsEl.style.display = 'none';
+                }
+            }
+            
+            // Atualizar estilo do card
+            const card = resultDiv.querySelector('.card');
+            if (card) {
+                card.style.borderColor = cfg.borderColor;
+                card.style.background = cfg.bgColor;
+            }
+            
+            // Scroll para o resultado
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Atualiza a área de status do diagnóstico (texto objetivo no rodapé do modal)
+        function updateDiagnosticStatus(status, detail = '', type = 'info') {
+            const el = document.getElementById('diagnosticStatus');
+            if (!el) return;
+            const colors = {
+                info: 'var(--text-secondary)',
+                success: '#10b981',
+                error: '#ef4444'
+            };
+            el.style.color = colors[type] || colors.info;
+            
+            const icons = {
+                info: '⏳',
+                success: '✅',
+                error: '❌'
+            };
+            const icon = icons[type] || icons.info;
+            el.innerHTML = `<strong>${icon} ${status}</strong>${detail ? ' — ' + detail : ''}`;
+        }
+        
+        // Função para adicionar listener ao formulário (SEM onsubmit inline - CSP bloqueava)
+        function setupFormListener() {
+            const form = document.getElementById('newClientForm');
+            if (form) {
+                console.log('✅ Formulário encontrado, anexando listener...');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('📝 Formulário submetido!');
+                    submitNewClient(e);
+                });
+                console.log('✅ Listener do formulário anexado com sucesso!');
+            } else {
+                console.warn('⚠️ Formulário newClientForm não encontrado');
+            }
+        }
+        
+        // Inicializar funções do modal quando a página carregar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('✅ DOM carregado, iniciando funções do modal');
+                initModalFunctions();
+                setupButtonListener();
+                setupDiagnosticButton();
+                setupFormListener(); // Anexar listener do formulário
+            });
+        } else {
+            // DOM já carregado
+            console.log('✅ DOM já carregado, iniciando funções do modal imediatamente');
+            initModalFunctions();
+            setupButtonListener();
+            setupDiagnosticButton();
+            setupFormListener(); // Anexar listener do formulário
+        }
+        
+        // Tentar inicializar também quando a janela carregar completamente
+        window.addEventListener('load', function() {
+            console.log('✅ Window carregada completamente');
+            if (typeof window.openNewClientModal !== 'function') {
+                console.warn('⚠️ Função ainda não definida após window.load, tentando novamente...');
+                initModalFunctions();
+            }
+            setupButtonListener();
+            setupDiagnosticButton();
+            setupFormListener(); // Anexar listener do formulário
+            
+            // Adicionar listener para quando o modal Bootstrap for mostrado
+            const modalElement = document.getElementById('newClientModal');
+            if (modalElement && typeof bootstrap !== 'undefined') {
+                modalElement.addEventListener('shown.bs.modal', function() {
+                    console.log('📦 Modal Bootstrap foi mostrado, re-anexando listeners...');
+                    setTimeout(() => {
+                        setupDiagnosticButton();
+                        setupFormListener();
+                    }, 100);
+                });
+            }
+        });
+        
+    </script>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
                                     color: '#c9d1d9'
                                 },
                                 grid: {
