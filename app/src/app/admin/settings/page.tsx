@@ -8,7 +8,9 @@ import { BrandingDbBanner } from "@/components/admin/branding-db-banner";
 import { ThemeSwitcherSection } from "@/components/admin/theme-switcher-section";
 import { LandingCopySettingsForm } from "@/components/admin/landing-copy-settings-form";
 import { WhatsAppSettingsForm } from "@/components/admin/whatsapp-settings-form";
+import { WooviSettingsForm } from "@/components/admin/woovi-settings-form";
 import { CONTACT_FALLBACK } from "@/lib/contact-settings";
+import { PAYMENT_GATEWAY_FALLBACK } from "@/lib/woovi-settings";
 
 async function siteBrandingTableExists(): Promise<boolean> {
   try {
@@ -98,6 +100,32 @@ export default async function AdminSettingsPage() {
             whatsappNumber: contactRow?.whatsappNumber || "",
             whatsappMessage: contactRow?.whatsappMessage || CONTACT_FALLBACK.whatsappMessage,
             whatsappLabel: contactRow?.whatsappLabel || CONTACT_FALLBACK.whatsappLabel,
+          }}
+        />
+      </SectionCard>
+      <SectionCard title="Gateway Pix (Woovi / GGPIXAPI)">
+        {!contactTableOk && (
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
+            <code> app/</code> e reinicie o servidor.
+          </div>
+        )}
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+          Configure o gateway Pix ativo (Woovi ou GGPIXAPI) e suas credenciais por cliente, direto
+          no admin, sem editar variáveis de ambiente.
+        </p>
+        <WooviSettingsForm
+          disabled={!contactTableOk}
+          initial={{
+            paymentProvider:
+              (contactRow?.paymentProvider as "woovi" | "ggpix" | undefined) ||
+              PAYMENT_GATEWAY_FALLBACK.paymentProvider,
+            wooviApiKey: contactRow?.wooviApiKey || PAYMENT_GATEWAY_FALLBACK.wooviApiKey,
+            wooviWebhookSecret:
+              contactRow?.wooviWebhookSecret || PAYMENT_GATEWAY_FALLBACK.wooviWebhookSecret,
+            ggpixApiKey: contactRow?.ggpixApiKey || PAYMENT_GATEWAY_FALLBACK.ggpixApiKey,
+            ggpixWebhookSecret:
+              contactRow?.ggpixWebhookSecret || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookSecret,
           }}
         />
       </SectionCard>

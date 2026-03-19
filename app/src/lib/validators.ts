@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SiteTheme } from "@prisma/client";
+import { PaymentProvider, SiteTheme } from "@prisma/client";
 import { isValidWhatsAppNumber, normalizeWhatsAppNumber } from "@/lib/whatsapp";
 
 export const registerSchema = z.object({
@@ -134,3 +134,11 @@ export const contactSettingsSchema = z
       });
     }
   });
+
+export const wooviSettingsSchema = z.object({
+  paymentProvider: z.nativeEnum(PaymentProvider),
+  wooviApiKey: z.string().max(300).optional().or(z.literal("")),
+  wooviWebhookSecret: z.string().max(300).optional().or(z.literal("")),
+  ggpixApiKey: z.string().max(300).optional().or(z.literal("")),
+  ggpixWebhookSecret: z.string().max(300).optional().or(z.literal("")),
+});

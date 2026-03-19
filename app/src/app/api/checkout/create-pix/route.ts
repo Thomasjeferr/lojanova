@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { badRequest, ok, unauthorized } from "@/lib/http";
 import { createPixSchema } from "@/lib/validators";
 import { requireUser } from "@/lib/auth";
-import { createWooviPixCharge } from "@/lib/woovi";
+import { createPixChargeByActiveProvider } from "@/lib/payment-gateway";
 
 export async function POST(request: Request) {
   try {
@@ -23,9 +23,10 @@ export async function POST(request: Request) {
       return badRequest("Pedido já está pago");
     }
 
-    const pix = await createWooviPixCharge({
+    const pix = await createPixChargeByActiveProvider({
       amountCents: order.amountCents,
       payerName: order.user.name,
+      externalId: order.id,
     });
 
     await prisma.order.update({

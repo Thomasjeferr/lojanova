@@ -2,16 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { deliverActivationCode } from "@/lib/delivery";
 import { ok, badRequest } from "@/lib/http";
-import { isValidWooviWebhookRequest } from "@/lib/webhook-signature";
+import { isValidWooviWebhookRequestWithSecret } from "@/lib/webhook-signature";
+import { getWooviSettings } from "@/lib/woovi-settings";
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
+  const settings = await getWooviSettings();
+  const webhookSecret = settings.wooviWebhookSecret || process.env.WOOVI_WEBHOOK_SECRET || "";
 
-  if (!process.env.WOOVI_WEBHOOK_SECRET?.trim()) {
-    return badRequest("Webhook desabilitado: defina WOOVI_WEBHOOK_SECRET no ambiente");
+  if (!webhookSecret.trim()) {
+    return badRequest(
+      "Webhook desabilitado: configure o Webhook Secret da Woovi no admin ou no ambiente",
+    );
   }
 
-  if (!isValidWooviWebhookRequest(rawBody, request)) {
+  if (!isValidWooviWebhookRequestWithSecret(rawBody, request, webhookSecret)) {
     return badRequest("Assinatura de webhook inválida");
   }
 

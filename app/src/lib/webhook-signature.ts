@@ -68,19 +68,54 @@ export function verifyWooviWebhookRsa(rawBody: string, signatureBase64: string |
 /**
  * Exige `WOOVI_WEBHOOK_SECRET` definido e valida pelo menos um método suportado.
  */
-export function isValidWooviWebhookRequest(rawBody: string, request: Request): boolean {
-  const secret = process.env.WOOVI_WEBHOOK_SECRET?.trim();
-  if (!secret) return false;
+export function isValidWooviWebhookRequestWithSecret(
+  rawBody: string,
+  request: Request,
+  secret: string,
+): boolean {
+  const cleanSecret = secret.trim();
+  if (!cleanSecret) return false;
 
   const rsaSig = request.headers.get("x-webhook-signature");
   if (rsaSig && verifyWooviWebhookRsa(rawBody, rsaSig)) return true;
 
   const hmac256 = request.headers.get("x-woovi-signature");
-  if (verifyHmacSha256Hex(rawBody, secret, hmac256)) return true;
+  if (verifyHmacSha256Hex(rawBody, cleanSecret, hmac256)) return true;
 
   const openPix =
     request.headers.get("X-OpenPix-Signature") ?? request.headers.get("x-openpix-signature");
-  if (verifyHmacSha1Base64(rawBody, secret, openPix)) return true;
+  if (verifyHmacSha1Base64(rawBody, cleanSecret, openPix)) return true;
+
+  return false;
+}
+
+export function isValidWooviWebhookRequest(rawBody: string, request: Request): boolean {
+  const secret = process.env.WOOVI_WEBHOOK_SECRET?.trim();
+  if (!secret) return false;
+  return isValidWooviWebhookRequestWithSecret(rawBody, request, secret);
+}
+
+export function isValidGgPixWebhookRequestWithSecret(
+  rawBody: string,
+  request: Request,
+  secret: string,
+): boolean {
+  const cleanSecret = secret.trim();
+  if (!cleanSecret) return false;
+
+  const rsaSig = request.headers.get("x-webhook-signature");
+  if (rsaSig && verifyWooviWebhookRsa(rawBody, rsaSig)) return true;
+
+  const hmac256 =
+    request.headers.get("x-ggpix-signature") ??
+    request.headers.get("x-signature") ??
+    request.headers.get("x-webhook-signature");
+  if (verifyHmacSha256Hex(rawBody, cleanSecret, hmac256)) return true;
+
+  const hmacBase64 =
+    request.headers.get("x-ggpix-signature-base64") ??
+    request.headers.get("x-openpix-signature");
+  if (verifyHmacSha1Base64(rawBody, cleanSecret, hmacBase64)) return true;
 
   return false;
 }

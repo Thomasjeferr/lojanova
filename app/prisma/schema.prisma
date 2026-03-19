@@ -31,6 +31,11 @@ enum SiteTheme {
   red
 }
 
+enum PaymentProvider {
+  woovi
+  ggpix
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -155,5 +160,10 @@ model AppSettings {
   whatsappNumber  String?
   whatsappMessage String?
   whatsappLabel   String?
+  paymentProvider PaymentProvider @default(woovi)
+  wooviApiKey     String?  @db.Text
+  wooviWebhookSecret String? @db.Text
+  ggpixApiKey     String?  @db.Text
+  ggpixWebhookSecret String? @db.Text
   updatedAt       DateTime @updatedAt
 }

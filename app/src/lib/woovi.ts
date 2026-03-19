@@ -1,3 +1,5 @@
+import { getWooviSettings } from "@/lib/woovi-settings";
+
 type PixChargeResponse = {
   chargeId: string;
   txid: string;
@@ -12,7 +14,10 @@ export async function createWooviPixCharge({
   amountCents: number;
   payerName: string;
 }): Promise<PixChargeResponse> {
-  if (!process.env.WOOVI_API_KEY) {
+  const settings = await getWooviSettings();
+  const apiKey = settings.wooviApiKey || process.env.WOOVI_API_KEY || "";
+
+  if (!apiKey) {
     const fake = `MOCKPIX${Date.now()}`;
     return {
       chargeId: `mock_charge_${Date.now()}`,
@@ -26,7 +31,7 @@ export async function createWooviPixCharge({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: process.env.WOOVI_API_KEY,
+      Authorization: apiKey,
     },
     body: JSON.stringify({
       value: amountCents,
