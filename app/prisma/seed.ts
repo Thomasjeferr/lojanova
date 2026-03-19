@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.siteBranding.upsert({
+    where: { id: "default" },
+    create: { id: "default", storeDisplayName: "Loja Nova" },
+    update: {},
+  });
+
   await prisma.plan.upsert({
     where: { slug: "30-dias" },
     update: {},
@@ -41,18 +47,48 @@ async function main() {
     },
   });
 
-  if (process.env.ADMIN_EMAIL) {
+  const adminPassword = await bcrypt.hash("Admin@123", 12);
+  const clientPassword = await bcrypt.hash("Cliente@123", 12);
+
+  await prisma.user.upsert({
+    where: { email: "admin@lojanova.com" },
+    update: { passwordHash: adminPassword, isAdmin: true },
+    create: {
+      name: "Administrador",
+      email: "admin@lojanova.com",
+      passwordHash: adminPassword,
+      isAdmin: true,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "cliente@teste.com" },
+    update: { passwordHash: clientPassword, isAdmin: false },
+    create: {
+      name: "Cliente Teste",
+      email: "cliente@teste.com",
+      passwordHash: clientPassword,
+      isAdmin: false,
+    },
+  });
+
+  if (process.env.ADMIN_EMAIL && process.env.ADMIN_EMAIL !== "admin@lojanova.com") {
     await prisma.user.upsert({
       where: { email: process.env.ADMIN_EMAIL },
-      update: {},
+      update: { passwordHash: adminPassword },
       create: {
         name: "Administrador",
         email: process.env.ADMIN_EMAIL,
-        passwordHash: await bcrypt.hash("Admin@123", 12),
+        passwordHash: adminPassword,
         isAdmin: true,
       },
     });
   }
+
+  console.log("Seed concluído: planos + usuários de teste.");
+  console.log("  Admin: admin@lojanova.com / Admin@123");
+  console.log("  Cliente: cliente@teste.com / Cliente@123");
+  console.log("  Observação: o registro público não promove admin; use seed ou atualize isAdmin no banco.");
 }
 
 main()

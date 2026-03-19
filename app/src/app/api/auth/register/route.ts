@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { badRequest, ok } from "@/lib/http";
 import { hashPassword, createSessionCookies } from "@/lib/auth";
 import { registerSchema } from "@/lib/validators";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   const json = await request.json();
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
       email: data.email,
       phone: data.phone || null,
       passwordHash: await hashPassword(data.password),
-      isAdmin: process.env.ADMIN_EMAIL === data.email,
+      isAdmin: false,
     },
   });
 
@@ -30,6 +31,11 @@ export async function POST(request: Request) {
     userId: user.id,
     email: user.email,
     isAdmin: user.isAdmin,
+  });
+
+  await sendWelcomeEmail({
+    to: user.email,
+    name: user.name,
   });
 
   return ok({

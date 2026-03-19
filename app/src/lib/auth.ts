@@ -12,7 +12,25 @@ type TokenPayload = {
   isAdmin: boolean;
 };
 
-const secret = () => new TextEncoder().encode(process.env.JWT_SECRET || "dev-secret-unsafe");
+const DEV_JWT_FALLBACK = "dev-only-jwt-secret-min-32-chars!!";
+
+function jwtSecretBytes(): Uint8Array {
+  const raw = process.env.JWT_SECRET?.trim();
+  if (raw && raw.length >= 32) {
+    return new TextEncoder().encode(raw);
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "JWT_SECRET é obrigatório em produção e deve ter pelo menos 32 caracteres.",
+    );
+  }
+  if (typeof console !== "undefined") {
+    console.warn(
+      "[auth] JWT_SECRET ausente ou curto — usando segredo de desenvolvimento inseguro.",
+    );
+  }
+  return new TextEncoder().encode(DEV_JWT_FALLBACK);
+}
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
@@ -27,7 +45,7 @@ export async function createAccessToken(payload: TokenPayload) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("15m")
-    .sign(secret());
+    .sign(jwtSecretBytes());
 }
 
 export async function createRefreshToken(payload: TokenPayload) {
@@ -35,11 +53,11 @@ export async function createRefreshToken(payload: TokenPayload) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("30d")
-    .sign(secret());
+    .sign(jwtSecretBytes());
 }
 
 export async function verifyToken(token: string) {
-  const { payload } = await jwtVerify(token, secret());
+  const { payload } = await jwtVerify(token, jwtSecretBytes());
   return payload as TokenPayload;
 }
 

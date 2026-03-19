@@ -12,7 +12,11 @@ export async function POST(request: Request) {
   }
 
   const json = await request.json();
-  const parsed = loginSchema.safeParse(json);
+  const body = {
+    email: typeof json?.email === "string" ? json.email.trim() : "",
+    password: typeof json?.password === "string" ? json.password.trim() : "",
+  };
+  const parsed = loginSchema.safeParse(body);
   if (!parsed.success) {
     return badRequest("Dados inválidos", parsed.error.flatten());
   }

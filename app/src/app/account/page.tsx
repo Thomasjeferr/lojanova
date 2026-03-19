@@ -1,30 +1,77 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { DashboardStats } from "@/components/account/dashboard-stats";
+import { AccountDashboardClient } from "@/components/account/account-dashboard-client";
 
-export default async function AccountPage() {
+export default async function AccountDashboardPage() {
   const auth = await getAuthUser();
-  if (!auth) redirect("/");
+  if (!auth) return null;
 
-  const user = await prisma.user.findUnique({
-    where: { id: auth.userId },
-    include: { orders: true },
-  });
+  const [user, orders, deliveries] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: auth.userId },
+      select: { id: true },
+    }),
+    prisma.order.findMany({
+      where: { userId: auth.userId },
+      include: { plan: true, activationCode: true },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+    prisma.delivery.findMany({
+      where: { order: { userId: auth.userId } },
+      include: { order: { include: { plan: true } }, activationCode: true },
+      orderBy: { deliveredAt: "desc" },
+      take: 5,
+    }),
+  ]);
+
+  const totalOrders = user
+    ? await prisma.order.count({ where: { userId: user.id } })
+    : 0;
+  const paidOrders = orders.filter((o) => o.status === "paid");
+  const lastOrder = orders[0] ?? null;
+  const lastCode = deliveries[0]?.activationCode?.code ?? null;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-bold">Minha conta</h1>
-      <p className="mt-2 text-zinc-600">Olá, {user?.name}. Bem-vindo à sua área do cliente.</p>
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <Link className="rounded-lg border bg-white p-4 hover:bg-zinc-50" href="/orders">
-          Meus pedidos
+    <div className="space-y-8">
+      <DashboardStats
+        totalPurchases={totalOrders}
+        activePlans={paidOrders.length}
+        lastPurchaseDate={lastOrder?.createdAt ?? null}
+        lastCode={lastCode}
+      />
+      <div className="flex flex-wrap gap-4">
+        <Link
+          href="/#planos"
+          className="theme-btn-primary-lg inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold"
+        >
+          Comprar novo plano
         </Link>
-        <Link className="rounded-lg border bg-white p-4 hover:bg-zinc-50" href="/access">
-          Meus acessos
+        <Link
+          href="/account/access"
+          className="inline-flex items-center justify-center rounded-2xl border-2 border-zinc-200 bg-white px-6 py-3 text-base font-semibold text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50"
+        >
+          Ver meus acessos
         </Link>
-        <div className="rounded-lg border bg-white p-4">Compras realizadas: {user?.orders.length || 0}</div>
       </div>
-    </main>
+      <AccountDashboardClient
+        lastAccess={deliveries.map((d) => ({
+          id: d.id,
+          planTitle: d.order.plan.title,
+          durationDays: d.order.plan.durationDays,
+          code: d.activationCode.code,
+          deliveredAt: d.deliveredAt,
+        }))}
+        lastOrders={orders.map((o) => ({
+          id: o.id,
+          planTitle: o.plan.title,
+          amountCents: o.amountCents,
+          status: o.status,
+          createdAt: o.createdAt,
+        }))}
+      />
+    </div>
   );
 }

@@ -1,29 +1,32 @@
-import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { deliverActivationCode } from "@/lib/delivery";
 import { ok, badRequest } from "@/lib/http";
-
-function isValidSignature(rawBody: string, signature: string | null) {
-  const secret = process.env.WOOVI_WEBHOOK_SECRET;
-  if (!secret) return true;
-  if (!signature) return false;
-  const digest = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(signature));
-}
+import { isValidWooviWebhookRequest } from "@/lib/webhook-signature";
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
-  const signature = request.headers.get("x-woovi-signature");
 
-  if (!isValidSignature(rawBody, signature)) {
+  if (!process.env.WOOVI_WEBHOOK_SECRET?.trim()) {
+    return badRequest("Webhook desabilitado: defina WOOVI_WEBHOOK_SECRET no ambiente");
+  }
+
+  if (!isValidWooviWebhookRequest(rawBody, request)) {
     return badRequest("Assinatura de webhook inválida");
   }
 
-  const payload = JSON.parse(rawBody);
-  const eventId = payload.eventId || payload._id || payload.txid;
-  const eventType = payload.type || "unknown";
-  const txid = payload.txid || payload.charge?.txid;
-  const paid = payload.status === "PAID" || payload.charge?.status === "COMPLETED";
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(rawBody) as Record<string, unknown>;
+  } catch {
+    return badRequest("Payload JSON inválido");
+  }
+
+  const charge = payload.charge as Record<string, unknown> | undefined;
+  const eventId = (payload.eventId ?? payload._id ?? payload.txid) as string | undefined;
+  const eventType = (payload.type as string) || "unknown";
+  const txid = (payload.txid ?? charge?.txid) as string | undefined;
+  const paid =
+    payload.status === "PAID" || charge?.status === "COMPLETED";
 
   if (!eventId || !txid) {
     return badRequest("Payload de webhook inválido");

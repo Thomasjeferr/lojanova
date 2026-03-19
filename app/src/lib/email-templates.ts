@@ -1,0 +1,125 @@
+type TemplateInputBase = {
+  storeName: string;
+};
+
+export const EMAIL_TEMPLATE_IDS = {
+  activationCodeDelivered: "activation_code_delivered_v1",
+  welcomeAccount: "welcome_account_v1",
+  passwordChanged: "password_changed_v1",
+} as const;
+
+export type EmailTemplateId =
+  (typeof EMAIL_TEMPLATE_IDS)[keyof typeof EMAIL_TEMPLATE_IDS];
+
+export type ActivationCodeDeliveredInput = TemplateInputBase & {
+  name: string;
+  planName: string;
+  code: string;
+};
+
+export type WelcomeAccountInput = TemplateInputBase & {
+  name: string;
+  accountUrl: string;
+};
+
+export type PasswordChangedInput = TemplateInputBase & {
+  name: string;
+  changedAt: Date;
+  accountUrl: string;
+};
+
+function layout(content: string, storeName: string) {
+  return `
+  <div style="background:#f6f7fb;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#18181b">
+    <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden">
+      <div style="padding:20px 24px;border-bottom:1px solid #f0f0f3;background:linear-gradient(180deg,#fff,#fcfcff)">
+        <h1 style="margin:0;font-size:18px;line-height:1.3">${storeName}</h1>
+      </div>
+      <div style="padding:24px">
+        ${content}
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid #f0f0f3;color:#71717a;font-size:12px">
+        Este e-mail foi enviado automaticamente por ${storeName}.
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+type RenderedTemplate = {
+  id: EmailTemplateId;
+  subject: string;
+  html: string;
+};
+
+export const EMAIL_TEMPLATES: Record<
+  EmailTemplateId,
+  { name: string; description: string }
+> = {
+  [EMAIL_TEMPLATE_IDS.activationCodeDelivered]: {
+    name: "Código liberado",
+    description: "Enviado após pagamento aprovado com o código de ativação.",
+  },
+  [EMAIL_TEMPLATE_IDS.welcomeAccount]: {
+    name: "Boas-vindas",
+    description: "Enviado após criação de conta.",
+  },
+  [EMAIL_TEMPLATE_IDS.passwordChanged]: {
+    name: "Senha alterada",
+    description: "Enviado quando o usuário altera a senha.",
+  },
+};
+
+export function activationCodeDeliveredTemplate(
+  input: ActivationCodeDeliveredInput,
+): RenderedTemplate {
+  const subject = `Seu código de ativação foi liberado - ${input.storeName}`;
+  const html = layout(
+    `
+    <p style="margin:0 0 12px;font-size:15px">Olá, <strong>${input.name}</strong>!</p>
+    <p style="margin:0 0 12px;font-size:15px">
+      O pagamento do plano <strong>${input.planName}</strong> foi confirmado.
+    </p>
+    <p style="margin:0 0 10px;font-size:14px;color:#52525b">Seu código de ativação:</p>
+    <pre style="margin:0 0 16px;padding:12px 14px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:10px;font-size:20px;letter-spacing:.08em;font-weight:700">${input.code}</pre>
+    <p style="margin:0;font-size:14px;color:#52525b">Guarde este código em local seguro.</p>
+    `,
+    input.storeName,
+  );
+  return { id: EMAIL_TEMPLATE_IDS.activationCodeDelivered, subject, html };
+}
+
+export function welcomeAccountTemplate(input: WelcomeAccountInput): RenderedTemplate {
+  const subject = `Conta criada com sucesso - ${input.storeName}`;
+  const html = layout(
+    `
+    <p style="margin:0 0 12px;font-size:15px">Olá, <strong>${input.name}</strong>!</p>
+    <p style="margin:0 0 16px;font-size:15px">Sua conta foi criada com sucesso.</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#52525b">
+      Acesse sua área para acompanhar pedidos e códigos liberados.
+    </p>
+    <a href="${input.accountUrl}" style="display:inline-block;padding:10px 16px;background:#18181b;color:#fff;text-decoration:none;border-radius:10px;font-weight:600">Ir para minha conta</a>
+    `,
+    input.storeName,
+  );
+  return { id: EMAIL_TEMPLATE_IDS.welcomeAccount, subject, html };
+}
+
+export function passwordChangedTemplate(input: PasswordChangedInput): RenderedTemplate {
+  const subject = `Senha alterada - ${input.storeName}`;
+  const changedAt = input.changedAt.toLocaleString("pt-BR");
+  const html = layout(
+    `
+    <p style="margin:0 0 12px;font-size:15px">Olá, <strong>${input.name}</strong>!</p>
+    <p style="margin:0 0 12px;font-size:15px">Sua senha foi alterada com sucesso.</p>
+    <p style="margin:0 0 18px;font-size:14px;color:#52525b">Data/hora da alteração: <strong>${changedAt}</strong></p>
+    <p style="margin:0 0 20px;font-size:14px;color:#52525b">
+      Se não foi você, altere a senha imediatamente e entre em contato com o suporte.
+    </p>
+    <a href="${input.accountUrl}" style="display:inline-block;padding:10px 16px;background:#18181b;color:#fff;text-decoration:none;border-radius:10px;font-weight:600">Revisar minha conta</a>
+    `,
+    input.storeName,
+  );
+  return { id: EMAIL_TEMPLATE_IDS.passwordChanged, subject, html };
+}
+

@@ -1,4 +1,45 @@
 import { Resend } from "resend";
+import {
+  activationCodeDeliveredTemplate,
+  welcomeAccountTemplate,
+  passwordChangedTemplate,
+  type EmailTemplateId,
+} from "@/lib/email-templates";
+
+const DEFAULT_STORE = "Loja Digital";
+const DEFAULT_FROM = "Loja Digital <no-reply@seudominio.com>";
+
+function getResendClient() {
+  const key = process.env.RESEND_API_KEY?.trim();
+  if (!key) return null;
+  return new Resend(key);
+}
+
+async function sendEmail({
+  to,
+  templateId,
+  subject,
+  html,
+}: {
+  to: string;
+  templateId: EmailTemplateId;
+  subject: string;
+  html: string;
+}) {
+  const resend = getResendClient();
+  if (!resend) return;
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM || DEFAULT_FROM,
+      to,
+      subject,
+      html,
+    });
+  } catch (error) {
+    // Nunca quebrar fluxo de compra/entrega por falha de e-mail
+    console.error(`[email] Falha ao enviar template ${templateId}:`, error);
+  }
+}
 
 export async function sendActivationEmail({
   to,
@@ -11,22 +52,59 @@ export async function sendActivationEmail({
   planName: string;
   code: string;
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    return;
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  await resend.emails.send({
-    from: "Loja Digital <no-reply@seudominio.com>",
+  const tpl = activationCodeDeliveredTemplate({
+    storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
+    name,
+    planName,
+    code,
+  });
+  await sendEmail({
     to,
-    subject: "Seu código de ativação foi liberado",
-    html: `
-      <h1>Pagamento aprovado</h1>
-      <p>Olá, ${name}!</p>
-      <p>Seu pagamento do plano <strong>${planName}</strong> foi confirmado.</p>
-      <p>Seu código de ativação:</p>
-      <pre style="font-size:18px;padding:12px;background:#f5f5f5;border-radius:8px">${code}</pre>
-      <p>Guarde este código em local seguro.</p>
-    `,
+    templateId: tpl.id,
+    subject: tpl.subject,
+    html: tpl.html,
+  });
+}
+
+export async function sendWelcomeEmail({
+  to,
+  name,
+}: {
+  to: string;
+  name: string;
+}) {
+  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const tpl = welcomeAccountTemplate({
+    storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
+    name,
+    accountUrl: `${appUrl}/account`,
+  });
+  await sendEmail({
+    to,
+    templateId: tpl.id,
+    subject: tpl.subject,
+    html: tpl.html,
+  });
+}
+
+export async function sendPasswordChangedEmail({
+  to,
+  name,
+}: {
+  to: string;
+  name: string;
+}) {
+  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const tpl = passwordChangedTemplate({
+    storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
+    name,
+    changedAt: new Date(),
+    accountUrl: `${appUrl}/account/profile`,
+  });
+  await sendEmail({
+    to,
+    templateId: tpl.id,
+    subject: tpl.subject,
+    html: tpl.html,
   });
 }

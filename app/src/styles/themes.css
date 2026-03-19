@@ -1,0 +1,5 @@
+/**
+ * @deprecated Os temas white-label foram incorporados em `src/app/globals.css`
+ * (logo após `@import "tailwindcss"`), para o Tailwind v4 processar `@layer components`
+ * no mesmo pipeline. Não importe este ficheiro — mantido só como referência histórica.
+ */

@@ -17,7 +17,9 @@ export async function GET() {
     return ok({
       access: access.map((item) => ({
         id: item.id,
+        orderId: item.orderId,
         planTitle: item.order.plan.title,
+        durationDays: item.order.plan.durationDays,
         code: item.activationCode.code,
         deliveredAt: item.deliveredAt,
       })),

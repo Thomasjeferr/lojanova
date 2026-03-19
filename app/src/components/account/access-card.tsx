@@ -1,0 +1,82 @@
+"use client";
+
+import { useState } from "react";
+import { CopyButton } from "./copy-button";
+import { cn } from "@/lib/utils";
+
+type AccessCardProps = {
+  planTitle: string;
+  durationDays: number;
+  code: string;
+  deliveredAt: Date | string;
+  isRecent?: boolean;
+};
+
+function maskCode(code: string) {
+  if (code.length <= 8) return "••••••••";
+  return code.slice(0, 4) + "••••••••" + code.slice(-4);
+}
+
+function formatDate(d: Date | string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(d));
+}
+
+export function AccessCard({
+  planTitle,
+  durationDays,
+  code,
+  deliveredAt,
+  isRecent,
+}: AccessCardProps) {
+  const [revealed, setRevealed] = useState(false);
+  const displayCode = revealed ? code : maskCode(code);
+
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm transition-all hover:shadow-md",
+        isRecent && "ring-2 ring-[var(--theme-featured-ring)]",
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="font-semibold text-zinc-900">{planTitle}</p>
+          <p className="text-sm text-zinc-500">{durationDays} dias de acesso</p>
+          <p className="mt-1 text-xs text-zinc-400">
+            Entregue em {formatDate(deliveredAt)}
+          </p>
+        </div>
+        {isRecent && (
+          <span
+            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+            style={{
+              backgroundColor: "var(--theme-soft)",
+              color: "var(--theme-primary-foreground)",
+            }}
+          >
+            Recente
+          </span>
+        )}
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 font-mono text-sm tracking-wide text-zinc-800">
+          {displayCode}
+        </div>
+        <button
+          type="button"
+          onClick={() => setRevealed(!revealed)}
+          className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+        >
+          {revealed ? "Ocultar" : "Mostrar"}
+        </button>
+        <CopyButton value={code} variant="default" />
+      </div>
+    </div>
+  );
+}

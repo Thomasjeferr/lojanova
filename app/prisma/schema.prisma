@@ -26,6 +26,11 @@ enum DeliveryStatus {
   failed
 }
 
+enum SiteTheme {
+  orange
+  red
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -54,6 +59,7 @@ model Plan {
   id          String           @id @default(cuid())
   title       String
   slug        String           @unique
+  logoDataUrl String?          @db.Text
   durationDays Int
   priceCents  Int
   benefits    String[]
@@ -129,4 +135,25 @@ model AdminAuditLog {
   resource    String
   metadata    Json?
   createdAt   DateTime @default(now())
+}
+
+/// Identidade visual da loja (singleton: id = "default")
+model SiteBranding {
+  id               String    @id @default("default")
+  logoDataUrl      String?   @db.Text
+  faviconDataUrl   String?   @db.Text
+  storeDisplayName String    @default("Loja Nova")
+  activeTheme      SiteTheme @default(orange)
+  landingCopy      Json?
+  updatedAt        DateTime  @updatedAt
+}
+
+/// Configurações globais de contato (singleton: id = "default")
+model AppSettings {
+  id              String   @id @default("default")
+  whatsappEnabled Boolean  @default(false)
+  whatsappNumber  String?
+  whatsappMessage String?
+  whatsappLabel   String?
+  updatedAt       DateTime @updatedAt
 }
