@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { deliverActivationCode } from "@/lib/delivery";
 import { ok, badRequest } from "@/lib/http";
 import { isValidWooviWebhookRequest } from "@/lib/webhook-signature";
@@ -14,13 +15,19 @@ export async function POST(request: Request) {
     return badRequest("Assinatura de webhook inválida");
   }
 
-  let payload: Record<string, unknown>;
+  let payloadRaw: unknown;
   try {
-    payload = JSON.parse(rawBody) as Record<string, unknown>;
+    payloadRaw = JSON.parse(rawBody);
   } catch {
     return badRequest("Payload JSON inválido");
   }
 
+  if (!payloadRaw || typeof payloadRaw !== "object" || Array.isArray(payloadRaw)) {
+    return badRequest("Payload JSON inválido");
+  }
+
+  const payload = payloadRaw as Record<string, unknown>;
+  const payloadJson = payloadRaw as Prisma.InputJsonValue;
   const charge = payload.charge as Record<string, unknown> | undefined;
   const eventId = (payload.eventId ?? payload._id ?? payload.txid) as string | undefined;
   const eventType = (payload.type as string) || "unknown";
@@ -39,8 +46,8 @@ export async function POST(request: Request) {
 
   await prisma.webhookLog.upsert({
     where: { eventId },
-    update: { payload, eventType },
-    create: { eventId, eventType, payload, processed: false },
+    update: { payload: payloadJson, eventType },
+    create: { eventId, eventType, payload: payloadJson, processed: false },
   });
 
   if (!paid) {
