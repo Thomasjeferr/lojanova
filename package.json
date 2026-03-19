@@ -1,0 +1,13 @@
+{
+  "name": "loja-nova-propria",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix app",
+    "build": "npm run build --prefix app",
+    "start": "npm run start --prefix app",
+    "lint": "npm run lint --prefix app",
+    "prisma:generate": "npm run prisma:generate --prefix app",
+    "prisma:push": "npm run prisma:push --prefix app",
+    "prisma:seed": "npm run prisma:seed --prefix app"
+  }
+}

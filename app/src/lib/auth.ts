@@ -1,0 +1,108 @@
+import bcrypt from "bcryptjs";
+import { jwtVerify, SignJWT } from "jose";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+
+const ACCESS_COOKIE = "lnp_access_token";
+const REFRESH_COOKIE = "lnp_refresh_token";
+
+type TokenPayload = {
+  userId: string;
+  email: string;
+  isAdmin: boolean;
+};
+
+const secret = () => new TextEncoder().encode(process.env.JWT_SECRET || "dev-secret-unsafe");
+
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, 12);
+}
+
+export async function comparePassword(password: string, hash: string) {
+  return bcrypt.compare(password, hash);
+}
+
+export async function createAccessToken(payload: TokenPayload) {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("15m")
+    .sign(secret());
+}
+
+export async function createRefreshToken(payload: TokenPayload) {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("30d")
+    .sign(secret());
+}
+
+export async function verifyToken(token: string) {
+  const { payload } = await jwtVerify(token, secret());
+  return payload as TokenPayload;
+}
+
+export async function createSessionCookies(payload: TokenPayload) {
+  const accessToken = await createAccessToken(payload);
+  const refreshToken = await createRefreshToken(payload);
+
+  await prisma.session.create({
+    data: {
+      userId: payload.userId,
+      refreshToken,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set(ACCESS_COOKIE, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 15 * 60,
+  });
+  cookieStore.set(REFRESH_COOKIE, refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 30 * 24 * 60 * 60,
+  });
+}
+
+export async function clearSessionCookies() {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_COOKIE);
+  cookieStore.delete(REFRESH_COOKIE);
+}
+
+export async function getAuthUser() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
+  if (!accessToken) return null;
+
+  try {
+    const payload = await verifyToken(accessToken);
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+export async function requireUser() {
+  const authUser = await getAuthUser();
+  if (!authUser) {
+    throw new Error("Não autenticado");
+  }
+  return authUser;
+}
+
+export async function requireAdmin() {
+  const authUser = await requireUser();
+  if (!authUser.isAdmin) {
+    throw new Error("Acesso negado");
+  }
+  return authUser;
+}

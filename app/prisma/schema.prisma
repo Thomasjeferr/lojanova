@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum OrderStatus {
+  pending
+  paid
+  failed
+  cancelled
+}
+
+enum ActivationCodeStatus {
+  available
+  sold
+  blocked
+}
+
+enum DeliveryStatus {
+  delivered
+  failed
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  phone        String?
+  passwordHash String
+  isAdmin      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+  orders       Order[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  refreshToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Plan {
+  id          String           @id @default(cuid())
+  title       String
+  slug        String           @unique
+  durationDays Int
+  priceCents  Int
+  benefits    String[]
+  isActive    Boolean          @default(true)
+  isFeatured  Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  codes       ActivationCode[]
+  orders      Order[]
+}
+
+model ActivationCode {
+  id          String               @id @default(cuid())
+  code        String               @unique
+  status      ActivationCodeStatus @default(available)
+  blockedReason String?
+  planId      String
+  orderId     String?              @unique
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  plan        Plan                 @relation(fields: [planId], references: [id], onDelete: Cascade)
+  order       Order?               @relation(fields: [orderId], references: [id])
+  deliveries  Delivery[]
+
+  @@index([planId, status])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  planId          String
+  status          OrderStatus @default(pending)
+  amountCents     Int
+  wooviChargeId   String?     @unique
+  wooviTxid       String?     @unique
+  paidAt          DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            Plan        @relation(fields: [planId], references: [id], onDelete: Restrict)
+  activationCode  ActivationCode?
+  delivery        Delivery?
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model Delivery {
+  id              String         @id @default(cuid())
+  orderId          String         @unique
+  activationCodeId String
+  status           DeliveryStatus @default(delivered)
+  deliveredAt      DateTime       @default(now())
+  message          String?
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  activationCode   ActivationCode @relation(fields: [activationCodeId], references: [id], onDelete: Restrict)
+}
+
+model WebhookLog {
+  id         String   @id @default(cuid())
+  eventId    String   @unique
+  eventType  String
+  payload    Json
+  processed  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  adminUserId String
+  action      String
+  resource    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+}
