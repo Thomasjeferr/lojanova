@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { Plan } from "@/components/landing/plan-card";
+import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
 
 function pickAlternativePlans(
   selected: Plan,
@@ -187,10 +188,12 @@ export function CheckoutModal({
   const [qrCode, setQrCode] = useState("");
   const [pixCode, setPixCode] = useState("");
   const [deliveryCode, setDeliveryCode] = useState("");
+  const [payerDocument, setPayerDocument] = useState("");
 
   useEffect(() => {
     if (!open || !plan) {
       setStep(1);
+      setPayerDocument("");
     }
   }, [open, plan]);
 
@@ -246,6 +249,7 @@ export function CheckoutModal({
   const canProceedStep1 = Boolean(
     plan && stockByPlanId && !stockLoading && !stockFetchError && (stockByPlanId[plan.id] ?? 0) > 0,
   );
+  const payerDocOk = isValidPayerDocument(normalizePayerDocument(payerDocument));
 
   if (!open || !plan) return null;
 
@@ -304,6 +308,12 @@ export function CheckoutModal({
       return;
     }
 
+    const docDigits = normalizePayerDocument(payerDocument);
+    if (!isValidPayerDocument(docDigits)) {
+      setError("Informe um CPF válido do titular do pagamento.");
+      return;
+    }
+
     if (password.length < 6) {
       setError("A senha deve ter ao menos 6 caracteres.");
       return;
@@ -350,6 +360,11 @@ export function CheckoutModal({
 
   async function createPix(): Promise<boolean> {
     if (!plan) return false;
+    const docDigits = normalizePayerDocument(payerDocument);
+    if (!isValidPayerDocument(docDigits)) {
+      setError("Informe um CPF válido do titular do pagamento.");
+      return false;
+    }
     setLoading(true);
     setError("");
     try {
@@ -367,7 +382,10 @@ export function CheckoutModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ orderId: orderData.orderId }),
+        body: JSON.stringify({
+          orderId: orderData.orderId,
+          payerDocument: docDigits,
+        }),
       });
       const pixData = await pixRes.json();
       if (!pixRes.ok) throw new Error(pixData.error);
@@ -514,16 +532,29 @@ export function CheckoutModal({
                 )}
 
                 {loggedInUser ? (
-                  <PaymentButton
-                    onClick={async () => {
-                      const okPix = await createPix();
-                      if (okPix) setStep(3);
-                    }}
-                    disabled={loading || !canProceedStep1}
-                    loading={loading}
-                  >
-                    Pagar com Pix
-                  </PaymentButton>
+                  <div className="space-y-3">
+                    <Input
+                      placeholder="CPF do pagador (somente números)"
+                      value={payerDocument}
+                      onChange={(e) => setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      className="rounded-xl"
+                    />
+                    <p className="text-xs text-zinc-500">
+                      Dados exigidos pelo provedor de Pix para emitir o QR Code.
+                    </p>
+                    <PaymentButton
+                      onClick={async () => {
+                        const okPix = await createPix();
+                        if (okPix) setStep(3);
+                      }}
+                      disabled={loading || !canProceedStep1 || !payerDocOk}
+                      loading={loading}
+                    >
+                      Pagar com Pix
+                    </PaymentButton>
+                  </div>
                 ) : (
                   <Button
                     variant="theme"
@@ -559,6 +590,13 @@ export function CheckoutModal({
               type="tel"
               inputMode="numeric"
               maxLength={16}
+            />
+            <Input
+              placeholder="CPF do pagador (somente números)"
+              value={payerDocument}
+              onChange={(e) => setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
+              inputMode="numeric"
+              autoComplete="off"
             />
             <div className="relative">
               <Input

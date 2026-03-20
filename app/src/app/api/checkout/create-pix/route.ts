@@ -27,6 +27,9 @@ export async function POST(request: Request) {
       amountCents: order.amountCents,
       payerName: order.user.name,
       externalId: order.id,
+      payerDocument: parsed.data.payerDocument,
+      payerEmail: order.user.email,
+      payerPhone: order.user.phone,
     });
 
     await prisma.order.update({

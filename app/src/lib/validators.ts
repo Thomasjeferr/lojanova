@@ -29,6 +29,8 @@ export const createOrderSchema = z.object({
 
 export const createPixSchema = z.object({
   orderId: z.string().min(1),
+  /** CPF do pagador (GGPIXAPI); preenchido no checkout. */
+  payerDocument: z.string().optional(),
 });
 
 export const importCodesSchema = z.object({

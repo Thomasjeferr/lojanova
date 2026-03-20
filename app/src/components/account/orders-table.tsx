@@ -6,8 +6,9 @@ import { currencyBRL } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
 import { CopyButton } from "./copy-button";
 import { EmptyState } from "./empty-state";
-import { ShoppingBag, Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ShoppingBag, Eye, CreditCard } from "lucide-react";
+import { PayPendingOrderModal } from "@/components/account/pay-pending-order-modal";
+import { Button } from "@/components/ui/button";
 
 export type OrderRow = {
   id: string;
@@ -34,6 +35,7 @@ function formatDate(s: string) {
 
 export function OrdersTable({ orders }: OrdersTableProps) {
   const [detailOrder, setDetailOrder] = useState<OrderRow | null>(null);
+  const [payOrder, setPayOrder] = useState<OrderRow | null>(null);
 
   if (orders.length === 0) {
     return (
@@ -91,14 +93,26 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                     {formatDate(order.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => setDetailOrder(order)}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[var(--theme-primary)] hover:bg-[var(--theme-soft)]"
-                    >
-                      <Eye className="h-4 w-4" />
-                      Ver detalhes
-                    </button>
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                      {order.status === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => setPayOrder(order)}
+                          className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-[var(--theme-gradient-from)] to-[var(--theme-gradient-to)] px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:brightness-105"
+                        >
+                          <CreditCard className="h-3.5 w-3.5" />
+                          Pagar
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setDetailOrder(order)}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[var(--theme-primary)] hover:bg-[var(--theme-soft)]"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Ver detalhes
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -158,10 +172,24 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                 </div>
               )}
             </dl>
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              {detailOrder.status === "pending" && (
+                <Button
+                  type="button"
+                  variant="theme"
+                  className="rounded-xl"
+                  onClick={() => {
+                    setPayOrder(detailOrder);
+                    setDetailOrder(null);
+                  }}
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Pagar com Pix
+                </Button>
+              )}
               <Link
                 href="/#planos"
-                className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+                className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
               >
                 Comprar novamente
               </Link>
@@ -175,6 +203,16 @@ export function OrdersTable({ orders }: OrdersTableProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {payOrder && (
+        <PayPendingOrderModal
+          open={Boolean(payOrder)}
+          onClose={() => setPayOrder(null)}
+          orderId={payOrder.id}
+          planTitle={payOrder.planTitle}
+          amountCents={payOrder.amountCents}
+        />
       )}
     </>
   );
