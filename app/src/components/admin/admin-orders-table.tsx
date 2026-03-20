@@ -14,21 +14,20 @@ import {
   AdminTableCell,
 } from "./admin-table";
 import { ShoppingCart } from "lucide-react";
+import { CopyButton } from "@/components/account/copy-button";
+import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
 import { OrderDetailModal, type OrderRow } from "./order-detail-modal";
 
 export type { OrderRow };
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 200] as const;
 
-function formatPedidoRef(id: string): string {
-  if (id.length <= 16) return id;
-  return `${id.slice(0, 14)}…`;
-}
-
 function matchesOrderSearch(row: OrderRow, q: string): boolean {
   if (!q.trim()) return true;
   const n = q.trim().toLowerCase();
+  const numStr = String(row.orderNumber);
   return (
+    numStr.includes(n.replace(/^#/, "")) ||
     row.id.toLowerCase().includes(n) ||
     row.userEmail.toLowerCase().includes(n) ||
     row.userName.toLowerCase().includes(n)
@@ -192,7 +191,9 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
 
           <AdminTable>
             <AdminTableHead>
-              <AdminTableHeaderCell>Nº pedido</AdminTableHeaderCell>
+              <AdminTableHeaderCell className="min-w-[7rem]">
+                Nº pedido
+              </AdminTableHeaderCell>
               <AdminTableHeaderCell>Cliente</AdminTableHeaderCell>
               <AdminTableHeaderCell>Plano</AdminTableHeaderCell>
               <AdminTableHeaderCell>Valor</AdminTableHeaderCell>
@@ -207,13 +208,21 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                   key={row.id}
                   onClick={() => setSelectedOrder(row)}
                 >
-                  <AdminTableCell>
-                    <span
-                      className="font-mono text-xs text-zinc-800"
-                      title={row.id}
+                  <AdminTableCell className="align-top">
+                    <p className="text-base font-bold tabular-nums text-zinc-900">
+                      {displayOrderNumber(row.orderNumber)}
+                    </p>
+                    <div
+                      className="mt-1.5"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {formatPedidoRef(row.id)}
-                    </span>
+                      <CopyButton
+                        value={copyOrderNumber(row.orderNumber)}
+                        label="Copiar nº"
+                        variant="outline"
+                        className="!px-2 !py-1 text-xs"
+                      />
+                    </div>
                   </AdminTableCell>
                   <AdminTableCell>
                     <p className="font-medium text-zinc-900">{row.userEmail}</p>

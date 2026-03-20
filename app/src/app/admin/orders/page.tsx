@@ -27,6 +27,7 @@ export default async function AdminOrdersPage() {
         <AdminOrdersTable
           initialOrders={orders.map((o) => ({
             id: o.id,
+            orderNumber: o.orderNumber,
             userEmail: o.user.email,
             userName: o.user.name,
             planTitle: o.plan.title,

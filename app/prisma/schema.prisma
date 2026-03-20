@@ -115,6 +115,8 @@ model ActivationCode {
 
 model Order {
   id              String      @id @default(cuid())
+  /// Número amigável sequencial (ex.: #1042) para o cliente e suporte
+  orderNumber     Int         @unique @default(autoincrement())
   userId          String
   planId          String
   status          OrderStatus @default(pending)

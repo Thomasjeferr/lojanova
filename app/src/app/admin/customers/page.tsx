@@ -18,6 +18,7 @@ export default async function AdminCustomersPage() {
       orders: {
         select: {
           id: true,
+          orderNumber: true,
           status: true,
           amountCents: true,
           createdAt: true,
@@ -33,6 +34,7 @@ export default async function AdminCustomersPage() {
   const customers: AdminCustomerRow[] = users.map((u) => {
     const orders = u.orders.map((o) => ({
       id: o.id,
+      orderNumber: o.orderNumber,
       status: o.status,
       amountCents: o.amountCents,
       createdAt: o.createdAt.toISOString(),

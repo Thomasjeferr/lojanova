@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { currencyBRL } from "@/lib/utils";
+import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
 import { StatusBadge } from "./status-badge";
 import { CopyButton } from "./copy-button";
 import { EmptyState } from "./empty-state";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 
 export type OrderRow = {
   id: string;
+  orderNumber: number;
   planTitle: string;
   durationDays: number;
   amountCents: number;
@@ -56,7 +58,9 @@ export function OrdersTable({ orders }: OrdersTableProps) {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-zinc-200/80 bg-zinc-50/80">
-                <th className="px-4 py-3 font-semibold text-zinc-900">Pedido</th>
+                <th className="min-w-[7rem] px-4 py-3 font-semibold text-zinc-900">
+                  Nº do pedido
+                </th>
                 <th className="px-4 py-3 font-semibold text-zinc-900">Plano</th>
                 <th className="px-4 py-3 font-semibold text-zinc-900">Valor</th>
                 <th className="px-4 py-3 font-semibold text-zinc-900">Status</th>
@@ -72,8 +76,18 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                   key={order.id}
                   className="border-b border-zinc-100 transition hover:bg-zinc-50/50"
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-500">
-                    {order.id.slice(-8)}
+                  <td className="px-4 py-3 align-top">
+                    <p className="text-lg font-bold tabular-nums text-zinc-900">
+                      {displayOrderNumber(order.orderNumber)}
+                    </p>
+                    <div className="mt-1.5">
+                      <CopyButton
+                        value={copyOrderNumber(order.orderNumber)}
+                        label="Copiar nº"
+                        variant="outline"
+                        className="!px-2 !py-1 text-xs"
+                      />
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-medium text-zinc-900">
@@ -132,9 +146,20 @@ export function OrdersTable({ orders }: OrdersTableProps) {
             <h3 className="text-lg font-semibold text-zinc-900">
               Detalhes do pedido
             </h3>
-            <p className="mt-1 font-mono text-xs text-zinc-500">
-              {detailOrder.id}
+            <p className="mt-2 text-xs font-medium text-zinc-600">
+              Número do pedido <span className="text-zinc-400">(informe no suporte)</span>
             </p>
+            <p className="mt-1 text-3xl font-bold tabular-nums text-zinc-900">
+              {displayOrderNumber(detailOrder.orderNumber)}
+            </p>
+            <div className="mt-2">
+              <CopyButton
+                value={copyOrderNumber(detailOrder.orderNumber)}
+                label="Copiar número do pedido"
+                variant="outline"
+                className="text-xs"
+              />
+            </div>
             <dl className="mt-4 space-y-2 text-sm">
               <div>
                 <dt className="text-zinc-500">Plano</dt>

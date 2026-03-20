@@ -79,6 +79,7 @@ export default async function AccountDashboardPage() {
         }))}
         lastOrders={orders.map((o) => ({
           id: o.id,
+          orderNumber: o.orderNumber,
           planTitle: o.plan.title,
           amountCents: o.amountCents,
           status: o.status,

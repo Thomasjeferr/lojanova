@@ -34,7 +34,11 @@ export async function POST(request: Request) {
       },
     });
 
-    return ok({ orderId: order.id, status: order.status });
+    return ok({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+    });
   } catch (e) {
     if (e instanceof Error && e.message === "Não autenticado") {
       return unauthorized();

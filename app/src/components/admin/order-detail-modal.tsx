@@ -1,11 +1,14 @@
 "use client";
 
 import { currencyBRL } from "@/lib/utils";
+import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
+import { CopyButton } from "@/components/account/copy-button";
 import { StatusBadge } from "./status-badge";
 import { X } from "lucide-react";
 
 export type OrderRow = {
   id: string;
+  orderNumber: number;
   userEmail: string;
   userName: string;
   planTitle: string;
@@ -50,14 +53,36 @@ export function OrderDetailModal({
         <div className="space-y-5 px-6 py-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              Número do pedido
+              Nº do pedido (cliente)
             </p>
-            <p className="mt-1 break-all font-mono text-sm text-zinc-700">
+            <p className="mt-1 text-2xl font-bold tabular-nums text-zinc-900">
+              {displayOrderNumber(order.orderNumber)}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <CopyButton
+                value={copyOrderNumber(order.orderNumber)}
+                label="Copiar nº curto"
+                variant="outline"
+                className="text-xs"
+              />
+            </div>
+            <p className="mt-2 text-xs text-zinc-400">
+              É o número que o cliente vê em &quot;Meus pedidos&quot; e no checkout.
+            </p>
+            <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              ID técnico
+            </p>
+            <p className="mt-1 break-all font-mono text-[11px] text-zinc-500">
               {order.id}
             </p>
-            <p className="mt-1 text-xs text-zinc-400">
-              Referência única no sistema (use na busca do painel).
-            </p>
+            <div className="mt-1.5">
+              <CopyButton
+                value={order.id}
+                label="Copiar ID"
+                variant="outline"
+                className="text-xs"
+              />
+            </div>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">

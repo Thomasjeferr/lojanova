@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Plan } from "@/components/landing/plan-card";
 import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
+import { displayOrderNumber } from "@/lib/order-ref";
 import {
   CredentialSuccessPanel,
   type CheckoutCredentialDetail,
@@ -201,6 +202,7 @@ export function CheckoutModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
+  const [orderNumber, setOrderNumber] = useState<number | null>(null);
   const [qrCode, setQrCode] = useState("");
   const [pixCode, setPixCode] = useState("");
   const [deliveryCode, setDeliveryCode] = useState("");
@@ -213,6 +215,7 @@ export function CheckoutModal({
       setStep(1);
       setPayerDocument("");
       setOrderId("");
+      setOrderNumber(null);
       setQrCode("");
       setPixCode("");
       setDeliveryCode("");
@@ -460,6 +463,9 @@ export function CheckoutModal({
       const orderData = await orderRes.json();
       if (!orderRes.ok) throw new Error(orderData.error);
       setOrderId(orderData.orderId);
+      if (typeof orderData.orderNumber === "number") {
+        setOrderNumber(orderData.orderNumber);
+      }
 
       const pixRes = await fetch("/api/checkout/create-pix", {
         method: "POST",
@@ -715,6 +721,15 @@ export function CheckoutModal({
               </PaymentButton>
             ) : (
               <>
+                {orderNumber != null ? (
+                  <p className="text-center text-sm text-zinc-700">
+                    Seu pedido:{" "}
+                    <span className="font-bold tabular-nums text-zinc-900">
+                      {displayOrderNumber(orderNumber)}
+                    </span>
+                    <span className="text-zinc-500"> — anote se precisar falar com o suporte.</span>
+                  </p>
+                ) : null}
                 <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4">
                   <p className="mb-3 text-sm font-medium text-zinc-600">
                     Escaneie o QR Code ou use o código abaixo no app do banco:
@@ -754,6 +769,7 @@ export function CheckoutModal({
             copyAllText={deliveryCode}
             credential={credentialDetail}
             releasing={!deliveryCode.trim()}
+            orderNumber={orderNumber ?? undefined}
           />
         )}
         </div>

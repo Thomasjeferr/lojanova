@@ -1,10 +1,12 @@
 "use client";
 
 import { currencyBRL } from "@/lib/utils";
+import { displayOrderNumber } from "@/lib/order-ref";
 import { StatusBadge } from "./status-badge";
 
 export type CustomerOrderRow = {
   id: string;
+  orderNumber: number;
   status: string;
   amountCents: number;
   createdAt: string;
@@ -118,6 +120,9 @@ export function CustomerDetailModal({
                   className="rounded-xl border border-zinc-100 bg-zinc-50/50 px-3 py-2.5"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm font-semibold tabular-nums text-zinc-800">
+                      {displayOrderNumber(o.orderNumber)}
+                    </span>
                     <span className="text-xs text-zinc-500">
                       {new Date(o.createdAt).toLocaleString("pt-BR", {
                         dateStyle: "short",

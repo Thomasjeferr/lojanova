@@ -8,6 +8,7 @@ import { PayPendingOrderModal } from "./pay-pending-order-modal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { currencyBRL } from "@/lib/utils";
+import { displayOrderNumber } from "@/lib/order-ref";
 import { CreditCard } from "lucide-react";
 
 type LastAccessItem = {
@@ -20,6 +21,7 @@ type LastAccessItem = {
 
 type LastOrderItem = {
   id: string;
+  orderNumber: number;
   planTitle: string;
   amountCents: number;
   status: string;
@@ -101,6 +103,9 @@ export function AccountDashboardClient({
                 className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-100 bg-zinc-50/50 px-4 py-3"
               >
                 <div>
+                  <p className="text-xs font-medium tabular-nums text-zinc-500">
+                    Pedido {displayOrderNumber(o.orderNumber)}
+                  </p>
                   <p className="font-medium text-zinc-900">{o.planTitle}</p>
                   <p className="text-xs text-zinc-500">{formatDate(o.createdAt)}</p>
                 </div>

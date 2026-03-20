@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { CopyFeedbackButton } from "@/components/copy-feedback-button";
+import { CopyButton } from "@/components/account/copy-button";
+import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
 
 export type CheckoutCredentialDetail = {
   type: "activation_code" | "username_password";
@@ -18,12 +20,37 @@ type CredentialSuccessPanelProps = {
   credential: CheckoutCredentialDetail | null;
   /** Pagamento confirmado mas credencial ainda não veio na API (webhook em andamento) */
   releasing?: boolean;
+  /** Número curto do pedido (igual em Meus pedidos / suporte) */
+  orderNumber?: number;
 };
+
+function OrderNumberBlock({ orderNumber }: { orderNumber: number }) {
+  const label = displayOrderNumber(orderNumber);
+  return (
+    <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/80 px-4 py-3 text-left">
+      <p className="text-xs font-semibold text-zinc-600">
+        Número do pedido <span className="font-normal text-zinc-400">(guarde para o suporte)</span>
+      </p>
+      <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-zinc-900">
+        {label}
+      </p>
+      <div className="mt-2">
+        <CopyButton
+          value={copyOrderNumber(orderNumber)}
+          label="Copiar nº do pedido"
+          variant="outline"
+          className="text-xs !px-2 !py-1.5"
+        />
+      </div>
+    </div>
+  );
+}
 
 export function CredentialSuccessPanel({
   copyAllText,
   credential,
   releasing = false,
+  orderNumber,
 }: CredentialSuccessPanelProps) {
   if (releasing || !copyAllText.trim()) {
     return (
@@ -39,6 +66,11 @@ export function CredentialSuccessPanel({
           <p className="text-sm font-medium text-emerald-900">Liberando suas credenciais de acesso…</p>
           <p className="text-xs text-emerald-800/80">Isso costuma levar poucos segundos. Não feche esta janela.</p>
         </div>
+        {orderNumber != null ? (
+          <div className="mx-auto w-full max-w-md text-left">
+            <OrderNumberBlock orderNumber={orderNumber} />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -127,6 +159,9 @@ export function CredentialSuccessPanel({
       <p className="text-xs text-zinc-500">
         Salvamos também na sua área do cliente.
       </p>
+      {orderNumber != null ? (
+        <OrderNumberBlock orderNumber={orderNumber} />
+      ) : null}
       <Link
         href="/account/access"
         className="theme-link block text-center text-sm font-semibold hover:underline"

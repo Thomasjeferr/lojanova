@@ -14,6 +14,7 @@ import {
   Key,
 } from "lucide-react";
 import Link from "next/link";
+import { displayOrderNumber } from "@/lib/order-ref";
 
 export default async function AdminDashboardPage() {
   const [
@@ -165,6 +166,9 @@ export default async function AdminDashboardPage() {
                   className="flex items-center justify-between gap-4 rounded-xl border border-zinc-100 bg-zinc-50/30 px-4 py-3.5 transition-colors hover:bg-zinc-50/60"
                 >
                   <div className="min-w-0">
+                    <p className="text-xs font-semibold tabular-nums text-zinc-500">
+                      {displayOrderNumber(order.orderNumber)}
+                    </p>
                     <p className="truncate font-medium text-zinc-900">
                       {order.user.email}
                     </p>

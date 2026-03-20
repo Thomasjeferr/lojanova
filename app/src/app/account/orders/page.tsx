@@ -15,6 +15,7 @@ export default async function OrdersPage() {
 
   const rows = orders.map((o) => ({
     id: o.id,
+    orderNumber: o.orderNumber,
     planTitle: o.plan.title,
     durationDays: o.plan.durationDays,
     amountCents: o.amountCents,
