@@ -37,6 +37,9 @@ export const IPTV_PAGES: Record<IptvPageId, IptvPageContent> = {
       "iptv ativação imediata",
       "acesso iptv na hora",
       "iptv brasil",
+      "iplay 5 plus",
+      "recarga iplay 5 plus",
+      "renovar iplay",
     ],
     h1: "Comprar IPTV com Pix: ativação imediata e acesso na hora",
     lead:
@@ -104,6 +107,9 @@ export const IPTV_PAGES: Record<IptvPageId, IptvPageContent> = {
       "iptv via pix",
       "comprar iptv",
       "acesso iptv na hora",
+      "iplay 5 plus",
+      "recarga iplay 5",
+      "renovar iplay 5",
     ],
     h1: "Como funciona IPTV com Pix, ativação imediata e código automático",
     lead:
@@ -166,6 +172,9 @@ export const IPTV_PAGES: Record<IptvPageId, IptvPageContent> = {
       "iptv via pix",
       "acesso iptv na hora",
       "iptv ativação imediata",
+      "iplay 5 plus",
+      "recarga iplay",
+      "renovar acesso",
     ],
     h1: "IPTV é confiável? O que avaliar antes de comprar com Pix",
     lead:

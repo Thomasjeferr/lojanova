@@ -63,27 +63,27 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
             >
               IPTV é confiável?
             </Link>
-            <a
+            <Link
               href="/termos"
               className="transition-colors hover:text-[var(--theme-ring)]"
               style={{ color: "var(--landing-footer-text)" }}
             >
               Termos de uso
-            </a>
-            <a
+            </Link>
+            <Link
               href="/privacidade"
               className="transition-colors hover:text-[var(--theme-ring)]"
               style={{ color: "var(--landing-footer-text)" }}
             >
               Privacidade
-            </a>
-            <a
-              href="/suporte"
+            </Link>
+            <Link
+              href="/contato"
               className="transition-colors hover:text-[var(--theme-ring)]"
               style={{ color: "var(--landing-footer-text)" }}
             >
-              Suporte
-            </a>
+              Contato
+            </Link>
           </nav>
         </div>
         <div

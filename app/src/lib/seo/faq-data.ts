@@ -45,4 +45,10 @@ export const SEO_KEYWORDS = [
   "ativação rápida",
   "entrega automática",
   "streaming",
+  /** Intenção comercial comum (metadados / consistência; Google ignora meta keywords em grande parte). */
+  "iplay 5 plus",
+  "recarga iplay 5",
+  "renovar iplay 5",
+  "renovar acesso",
+  "recarga iptv",
 ] as const;

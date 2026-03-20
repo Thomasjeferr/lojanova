@@ -51,6 +51,7 @@ export function LandingJsonLd({
     "@type": "WebSite",
     name,
     url: origin,
+    description: branding.landingCopy.footerTagline || defaultOrgDescription(name),
     inLanguage: "pt-BR",
     publisher: { "@type": "Organization", name, url: origin },
     potentialAction: {
@@ -61,6 +62,9 @@ export function LandingJsonLd({
         `${origin}/comprar-iptv`,
         `${origin}/como-funciona-iptv`,
         `${origin}/iptv-e-confiavel`,
+        `${origin}/termos`,
+        `${origin}/privacidade`,
+        `${origin}/contato`,
       ],
     },
   };
@@ -84,13 +88,16 @@ export function LandingJsonLd({
     name: `${p.title} — ${name}`,
     description: `Acesso digital por ${p.durationDays} dias. Código de ativação com pagamento via Pix e entrega automática no Brasil.`,
     category: "Digital goods",
+    sku: p.id,
+    productID: p.id,
+    url: `${origin}/planos`,
     brand: { "@type": "Brand", name },
     offers: {
       "@type": "Offer",
       url: `${origin}/planos`,
       priceCurrency: "BRL",
       price: (p.priceCents / 100).toFixed(2),
-      availability: "https://schema.org/OnlineOnly",
+      availability: "https://schema.org/InStock",
       seller: { "@type": "Organization", name, url: origin },
     },
   }));

@@ -70,13 +70,21 @@ export function buildPageMetadata({
   };
 }
 
+/** Limita comprimento para snippet (~155–160 caracteres). */
+export function clipMetaDescription(text: string, max = 158): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, Math.max(0, max - 1)).trim()}…`;
+}
+
 export function defaultSiteTitle(storeDisplayName: string): string {
-  return `Ativação imediata via Pix | ${storeDisplayName} — código de ativação na hora`;
+  return `${storeDisplayName} · Pix, recarga e renovar — código na hora`;
 }
 
 export function defaultSiteDescription(storeDisplayName: string): string {
-  const s = `Compre acesso com Pix no Brasil em ${storeDisplayName}. Código de ativação, entrega automática e ativação rápida após confirmação — simples e seguro.`;
-  return s.length <= 160 ? s : `${s.slice(0, 157).trim()}…`;
+  return clipMetaDescription(
+    `Recarga e renovação de acesso em ${storeDisplayName}: Pix no Brasil, código de ativação e liberação automática após confirmação — simples e seguro.`,
+  );
 }
 
 export { KEYWORDS_JOINED };

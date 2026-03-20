@@ -52,22 +52,35 @@ export function IptvGuideJsonLd({
     })),
   };
 
-  const product = {
+  /** Service evita Product sem `offers.price` (rich results / validação). */
+  const service = {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "Service",
     name: `${productName} — ${name}`,
     description:
-      "Compra de acesso IPTV com pagamento via Pix, iptv ativação imediata após confirmação e código na conta. Entrega automática no Brasil.",
-    brand: { "@type": "Brand", name },
-    category: "Digital goods",
-    offers: {
-      "@type": "Offer",
-      url: buildCanonical("/planos"),
-      priceCurrency: "BRL",
-      availability: "https://schema.org/OnlineOnly",
-      seller: { "@type": "Organization", name, url: origin },
-      description: "Planos com períodos variados; consulte valores na página de planos.",
-    },
+      "Compra de acesso com pagamento via Pix, ativação após confirmação e código na conta. Entrega automática no Brasil.",
+    serviceType: "Venda de acesso digital com código de ativação",
+    provider: { "@type": "Organization", name, url: origin },
+    areaServed: { "@type": "Country", name: "Brasil" },
+  };
+
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name,
+        item: origin,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: pageTitle,
+        item: pageUrl,
+      },
+    ],
   };
 
   const webpage = {
@@ -77,15 +90,16 @@ export function IptvGuideJsonLd({
     url: pageUrl,
     isPartOf: { "@type": "WebSite", url: origin, name },
     inLanguage: "pt-BR",
-    about: product,
+    about: service,
     publisher: { "@type": "Organization", name, url: origin },
   };
 
   return (
     <>
       <JsonLd data={organization} />
+      <JsonLd data={breadcrumbs} />
       <JsonLd data={faq} />
-      <JsonLd data={product} />
+      <JsonLd data={service} />
       <JsonLd data={webpage} />
     </>
   );

@@ -24,7 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
       `Preços e períodos de acesso em ${b.storeDisplayName}. Compre com Pix no Brasil, receba o código na hora e ativação automática após confirmação — rápido e seguro.`,
     path: "/planos",
     siteName: b.storeDisplayName,
-    keywordsExtra: ["planos de acesso", "preço código ativação", "Pix imediato"],
+    keywordsExtra: [
+      "planos de acesso",
+      "preço código ativação",
+      "Pix imediato",
+      "recarga iplay 5",
+      "renovar iplay 5 plus",
+    ],
     ogImageAlt: `Planos ${b.storeDisplayName}`,
   });
 }

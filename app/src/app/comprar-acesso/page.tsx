@@ -24,7 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
       `Compre acesso em ${b.storeDisplayName}: fluxo nacional com Pix, entrega automática do código de ativação e liberação rápida após pagamento. Simples e seguro no Brasil.`,
     path: "/comprar-acesso",
     siteName: b.storeDisplayName,
-    keywordsExtra: ["comprar acesso streaming", "ativação Pix", "código imediato"],
+    keywordsExtra: [
+      "comprar acesso streaming",
+      "ativação Pix",
+      "código imediato",
+      "iplay 5 plus",
+      "recarga iptv",
+    ],
     ogImageAlt: `Comprar acesso ${b.storeDisplayName}`,
   });
 }

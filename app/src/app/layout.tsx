@@ -16,6 +16,7 @@ import {
 import { getSiteBranding } from "@/lib/site-branding";
 import { themeStyleForHtml } from "@/lib/theme-inline-style";
 import {
+  buildCanonical,
   defaultSiteDescription,
   KEYWORDS_JOINED,
   seoMetadataBase,
@@ -49,11 +50,12 @@ const outfit = Outfit({ variable: "--font-outfit", subsets: ["latin"] });
 export async function generateMetadata(): Promise<Metadata> {
   const b = await getSiteBranding();
   const description = defaultSiteDescription(b.storeDisplayName);
+  const ogUrl = buildCanonical("/");
 
   return {
     ...seoMetadataBase(),
     title: {
-      default: `${b.storeDisplayName} · Código de ativação via Pix`,
+      default: `${b.storeDisplayName} · Pix, recarga e código na hora`,
       template: `%s | ${b.storeDisplayName}`,
     },
     description,
@@ -62,11 +64,13 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: "pt_BR",
+      url: ogUrl,
       siteName: b.storeDisplayName,
       description,
     },
     twitter: {
       card: "summary_large_image",
+      title: `${b.storeDisplayName} · Pix e código na hora`,
       description,
     },
     ...(b.faviconDataUrl

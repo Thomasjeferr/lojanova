@@ -12,5 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/comprar-iptv`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${base}/como-funciona-iptv`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${base}/iptv-e-confiavel`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${base}/termos`, lastModified: now, changeFrequency: "yearly", priority: 0.45 },
+    { url: `${base}/privacidade`, lastModified: now, changeFrequency: "yearly", priority: 0.45 },
+    { url: `${base}/contato`, lastModified: now, changeFrequency: "monthly", priority: 0.55 },
   ];
 }

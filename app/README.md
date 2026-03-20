@@ -74,6 +74,7 @@ Em **Configurações** do admin: ative o alerta, defina o **limite global** (ex.
 ## Rotas principais
 
 - Landing: `/`
+- Jurídico / suporte: `/termos`, `/privacidade`, `/contato`
 - Área do cliente: `/account`, `/orders`, `/access`
 - Admin: `/admin`
 
