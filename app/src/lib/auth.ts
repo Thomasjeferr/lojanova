@@ -6,6 +6,14 @@ import { prisma } from "@/lib/prisma";
 const ACCESS_COOKIE = "lnp_access_token";
 const REFRESH_COOKIE = "lnp_refresh_token";
 
+const ACCESS_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 15 * 60,
+};
+
 type TokenPayload = {
   userId: string;
   email: string;
@@ -74,13 +82,7 @@ export async function createSessionCookies(payload: TokenPayload) {
   });
 
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_COOKIE, accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 15 * 60,
-  });
+  cookieStore.set(ACCESS_COOKIE, accessToken, ACCESS_COOKIE_OPTIONS);
   cookieStore.set(REFRESH_COOKIE, refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -96,17 +98,46 @@ export async function clearSessionCookies() {
   cookieStore.delete(REFRESH_COOKIE);
 }
 
-export async function getAuthUser() {
+/**
+ * Quando o access token (15m) expira, renova só o cookie de access usando o refresh
+ * válido na tabela Session — evita "Não autenticado" em telas admin abertas por mais tempo.
+ */
+async function tryRenewAccessFromRefresh(): Promise<TokenPayload | null> {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
-  if (!accessToken) return null;
+  const refresh = cookieStore.get(REFRESH_COOKIE)?.value;
+  if (!refresh) return null;
 
+  let payload: TokenPayload;
   try {
-    const payload = await verifyToken(accessToken);
-    return payload;
+    payload = await verifyToken(refresh);
   } catch {
     return null;
   }
+
+  const session = await prisma.session.findUnique({
+    where: { refreshToken: refresh },
+  });
+  if (!session || session.expiresAt <= new Date()) {
+    return null;
+  }
+
+  const accessToken = await createAccessToken(payload);
+  cookieStore.set(ACCESS_COOKIE, accessToken, ACCESS_COOKIE_OPTIONS);
+  return payload;
+}
+
+export async function getAuthUser() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
+  if (accessToken) {
+    try {
+      return await verifyToken(accessToken);
+    } catch {
+      /* access expirado ou inválido */
+    }
+  }
+
+  return tryRenewAccessFromRefresh();
 }
 
 export async function requireUser() {

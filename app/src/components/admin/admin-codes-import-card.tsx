@@ -37,6 +37,7 @@ export function AdminCodesImportCard({
     try {
       const res = await fetch("/api/admin/codes/import", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId, credentialType, codes }),
       });
