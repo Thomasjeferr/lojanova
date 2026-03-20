@@ -37,6 +37,25 @@ export function parseBrlMoneyToCents(
     frac = (frac + "00").slice(0, 2);
     reaisStr = `${intDigits}.${frac}`;
   } else if (/^\d+$/.test(s)) {
+    const num = parseInt(s, 10);
+    if (!Number.isFinite(num) || num < 0) {
+      return { ok: false, message: "Preço inválido." };
+    }
+    /**
+     * Legado do campo "centavos" no admin: 4990, 11990 = valor já em centavos.
+     * Sem isso, 4990 virava 4990,00 reais e o Pix/webhook "não batia" com o que o cliente pagava.
+     * Regra: só dígitos, sem vírgula — se >= 1000, tratar como centavos; senão, como reais inteiros (ex.: 49 = R$ 49,00).
+     */
+    if (num >= 1000) {
+      const cents = num;
+      if (cents > 99_999_999) {
+        return { ok: false, message: "Preço acima do limite permitido." };
+      }
+      if (cents < 1) {
+        return { ok: false, message: "O preço mínimo é R$ 0,01." };
+      }
+      return { ok: true, cents };
+    }
     reaisStr = `${s}.00`;
   } else if (/^\d+\.\d{1,2}$/.test(s)) {
     reaisStr = s;

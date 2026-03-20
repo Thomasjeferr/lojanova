@@ -4,7 +4,7 @@ import { currencyBRL } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
 import { X } from "lucide-react";
 
-type OrderRow = {
+export type OrderRow = {
   id: string;
   userEmail: string;
   userName: string;
@@ -50,9 +50,14 @@ export function OrderDetailModal({
         <div className="space-y-5 px-6 py-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              ID
+              Número do pedido
             </p>
-            <p className="mt-1 font-mono text-sm text-zinc-700">{order.id}</p>
+            <p className="mt-1 break-all font-mono text-sm text-zinc-700">
+              {order.id}
+            </p>
+            <p className="mt-1 text-xs text-zinc-400">
+              Referência única no sistema (use na busca do painel).
+            </p>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">

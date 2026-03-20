@@ -22,7 +22,7 @@ export default async function AdminOrdersPage() {
       />
       <SectionCard
         title="Todos os pedidos"
-        subtitle="Ordenados pelos mais recentes"
+        subtitle="Mais recentes primeiro. Busque por referência do pedido, e-mail ou nome; use paginação abaixo."
       >
         <AdminOrdersTable
           initialOrders={orders.map((o) => ({

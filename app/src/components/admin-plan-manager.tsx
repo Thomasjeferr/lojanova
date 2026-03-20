@@ -398,7 +398,9 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
               className="rounded-xl"
             />
             <p className="text-xs text-zinc-500">
-              Padrão brasileiro: vírgula nos centavos (ex.: 49,90 ou 1.234,56). Opcional: R$ 49,90
+              Use <strong>49,90</strong> para reais ou, como no campo antigo, só números em centavos a partir de{" "}
+              <strong>1000</strong> (ex.: <strong>4990</strong> = R$ 49,90). Abaixo de 1000 sem vírgula = reais
+              inteiros (ex.: <strong>49</strong> = R$ 49,00).
             </p>
           </div>
         </div>
