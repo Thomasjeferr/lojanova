@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendActivationEmail } from "@/lib/email";
+import { sendActivationSms } from "@/lib/twilio-sms";
 import {
   credentialKindLabel,
   renderCredentialLine,
@@ -18,6 +19,7 @@ export async function deliverActivationCode(orderId: string) {
 
     if (order.delivery) {
       return {
+        notifyChannels: false as const,
         deliveredCode: order.activationCode
           ? renderCredentialLine({
               credentialType: order.activationCode.credentialType,
@@ -84,6 +86,7 @@ export async function deliverActivationCode(orderId: string) {
     });
 
     return {
+      notifyChannels: true as const,
       deliveredCode: renderCredentialLine({
         credentialType: availableCode.credentialType,
         code: availableCode.code,
@@ -97,13 +100,22 @@ export async function deliverActivationCode(orderId: string) {
     };
   });
 
-  await sendActivationEmail({
-    to: result.user.email,
-    name: result.user.name,
-    planName: result.plan.title,
-    credentialLabel: result.credentialLabel,
-    credentialValue: result.deliveredCode,
-  });
+  if (result.notifyChannels) {
+    await sendActivationEmail({
+      to: result.user.email,
+      name: result.user.name,
+      planName: result.plan.title,
+      credentialLabel: result.credentialLabel,
+      credentialValue: result.deliveredCode,
+    });
+    await sendActivationSms({
+      phone: result.user.phone,
+      name: result.user.name,
+      planName: result.plan.title,
+      credentialLabel: result.credentialLabel,
+      credentialValue: result.deliveredCode,
+    });
+  }
 
   return result.deliveredCode;
 }
