@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Users,
   Settings,
+  Mail,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/codes", label: "Códigos", icon: Key },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
   { href: "/admin/customers", label: "Clientes", icon: Users },
+  { href: "/admin/emails", label: "E-mails", icon: Mail },
   { href: "/admin/settings", label: "Configurações", icon: Settings },
 ];
 

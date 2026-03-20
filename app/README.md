@@ -23,9 +23,33 @@ JWT_SECRET=
 WOOVI_API_KEY=
 WOOVI_WEBHOOK_SECRET=
 RESEND_API_KEY=
-ADMIN_EMAIL=
+ADMIN_EMAIL=admin@lojanova.com
+# ADMIN_PASSWORD=   # opcional local; na Vercel, obrigatório ao rodar o seed (mín. 8 caracteres)
 APP_URL=http://localhost:3000
 ```
+
+### Administrador (e-mail e senha via env → banco)
+
+O login do admin usa **sempre** o banco (`User.email` + hash da senha). As variáveis abaixo servem para o **`prisma db seed`** criar/atualizar esse usuário:
+
+| Variável | Uso |
+|----------|-----|
+| `ADMIN_EMAIL` | E-mail de login do admin (padrão `admin@lojanova.com` se vazio) |
+| `ADMIN_PASSWORD` | Senha em texto puro **só no momento do seed**; no banco grava-se apenas o hash |
+
+- **Local:** sem `ADMIN_PASSWORD`, o seed usa `Admin@123` e exibe aviso.
+- **Vercel (`VERCEL=1`):** sem `ADMIN_PASSWORD`, o seed **falha** — defina uma senha forte no painel e rode o seed apontando para o `DATABASE_URL` de produção.
+
+Não use o prefixo `NEXT_PUBLIC_` em `ADMIN_PASSWORD`.
+
+**Produção:** após definir as env no projeto, rode (com a URL do Neon de produção no ambiente):
+
+```bash
+cd app
+npx prisma db seed
+```
+
+(Ou configure um comando one-off na máquina CI com as mesmas env.)
 
 ## Rodando localmente
 
@@ -62,3 +86,14 @@ npm run dev
 - Frontend + backend: Vercel
 - Banco: Neon PostgreSQL
 - Repositório: GitHub
+
+## SEO (técnico + on-page)
+
+- **Metadata dinâmica** por rota (`generateMetadata`), com `metadataBase` = `APP_URL`.
+- **URLs públicas:** `/`, `/planos`, `/comprar-acesso`, `/comprar-iptv`, `/como-funciona-iptv`, `/iptv-e-confiavel` (sitemap + canonical).
+- **`/sitemap.xml`** e **`/robots.txt`** — áreas logadas e `/api` bloqueadas para crawlers.
+- **JSON-LD:** Organization, WebSite, FAQPage (só na home), Product + Offer por plano.
+- **Open Graph:** imagem gerada em **`/opengraph-image`** (OG dinâmico com nome da loja).
+- **Áreas privadas** (`/admin`, `/account`, `/entrar`): `noindex`.
+
+Defina **`APP_URL`** em produção com o domínio canônico (ex.: `https://seudominio.com`).

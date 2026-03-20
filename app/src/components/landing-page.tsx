@@ -10,10 +10,14 @@ import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { AppDownloadSection } from "@/components/landing/app-download-section";
 import { FAQSection } from "@/components/landing/faq-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
+import { TrustSeoSection } from "@/components/landing/trust-seo-section";
+import { LandingInnerHero } from "@/components/landing/landing-inner-hero";
 import { FloatingWhatsAppButton } from "@/components/floating-whatsapp-button";
 import type { Plan } from "@/components/landing/plan-card";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
 import type { ContactSettingsPublic } from "@/lib/contact-settings";
+
+export type LandingMode = "home" | "planos" | "comprar";
 
 export function LandingPage({
   plans,
@@ -21,12 +25,14 @@ export function LandingPage({
   userSession = null,
   branding,
   contactSettings,
+  landingMode = "home",
 }: {
   plans: Plan[];
   dbConnected?: boolean;
   userSession?: { email: string } | null;
   branding: SiteBrandingPublic;
   contactSettings: ContactSettingsPublic;
+  landingMode?: LandingMode;
 }) {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
@@ -52,9 +58,14 @@ export function LandingPage({
           <code className="rounded bg-amber-500/20 px-1">npm run prisma:seed</code>.
         </div>
       )}
-      <HeroSection copy={branding.landingCopy} />
+      {landingMode === "home" ? (
+        <HeroSection copy={branding.landingCopy} />
+      ) : (
+        <LandingInnerHero mode={landingMode === "planos" ? "planos" : "comprar"} branding={branding} />
+      )}
       <PlansSection plans={plans} onSelectPlan={setSelectedPlan} copy={branding.landingCopy} />
       <BenefitsSection />
+      <TrustSeoSection />
       <HowItWorksSection />
       <AppDownloadSection copy={branding.landingCopy} />
       <FAQSection copy={branding.landingCopy} />

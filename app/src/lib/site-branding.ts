@@ -56,12 +56,12 @@ export type SiteBrandingPublic = {
 };
 
 export const DEFAULT_LANDING_COPY: LandingCopy = {
-  heroEyebrow: "Pix · Entrega automática · Sem mensalidade",
+  heroEyebrow: "Pix no Brasil · Entrega automática · Sem mensalidade",
   heroTitlePrefix: "Ative seu acesso em",
   heroTitleHighlight: "minutos",
-  heroTitleSuffix: "sem complicação",
+  heroTitleSuffix: "com entrega automática do código",
   heroSubtitle:
-    "Códigos de ativação com pagamento via Pix e liberação na hora. Experiência pensada para quem valoriza clareza, velocidade e confiança.",
+    "Compre acesso com Pix, receba código de ativação na hora e ativação imediata após confirmação — simples, nacional e pensado para conversão.",
   heroPrimaryCta: "Ver planos",
   heroSecondaryCta: "Começar agora",
   plansTitle: "Escolha seu plano",

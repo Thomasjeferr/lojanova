@@ -5,27 +5,27 @@ import { Zap, Shield, CreditCard, Mail } from "lucide-react";
 const benefits = [
   {
     icon: Zap,
-    title: "Entrega na hora",
+    title: "Ativação imediata e entrega automática",
     description:
-      "Após a confirmação do Pix, seu código de ativação é liberado automaticamente.",
+      "Após a confirmação do Pix no Brasil, seu código de ativação é liberado na hora — ativação rápida, sem filas manuais.",
   },
   {
     icon: Shield,
-    title: "Pagamento seguro",
+    title: "Acesso via Pix com segurança nacional",
     description:
-      "Transações via Pix com total segurança. Sem armazenar dados sensíveis.",
+      "Pagamento direto com instituições financeiras brasileiras. Não armazenamos dados sensíveis de cartão.",
   },
   {
     icon: CreditCard,
-    title: "Sem mensalidade",
+    title: "Compra de acesso sem mensalidade",
     description:
-      "Pague uma vez e use pelo período do plano. Sem cobranças recorrentes.",
+      "Pague uma vez e use pelo período do plano. Sem cobrança recorrente ou surpresa na fatura.",
   },
   {
     icon: Mail,
-    title: "Suporte dedicado",
+    title: "Suporte dedicado ao cliente",
     description:
-      "Dúvidas? Nossa equipe está pronta para ajudar no que precisar.",
+      "Dúvidas sobre código ou pedido? Nossa equipe apoia você com o número da compra em mãos.",
   },
 ];
 
@@ -34,12 +34,13 @@ export function BenefitsSection() {
     <section className="landing-section-alt border-t px-4 py-24 sm:py-28 md:py-32">
       <div className="mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
-          <h2 className="landing-heading-lg">
-            Por que escolher
+          <h2 className="landing-heading-lg text-balance">
+            Por que escolher nosso serviço de código de ativação no Brasil
           </h2>
-          <p className="landing-lead mx-auto mt-6 max-w-2xl">
-            Processo simples, transparente e pensado para você ativar rápido — com a experiência de
-            um produto sério.
+          <p className="landing-lead mx-auto mt-6 max-w-2xl text-balance">
+            Processo pensado para quem quer <strong>comprar acesso</strong> com clareza: Pix nacional,{" "}
+            <strong>receber acesso na hora</strong> e suporte quando precisar — transparência de
+            ponta a ponta.
           </p>
         </div>
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">

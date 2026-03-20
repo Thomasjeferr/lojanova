@@ -9,6 +9,7 @@ const envSchema = z.object({
   GGPIX_API_KEY: z.string().optional(),
   GGPIX_WEBHOOK_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+  /** Referência: também lido pelo `prisma db seed` (e-mail do admin no banco). */
   ADMIN_EMAIL: z.string().email().optional(),
   APP_URL: z.string().url().default("http://localhost:3000"),
 });

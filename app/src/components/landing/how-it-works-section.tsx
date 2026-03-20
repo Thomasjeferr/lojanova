@@ -126,11 +126,12 @@ export function HowItWorksSection() {
       <div className="mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
           <h2 className="landing-heading-lg text-balance text-zinc-900">
-            Como <span className="font-extrabold text-[var(--theme-primary)]">funciona</span>
+            Como funciona a <span className="font-extrabold text-[var(--theme-primary)]">compra</span>{" "}
+            de acesso e a ativação via Pix
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-balance text-[15px] leading-relaxed text-zinc-600 sm:text-base">
-            Em poucos passos você ativa seu acesso — do checkout ao código na sua conta, com fluxo
-            rápido e automático.
+            Em poucos passos você sai do checkout com o <strong>código de ativação</strong> na conta:
+            escolha do plano, login, Pix e <strong>ativação automática</strong> após confirmação.
           </p>
         </div>
 

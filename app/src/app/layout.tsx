@@ -15,6 +15,11 @@ import {
 } from "next/font/google";
 import { getSiteBranding } from "@/lib/site-branding";
 import { themeStyleForHtml } from "@/lib/theme-inline-style";
+import {
+  defaultSiteDescription,
+  KEYWORDS_JOINED,
+  seoMetadataBase,
+} from "@/lib/seo/metadata-builders";
 import "./globals.css";
 
 /** Tema vem da BD; o layout raiz não pode ficar em cache estático senão data-theme fica desatualizado. */
@@ -43,10 +48,27 @@ const outfit = Outfit({ variable: "--font-outfit", subsets: ["latin"] });
 
 export async function generateMetadata(): Promise<Metadata> {
   const b = await getSiteBranding();
-  const titleBase = `${b.storeDisplayName} - Códigos de Ativação`;
+  const description = defaultSiteDescription(b.storeDisplayName);
+
   return {
-    title: titleBase,
-    description: "Plataforma SaaS para venda de códigos com entrega automática",
+    ...seoMetadataBase(),
+    title: {
+      default: `${b.storeDisplayName} · Código de ativação via Pix`,
+      template: `%s | ${b.storeDisplayName}`,
+    },
+    description,
+    keywords: KEYWORDS_JOINED,
+    applicationName: b.storeDisplayName,
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      siteName: b.storeDisplayName,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      description,
+    },
     ...(b.faviconDataUrl
       ? {
           icons: {

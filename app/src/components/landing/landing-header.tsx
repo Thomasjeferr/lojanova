@@ -9,9 +9,14 @@ import type { SiteBrandingPublic } from "@/lib/site-branding";
 export function LandingHeader({
   userSession = null,
   branding,
+  /** Em páginas sem âncora #planos (ex.: guias IPTV), use `/planos#planos`. */
+  primaryCtaHref = "#planos",
+  primaryCtaLabel = "Ver planos",
 }: {
   userSession?: { email: string } | null;
   branding: SiteBrandingPublic;
+  primaryCtaHref?: string;
+  primaryCtaLabel?: string;
 }) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -40,7 +45,25 @@ export function LandingHeader({
           textClassName="text-xl font-bold tracking-tight text-[var(--landing-logo-text)] sm:text-2xl"
           imgClassName="h-8 max-h-10 sm:h-10"
         />
-        <nav className="flex items-center gap-1.5 sm:gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
+          <Link
+            href="/planos"
+            className="hidden rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 text-[var(--landing-header-link)] hover:bg-[var(--landing-header-link-hover-bg)] hover:text-[var(--landing-header-link-hover-text)] sm:inline-flex"
+          >
+            Planos
+          </Link>
+          <Link
+            href="/comprar-acesso"
+            className="hidden rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 text-[var(--landing-header-link)] hover:bg-[var(--landing-header-link-hover-bg)] hover:text-[var(--landing-header-link-hover-text)] md:inline-flex"
+          >
+            Comprar acesso
+          </Link>
+          <Link
+            href="/comprar-iptv"
+            className="hidden rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 text-[var(--landing-header-link)] hover:bg-[var(--landing-header-link-hover-bg)] hover:text-[var(--landing-header-link-hover-text)] lg:inline-flex"
+          >
+            IPTV
+          </Link>
           {userSession ? (
             <Link
               href="/account"
@@ -57,10 +80,10 @@ export function LandingHeader({
             </Link>
           )}
           <a
-            href="#planos"
+            href={primaryCtaHref}
             className="theme-header-cta rounded-xl px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/15"
           >
-            Ver planos
+            {primaryCtaLabel}
           </a>
         </nav>
       </div>

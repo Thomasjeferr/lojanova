@@ -1,9 +1,19 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSiteBranding } from "@/lib/site-branding";
 import { AccountLayoutProvider } from "@/components/account/account-layout-context";
 import { AccountLayoutWrapper } from "@/components/account/account-layout-wrapper";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const b = await getSiteBranding();
+  return {
+    title: `Minha conta · ${b.storeDisplayName}`,
+    description: "Área do cliente, pedidos e códigos de ativação.",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function AccountLayout({
   children,

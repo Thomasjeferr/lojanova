@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import { getSiteBranding } from "@/lib/site-branding";
 import { LoginForm } from "@/components/login-form";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const b = await getSiteBranding();
+  return {
+    title: `Entrar · ${b.storeDisplayName}`,
+    description: `Login para acessar sua conta e códigos de ativação em ${b.storeDisplayName}.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function EntrarPage({
   searchParams,

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { BadgeCheck, CheckCircle2, Download, Sparkles } from "lucide-react";
 import type { LandingCopy } from "@/lib/site-branding";
 
@@ -12,8 +13,17 @@ type DownloadApp = {
 function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
   if (imageUrl) {
     return (
-      <div className="mb-6 overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-white/65 p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
-        <img src={imageUrl} alt={alt} className="h-auto w-full rounded-xl object-cover" loading="lazy" />
+      <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-white/65 p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
+        <Image
+          src={imageUrl}
+          alt={alt}
+          width={1200}
+          height={675}
+          className="h-auto w-full rounded-xl object-cover"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          loading="lazy"
+          unoptimized={imageUrl.startsWith("http") || imageUrl.startsWith("data:")}
+        />
       </div>
     );
   }
@@ -118,8 +128,17 @@ function DownloadCTA({
           Instale o aplicativo oficial e entre com seus dados para liberar seu acesso com rapidez e segurança.
         </p>
         {app.imageUrl ? (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-white/70 p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
-            <img src={app.imageUrl} alt={`Imagem do app ${app.name}`} className="h-auto w-full rounded-xl object-cover" loading="lazy" />
+          <div className="relative mt-5 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-white/70 p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
+            <Image
+              src={app.imageUrl}
+              alt={`Imagem do app ${app.name}`}
+              width={960}
+              height={540}
+              className="h-auto w-full rounded-xl object-cover"
+              sizes="(max-width: 1024px) 100vw, 33vw"
+              loading="lazy"
+              unoptimized={app.imageUrl.startsWith("http") || app.imageUrl.startsWith("data:")}
+            />
           </div>
         ) : null}
         <a

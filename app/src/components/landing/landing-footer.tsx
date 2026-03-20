@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { BrandingLogo } from "@/components/branding-logo";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
 
@@ -27,6 +28,41 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
             </p>
           </div>
           <nav className="flex flex-wrap gap-8 text-sm font-medium">
+            <Link
+              href="/planos"
+              className="transition-colors hover:text-[var(--theme-ring)]"
+              style={{ color: "var(--landing-footer-text)" }}
+            >
+              Planos
+            </Link>
+            <Link
+              href="/comprar-acesso"
+              className="transition-colors hover:text-[var(--theme-ring)]"
+              style={{ color: "var(--landing-footer-text)" }}
+            >
+              Comprar acesso
+            </Link>
+            <Link
+              href="/comprar-iptv"
+              className="transition-colors hover:text-[var(--theme-ring)]"
+              style={{ color: "var(--landing-footer-text)" }}
+            >
+              Comprar IPTV
+            </Link>
+            <Link
+              href="/como-funciona-iptv"
+              className="transition-colors hover:text-[var(--theme-ring)]"
+              style={{ color: "var(--landing-footer-text)" }}
+            >
+              Como funciona IPTV
+            </Link>
+            <Link
+              href="/iptv-e-confiavel"
+              className="transition-colors hover:text-[var(--theme-ring)]"
+              style={{ color: "var(--landing-footer-text)" }}
+            >
+              IPTV é confiável?
+            </Link>
             <a
               href="/termos"
               className="transition-colors hover:text-[var(--theme-ring)]"

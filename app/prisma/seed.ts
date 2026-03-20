@@ -3,6 +3,45 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const DEFAULT_ADMIN_EMAIL = "admin@lojanova.com";
+const DEFAULT_ADMIN_PASSWORD = "Admin@123";
+const MIN_ADMIN_PASSWORD_LEN = 8;
+
+function normalizeAdminEmail(raw: string | undefined): string {
+  const v = (raw ?? DEFAULT_ADMIN_EMAIL).trim().toLowerCase();
+  if (!v.includes("@")) {
+    throw new Error("ADMIN_EMAIL inválido.");
+  }
+  return v;
+}
+
+function resolveAdminPassword(): string {
+  const fromEnv = process.env.ADMIN_PASSWORD?.trim();
+  const onVercel = process.env.VERCEL === "1";
+
+  if (fromEnv) {
+    if (fromEnv.length < MIN_ADMIN_PASSWORD_LEN) {
+      throw new Error(
+        `ADMIN_PASSWORD deve ter ao menos ${MIN_ADMIN_PASSWORD_LEN} caracteres.`,
+      );
+    }
+    return fromEnv;
+  }
+
+  if (onVercel) {
+    throw new Error(
+      "Defina ADMIN_PASSWORD nas Environment Variables do projeto (Vercel) antes de rodar o seed. " +
+        "O login do admin continua pelo banco; o seed só grava o hash com essa senha.",
+    );
+  }
+
+  console.warn(
+    "[seed] ADMIN_PASSWORD não definido — usando senha padrão de desenvolvimento. " +
+      "Para produção, defina ADMIN_PASSWORD e rode o seed novamente.",
+  );
+  return DEFAULT_ADMIN_PASSWORD;
+}
+
 async function main() {
   await prisma.siteBranding.upsert({
     where: { id: "default" },
@@ -47,48 +86,49 @@ async function main() {
     },
   });
 
-  const adminPassword = await bcrypt.hash("Admin@123", 12);
-  const clientPassword = await bcrypt.hash("Cliente@123", 12);
+  const adminEmail = normalizeAdminEmail(process.env.ADMIN_EMAIL);
+  const adminPasswordPlain = resolveAdminPassword();
+  const adminPasswordHash = await bcrypt.hash(adminPasswordPlain, 12);
 
   await prisma.user.upsert({
-    where: { email: "admin@lojanova.com" },
-    update: { passwordHash: adminPassword, isAdmin: true },
+    where: { email: adminEmail },
+    update: { passwordHash: adminPasswordHash, isAdmin: true },
     create: {
       name: "Administrador",
-      email: "admin@lojanova.com",
-      passwordHash: adminPassword,
+      email: adminEmail,
+      passwordHash: adminPasswordHash,
       isAdmin: true,
     },
   });
 
-  await prisma.user.upsert({
-    where: { email: "cliente@teste.com" },
-    update: { passwordHash: clientPassword, isAdmin: false },
-    create: {
-      name: "Cliente Teste",
-      email: "cliente@teste.com",
-      passwordHash: clientPassword,
-      isAdmin: false,
-    },
-  });
-
-  if (process.env.ADMIN_EMAIL && process.env.ADMIN_EMAIL !== "admin@lojanova.com") {
+  const onVercel = process.env.VERCEL === "1";
+  if (!onVercel) {
+    const clientPassword = await bcrypt.hash("Cliente@123", 12);
     await prisma.user.upsert({
-      where: { email: process.env.ADMIN_EMAIL },
-      update: { passwordHash: adminPassword },
+      where: { email: "cliente@teste.com" },
+      update: { passwordHash: clientPassword, isAdmin: false },
       create: {
-        name: "Administrador",
-        email: process.env.ADMIN_EMAIL,
-        passwordHash: adminPassword,
-        isAdmin: true,
+        name: "Cliente Teste",
+        email: "cliente@teste.com",
+        passwordHash: clientPassword,
+        isAdmin: false,
       },
     });
   }
 
-  console.log("Seed concluído: planos + usuários de teste.");
-  console.log("  Admin: admin@lojanova.com / Admin@123");
-  console.log("  Cliente: cliente@teste.com / Cliente@123");
-  console.log("  Observação: o registro público não promove admin; use seed ou atualize isAdmin no banco.");
+  console.log("Seed concluído: planos + administrador.");
+  console.log(`  Admin e-mail: ${adminEmail}`);
+  console.log(
+    onVercel || process.env.ADMIN_PASSWORD
+      ? "  Senha: a definida em ADMIN_PASSWORD (não repetimos aqui)."
+      : `  Senha (dev): ${DEFAULT_ADMIN_PASSWORD}`,
+  );
+  if (!onVercel) {
+    console.log("  Cliente teste: cliente@teste.com / Cliente@123");
+  }
+  console.log(
+    "  Observação: o registro público não promove admin; altere e-mail/senha com ADMIN_EMAIL + ADMIN_PASSWORD e rode o seed de novo.",
+  );
 }
 
 main()

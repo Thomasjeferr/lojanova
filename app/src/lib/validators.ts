@@ -37,6 +37,12 @@ export const changePasswordSchema = z.object({
   newPassword: z.string().min(6, "A nova senha deve ter ao menos 6 caracteres"),
 });
 
+/** Envio de e-mail de teste pelo admin */
+export const adminEmailTestSchema = z.object({
+  template: z.enum(["activation", "welcome", "password"]),
+  to: z.email("E-mail inválido").transform((v) => v.toLowerCase()),
+});
+
 const dataImageUrl = z
   .string()
   .regex(

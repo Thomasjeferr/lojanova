@@ -11,6 +11,7 @@ const routeTitles: Record<string, { title: string; subtitle?: string }> = {
   "/admin/orders": { title: "Pedidos", subtitle: "Histórico e status dos pedidos" },
   "/admin/customers": { title: "Clientes", subtitle: "Base de clientes" },
   "/admin/settings": { title: "Configurações", subtitle: "Preferências do painel" },
+  "/admin/emails": { title: "E-mails", subtitle: "Templates transacionais e testes" },
 };
 
 function getTitleForPath(pathname: string) {
