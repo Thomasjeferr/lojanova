@@ -10,6 +10,8 @@ import { LandingCopySettingsForm } from "@/components/admin/landing-copy-setting
 import { WhatsAppSettingsForm } from "@/components/admin/whatsapp-settings-form";
 import { WooviSettingsForm } from "@/components/admin/woovi-settings-form";
 import { CONTACT_FALLBACK } from "@/lib/contact-settings";
+import { env } from "@/lib/env";
+import { resolvePublicSiteUrlForAdminDocs } from "@/lib/public-site-url";
 import { PAYMENT_GATEWAY_FALLBACK } from "@/lib/woovi-settings";
 
 async function siteBrandingTableExists(): Promise<boolean> {
@@ -116,6 +118,7 @@ export default async function AdminSettingsPage() {
         </p>
         <WooviSettingsForm
           disabled={!contactTableOk}
+          publicBaseUrl={resolvePublicSiteUrlForAdminDocs(env.APP_URL)}
           initial={{
             paymentProvider:
               (contactRow?.paymentProvider as "woovi" | "ggpix" | undefined) ||
