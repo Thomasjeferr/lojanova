@@ -30,7 +30,11 @@ export async function GET(request: Request) {
         : null,
       paidAt: order.paidAt,
     });
-  } catch {
-    return unauthorized();
+  } catch (e) {
+    if (e instanceof Error && e.message === "Não autenticado") {
+      return unauthorized();
+    }
+    console.error("[checkout/status]", e);
+    return badRequest("Não foi possível consultar o pedido.");
   }
 }

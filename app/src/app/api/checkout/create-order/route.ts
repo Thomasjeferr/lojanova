@@ -35,7 +35,11 @@ export async function POST(request: Request) {
     });
 
     return ok({ orderId: order.id, status: order.status });
-  } catch {
-    return unauthorized();
+  } catch (e) {
+    if (e instanceof Error && e.message === "Não autenticado") {
+      return unauthorized();
+    }
+    console.error("[checkout/create-order]", e);
+    return badRequest("Não foi possível criar o pedido. Tente novamente.");
   }
 }

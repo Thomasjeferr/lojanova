@@ -41,7 +41,15 @@ export async function POST(request: Request) {
       qrCodeImage: pix.qrCodeImage,
       brCode: pix.brCode,
     });
-  } catch {
-    return unauthorized();
+  } catch (e) {
+    if (e instanceof Error && e.message === "Não autenticado") {
+      return unauthorized();
+    }
+    console.error("[checkout/create-pix]", e);
+    const msg =
+      e instanceof Error && e.message.trim()
+        ? e.message
+        : "Não foi possível gerar o Pix. Tente novamente.";
+    return badRequest(msg);
   }
 }

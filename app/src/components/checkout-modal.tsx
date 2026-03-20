@@ -320,12 +320,14 @@ export function CheckoutModal({
       const login = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ email: emailTrimmed, password }),
       });
       if (!login.ok) {
         const register = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
           body: JSON.stringify({
             name: nameTrimmed,
             email: emailTrimmed,
@@ -346,14 +348,15 @@ export function CheckoutModal({
     }
   }
 
-  async function createPix() {
-    if (!plan) return;
+  async function createPix(): Promise<boolean> {
+    if (!plan) return false;
     setLoading(true);
     setError("");
     try {
       const orderRes = await fetch("/api/checkout/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ planId: plan.id }),
       });
       const orderData = await orderRes.json();
@@ -363,14 +366,17 @@ export function CheckoutModal({
       const pixRes = await fetch("/api/checkout/create-pix", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ orderId: orderData.orderId }),
       });
       const pixData = await pixRes.json();
       if (!pixRes.ok) throw new Error(pixData.error);
       setQrCode(pixData.qrCodeImage);
       setPixCode(pixData.brCode);
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao gerar Pix");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -380,7 +386,9 @@ export function CheckoutModal({
     if (!orderId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/checkout/status?orderId=${orderId}`);
+      const res = await fetch(`/api/checkout/status?orderId=${orderId}`, {
+        credentials: "same-origin",
+      });
       const data = await res.json();
       if (data.status === "paid") {
         setDeliveryCode(data.code || "");
@@ -508,8 +516,8 @@ export function CheckoutModal({
                 {loggedInUser ? (
                   <PaymentButton
                     onClick={async () => {
-                      await createPix();
-                      setStep(3);
+                      const okPix = await createPix();
+                      if (okPix) setStep(3);
                     }}
                     disabled={loading || !canProceedStep1}
                     loading={loading}
