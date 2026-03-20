@@ -4,15 +4,10 @@ import { forgotPasswordSchema } from "@/lib/validators";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { createPasswordResetToken } from "@/lib/password-reset";
 import { sendPasswordResetRequestedEmail } from "@/lib/email";
+import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 
 const GENERIC_MESSAGE =
   "Se o e-mail existir, você receberá instruções para redefinir a senha em instantes.";
-
-function appBaseUrl() {
-  const fromEnv = process.env.APP_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/+$/, "");
-  return "http://localhost:3000";
-}
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -56,7 +51,7 @@ export async function POST(request: Request) {
     },
   });
 
-  const resetUrl = `${appBaseUrl()}/redefinir-senha?token=${tokenData.rawToken}`;
+  const resetUrl = `${getPublicSiteBaseUrl()}/redefinir-senha?token=${tokenData.rawToken}`;
   await sendPasswordResetRequestedEmail({
     to: user.email,
     name: user.name,

@@ -12,7 +12,6 @@ import {
   CredentialSuccessPanel,
   type CheckoutCredentialDetail,
 } from "@/components/checkout/credential-success-panel";
-import { CopyFeedbackButton } from "@/components/copy-feedback-button";
 
 function mapStatusCredential(raw: unknown): CheckoutCredentialDetail | null {
   if (!raw || typeof raw !== "object") return null;
@@ -232,7 +231,7 @@ export function PayPendingOrderModal({
             ) : (
               <div className="space-y-4">
                 <p className="text-sm font-medium text-zinc-600">
-                  Escaneie o QR Code ou copie o código Pix:
+                  Escaneie o QR Code ou use o código abaixo no app do banco:
                 </p>
                 <div className="flex justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -242,16 +241,12 @@ export function PayPendingOrderModal({
                     className="h-52 w-52 rounded-xl border border-zinc-200 bg-white p-2 sm:h-56 sm:w-56"
                   />
                 </div>
-                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs break-all text-zinc-800">
+                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs break-all text-zinc-800 select-all">
                   {pixCode}
                 </div>
-                <CopyFeedbackButton
-                  text={pixCode}
-                  label="Copiar código Pix"
-                  copiedLabel="Código Pix copiado!"
-                  variant="outline"
-                  className="rounded-xl py-3"
-                />
+                <p className="text-center text-xs text-zinc-500">
+                  Toque e segure no código para selecionar e copiar, se precisar.
+                </p>
                 <div
                   className="flex flex-col items-center gap-2 rounded-xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-center"
                   role="status"

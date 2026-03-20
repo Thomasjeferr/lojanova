@@ -1,5 +1,6 @@
 import twlib from "twilio";
 import { brazilPhoneToE164 } from "@/lib/phone-e164";
+import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 
 const DEFAULT_STORE = "Loja Digital";
 
@@ -45,7 +46,7 @@ export async function sendActivationSms(input: {
   }
 
   const storeName = process.env.EMAIL_STORE_NAME?.trim() || DEFAULT_STORE;
-  const appUrl = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  const appUrl = getPublicSiteBaseUrl();
   const body = buildActivationSmsBody({
     storeName,
     name: input.name,

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendLowStockAlertEmail } from "@/lib/email";
+import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 import { getSiteBranding } from "@/lib/site-branding";
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -74,7 +75,7 @@ export async function runLowStockAlertJob(): Promise<LowStockCronResult> {
     /* mantém storeName */
   }
 
-  const appUrl = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  const appUrl = getPublicSiteBaseUrl();
   const adminCodesUrl = `${appUrl}/admin/codes`;
 
   const ok = await sendLowStockAlertEmail({

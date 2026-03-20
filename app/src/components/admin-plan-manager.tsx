@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatCentsAsBrlInput, parseBrlMoneyToCents } from "@/lib/money-brl";
 import { currencyBRL } from "@/lib/utils";
 import { Plus, Pencil, Trash2, Upload, ImageIcon } from "lucide-react";
 
@@ -70,6 +71,9 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
     type: "ok" | "err";
     text: string;
   } | null>(null);
+  const [priceBrl, setPriceBrl] = useState(() =>
+    formatCentsAsBrlInput(emptyPlan.priceCents),
+  );
 
   async function loadPlans() {
     try {
@@ -84,11 +88,13 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
   function openNew() {
     setEditingId(null);
     setForm({ ...emptyPlan });
+    setPriceBrl(formatCentsAsBrlInput(emptyPlan.priceCents));
   }
 
   function openEdit(plan: Plan) {
     setEditingId(plan.id);
     setForm({ ...plan });
+    setPriceBrl(formatCentsAsBrlInput(plan.priceCents));
   }
 
   function setBenefit(index: number, value: string) {
@@ -135,6 +141,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
       if (editingId === plan.id) {
         setEditingId(null);
         setForm({ ...emptyPlan });
+        setPriceBrl(formatCentsAsBrlInput(emptyPlan.priceCents));
       }
       await loadPlans();
     } catch {
@@ -147,12 +154,18 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
   async function save() {
     setLoading(true);
     setMessage(null);
+    const priceParsed = parseBrlMoneyToCents(priceBrl);
+    if (!priceParsed.ok) {
+      setMessage({ type: "err", text: priceParsed.message });
+      setLoading(false);
+      return;
+    }
     const payload = {
       ...(form.id && { id: form.id }),
       title: form.title.trim(),
       slug: form.slug.trim().toLowerCase().replace(/\s+/g, "-"),
       durationDays: Number(form.durationDays),
-      priceCents: Number(form.priceCents),
+      priceCents: priceParsed.cents,
       logoDataUrl: form.logoDataUrl ?? null,
       benefits:
         form.benefits?.map((b) => b.trim()).filter(Boolean) || ["Benefício 1"],
@@ -178,6 +191,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
       setMessage({ type: "ok", text: "Plano salvo com sucesso." });
       setEditingId(null);
       setForm({ ...emptyPlan });
+      setPriceBrl(formatCentsAsBrlInput(emptyPlan.priceCents));
       loadPlans();
     } catch {
       setMessage({ type: "err", text: "Erro ao salvar plano." });
@@ -368,23 +382,23 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
           </div>
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-zinc-700">
-              Preço (centavos)
+              Preço (R$)
             </label>
             <Input
-              type="number"
-              min={0}
-              value={form.priceCents}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  priceCents: Number(e.target.value) || 0,
-                })
-              }
-              placeholder="4990 = R$ 49,90"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              value={priceBrl}
+              onChange={(e) => setPriceBrl(e.target.value)}
+              onBlur={() => {
+                const p = parseBrlMoneyToCents(priceBrl);
+                if (p.ok) setPriceBrl(formatCentsAsBrlInput(p.cents));
+              }}
+              placeholder="49,90"
               className="rounded-xl"
             />
             <p className="text-xs text-zinc-500">
-              Ex: 4990 = R$ 49,90 · 11990 = R$ 119,90
+              Padrão brasileiro: vírgula nos centavos (ex.: 49,90 ou 1.234,56). Opcional: R$ 49,90
             </p>
           </div>
         </div>

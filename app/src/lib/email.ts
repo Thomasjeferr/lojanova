@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 import {
   activationCodeDeliveredTemplate,
   welcomeAccountTemplate,
@@ -81,7 +82,7 @@ export async function sendWelcomeEmail({
   to: string;
   name: string;
 }) {
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const appUrl = getPublicSiteBaseUrl();
   const tpl = welcomeAccountTemplate({
     storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
     name,
@@ -102,7 +103,7 @@ export async function sendPasswordChangedEmail({
   to: string;
   name: string;
 }) {
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const appUrl = getPublicSiteBaseUrl();
   const tpl = passwordChangedTemplate({
     storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
     name,
@@ -194,7 +195,7 @@ export async function sendTestTransactionalEmail(
   const resend = new Resend(key);
   const from = process.env.RESEND_FROM || DEFAULT_FROM;
   const storeName = process.env.EMAIL_STORE_NAME || DEFAULT_STORE;
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const appUrl = getPublicSiteBaseUrl();
 
   let subject: string;
   let html: string;
