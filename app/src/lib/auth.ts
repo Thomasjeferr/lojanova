@@ -99,45 +99,74 @@ export async function clearSessionCookies() {
 }
 
 /**
- * Quando o access token (15m) expira, renova só o cookie de access usando o refresh
- * válido na tabela Session — evita "Não autenticado" em telas admin abertas por mais tempo.
+ * Access JWT expirado, mas refresh ainda válido na Session: devolve o mesmo payload do usuário.
+ *
+ * Importante: **não** chama `cookies().set()` aqui — em Server Components (layouts, páginas RSC)
+ * o Next.js só permite ler cookies; gravar só em Route Handler ou Server Action.
+ * Sem isso, import no admin / páginas como `/entrar` quebram com erro de cookies.
  */
 async function tryRenewAccessFromRefresh(): Promise<TokenPayload | null> {
-  const cookieStore = await cookies();
-  const refresh = cookieStore.get(REFRESH_COOKIE)?.value;
-  if (!refresh) return null;
-
-  let payload: TokenPayload;
   try {
-    payload = await verifyToken(refresh);
-  } catch {
+    const cookieStore = await cookies();
+    const refresh = cookieStore.get(REFRESH_COOKIE)?.value;
+    if (!refresh) return null;
+
+    let payload: TokenPayload;
+    try {
+      payload = await verifyToken(refresh);
+    } catch {
+      return null;
+    }
+
+    const session = await prisma.session.findUnique({
+      where: { refreshToken: refresh },
+    });
+    if (!session || session.expiresAt <= new Date()) {
+      return null;
+    }
+
+    return payload;
+  } catch (e) {
+    console.error("[auth] Falha ao validar sessão via refresh:", e);
     return null;
   }
+}
 
-  const session = await prisma.session.findUnique({
-    where: { refreshToken: refresh },
-  });
-  if (!session || session.expiresAt <= new Date()) {
-    return null;
+/**
+ * Atualiza o cookie de access a partir do refresh (válido em **Route Handlers** e **Server Actions**).
+ * Opcional: chame no início de rotas sensíveis se quiser “renovar” o JWT no navegador.
+ */
+export async function refreshAccessCookieFromRefreshToken(): Promise<boolean> {
+  try {
+    const payload = await tryRenewAccessFromRefresh();
+    if (!payload) return false;
+    const accessToken = await createAccessToken(payload);
+    const cookieStore = await cookies();
+    cookieStore.set(ACCESS_COOKIE, accessToken, ACCESS_COOKIE_OPTIONS);
+    return true;
+  } catch (e) {
+    console.error("[auth] refreshAccessCookieFromRefreshToken:", e);
+    return false;
   }
-
-  const accessToken = await createAccessToken(payload);
-  cookieStore.set(ACCESS_COOKIE, accessToken, ACCESS_COOKIE_OPTIONS);
-  return payload;
 }
 
 export async function getAuthUser() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
-  if (accessToken) {
-    try {
-      return await verifyToken(accessToken);
-    } catch {
-      /* access expirado ou inválido */
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
+    if (accessToken) {
+      try {
+        return await verifyToken(accessToken);
+      } catch {
+        /* access expirado ou inválido */
+      }
     }
-  }
 
-  return tryRenewAccessFromRefresh();
+    return await tryRenewAccessFromRefresh();
+  } catch (e) {
+    console.error("[auth] getAuthUser:", e);
+    return null;
+  }
 }
 
 export async function requireUser() {
