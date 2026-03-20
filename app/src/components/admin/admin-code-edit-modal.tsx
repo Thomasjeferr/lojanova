@@ -51,15 +51,17 @@ export function AdminCodeEditModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const current = row;
+    if (!current) return;
     setLoading(true);
     setError(null);
     const body: Record<string, string> = {};
-    if (planId !== row.planId) body.planId = planId;
-    if (row.credentialType === "activation_code") {
+    if (planId !== current.planId) body.planId = planId;
+    if (current.credentialType === "activation_code") {
       const next = activationCode.replace(/\s+/g, "").toUpperCase();
-      if (next && next !== row.code) body.code = next;
+      if (next && next !== current.code) body.code = next;
     } else {
-      if (username !== (row.username ?? "") || password !== (row.password ?? "")) {
+      if (username !== (current.username ?? "") || password !== (current.password ?? "")) {
         body.username = username;
         body.password = password;
       }
@@ -70,7 +72,7 @@ export function AdminCodeEditModal({
       return;
     }
     try {
-      const res = await fetch(`/api/admin/codes/${row.id}`, {
+      const res = await fetch(`/api/admin/codes/${current.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
