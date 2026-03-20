@@ -4,6 +4,7 @@ import {
   welcomeAccountTemplate,
   passwordChangedTemplate,
   passwordResetRequestedTemplate,
+  lowStockAdminTemplate,
   type EmailTemplateId,
 } from "@/lib/email-templates";
 
@@ -139,6 +140,42 @@ export async function sendPasswordResetRequestedEmail({
     subject: tpl.subject,
     html: tpl.html,
   });
+}
+
+/** E-mail operacional para o admin; retorna se o Resend aceitou o envio. */
+export async function sendLowStockAlertEmail({
+  to,
+  storeName,
+  threshold,
+  adminCodesUrl,
+  items,
+}: {
+  to: string;
+  storeName: string;
+  threshold: number;
+  adminCodesUrl: string;
+  items: Array<{ planTitle: string; available: number }>;
+}): Promise<boolean> {
+  const resend = getResendClient();
+  if (!resend) return false;
+  const tpl = lowStockAdminTemplate({
+    storeName,
+    threshold,
+    adminCodesUrl,
+    items,
+  });
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM || DEFAULT_FROM,
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+    });
+    return true;
+  } catch (error) {
+    console.error(`[email] Falha ao enviar template ${tpl.id}:`, error);
+    return false;
+  }
 }
 
 /**

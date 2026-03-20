@@ -34,11 +34,14 @@ export default async function AdminCodesPage() {
         subtitle="Últimos 100. Use os filtros para refinar."
       >
         <AdminCodesTable
+          plans={plans.map((p) => ({ id: p.id, title: p.title }))}
           initialCodes={codes.map((c) => ({
             id: c.id,
             code: c.code,
             credentialType: c.credentialType,
             username: c.username,
+            password: c.password,
+            planId: c.planId,
             status: c.status,
             planTitle: c.plan.title,
             orderEmail: c.order?.user?.email,

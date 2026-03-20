@@ -8,6 +8,7 @@ import { BrandingDbBanner } from "@/components/admin/branding-db-banner";
 import { ThemeSwitcherSection } from "@/components/admin/theme-switcher-section";
 import { LandingCopySettingsForm } from "@/components/admin/landing-copy-settings-form";
 import { WhatsAppSettingsForm } from "@/components/admin/whatsapp-settings-form";
+import { LowStockAlertSettingsForm } from "@/components/admin/low-stock-alert-settings-form";
 import { WooviSettingsForm } from "@/components/admin/woovi-settings-form";
 import { CONTACT_FALLBACK } from "@/lib/contact-settings";
 import { env } from "@/lib/env";
@@ -102,6 +103,32 @@ export default async function AdminSettingsPage() {
             whatsappNumber: contactRow?.whatsappNumber || "",
             whatsappMessage: contactRow?.whatsappMessage || CONTACT_FALLBACK.whatsappMessage,
             whatsappLabel: contactRow?.whatsappLabel || CONTACT_FALLBACK.whatsappLabel,
+          }}
+        />
+      </SectionCard>
+      <SectionCard title="Alerta de estoque (admin)">
+        {!contactTableOk && (
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
+            <code> app/</code> e reinicie o servidor.
+          </div>
+        )}
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+          Receba um e-mail quando planos <strong>ativos</strong> estiverem com poucos códigos
+          disponíveis. O limite é único para todos os planos. Configure{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs">CRON_SECRET</code> e o cron na Vercel
+          (arquivo <code className="rounded bg-zinc-100 px-1 text-xs">vercel.json</code>) para o
+          envio automático.
+        </p>
+        <LowStockAlertSettingsForm
+          disabled={!contactTableOk}
+          fallbackNotifyEmailHint={env.ADMIN_EMAIL}
+          initial={{
+            lowStockAlertEnabled: contactRow?.lowStockAlertEnabled ?? false,
+            lowStockThreshold: contactRow?.lowStockThreshold ?? 5,
+            lowStockNotifyEmail: contactRow?.lowStockNotifyEmail ?? "",
+            lowStockAlertLastSentAt:
+              contactRow?.lowStockAlertLastSentAt?.toISOString() ?? null,
           }}
         />
       </SectionCard>

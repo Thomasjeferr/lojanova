@@ -7,6 +7,7 @@ export const EMAIL_TEMPLATE_IDS = {
   welcomeAccount: "welcome_account_v1",
   passwordChanged: "password_changed_v1",
   passwordResetRequested: "password_reset_requested_v1",
+  lowStockAdmin: "low_stock_admin_v1",
 } as const;
 
 export type EmailTemplateId =
@@ -34,6 +35,12 @@ export type PasswordResetRequestedInput = TemplateInputBase & {
   name: string;
   resetUrl: string;
   expiresInMinutes: number;
+};
+
+export type LowStockAdminInput = TemplateInputBase & {
+  threshold: number;
+  adminCodesUrl: string;
+  items: Array<{ planTitle: string; available: number }>;
 };
 
 function layout(content: string, storeName: string) {
@@ -79,6 +86,10 @@ export const EMAIL_TEMPLATES: Record<
   [EMAIL_TEMPLATE_IDS.passwordResetRequested]: {
     name: "Recuperação de senha",
     description: "Enviado quando o usuário solicita redefinição de senha.",
+  },
+  [EMAIL_TEMPLATE_IDS.lowStockAdmin]: {
+    name: "Estoque baixo (admin)",
+    description: "Resumo para o administrador quando planos ativos estão com poucos códigos disponíveis.",
   },
 };
 
@@ -156,5 +167,39 @@ export function passwordResetRequestedTemplate(
     input.storeName,
   );
   return { id: EMAIL_TEMPLATE_IDS.passwordResetRequested, subject, html };
+}
+
+export function lowStockAdminTemplate(input: LowStockAdminInput): RenderedTemplate {
+  const subject = `[Estoque] Atenção: códigos abaixo do limite - ${input.storeName}`;
+  const rows = input.items
+    .map(
+      (row) =>
+        `<tr><td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:14px">${row.planTitle}</td><td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:14px;text-align:center;font-weight:600">${row.available}</td></tr>`,
+    )
+    .join("");
+  const html = layout(
+    `
+    <p style="margin:0 0 12px;font-size:15px">Olá,</p>
+    <p style="margin:0 0 12px;font-size:15px">
+      Alguns <strong>planos ativos</strong> estão com quantidade de códigos <strong>disponíveis</strong> menor ou igual a
+      <strong>${input.threshold}</strong> (limite configurado no admin).
+    </p>
+    <table style="width:100%;border-collapse:collapse;margin:0 0 18px">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px">Plano</th>
+          <th style="text-align:center;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px">Disponíveis</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="margin:0 0 16px;font-size:14px;color:#52525b">
+      Importe novos códigos em <strong>Códigos</strong> no painel.
+    </p>
+    <a href="${input.adminCodesUrl}" style="display:inline-block;padding:10px 16px;background:#18181b;color:#fff;text-decoration:none;border-radius:10px;font-weight:600">Abrir códigos no admin</a>
+    `,
+    input.storeName,
+  );
+  return { id: EMAIL_TEMPLATE_IDS.lowStockAdmin, subject, html };
 }
 

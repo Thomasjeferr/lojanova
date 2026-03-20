@@ -26,6 +26,7 @@ RESEND_API_KEY=
 ADMIN_EMAIL=admin@lojanova.com
 # ADMIN_PASSWORD=   # opcional local; na Vercel, obrigatório ao rodar o seed (mín. 8 caracteres)
 APP_URL=http://localhost:3000
+# CRON_SECRET=       # obrigatório para GET /api/cron/low-stock-alert (Bearer token); ver seção abaixo
 ```
 
 ### Administrador (e-mail e senha via env → banco)
@@ -61,6 +62,15 @@ npm run prisma:seed
 npm run dev
 ```
 
+## Alerta de estoque (e-mail ao admin)
+
+Em **Configurações** do admin: ative o alerta, defina o **limite global** (ex.: 5) e, opcionalmente, o e-mail do destinatário (senão usa `ADMIN_EMAIL`). O job conta códigos `available` por **plano ativo**; se algum plano estiver com quantidade ≤ limite, é enviado um resumo via **Resend** (no máximo **1 e-mail a cada 24 h**).
+
+1. `npx prisma db push` (novas colunas em `AppSettings`).
+2. Defina `CRON_SECRET` no ambiente (string longa aleatória).
+3. Na **Vercel**, cron configurado em `vercel.json` chama `GET /api/cron/low-stock-alert` com `Authorization: Bearer <CRON_SECRET>`. No painel da Vercel, associe o mesmo segredo ao job de cron se solicitado.
+4. Teste local: `curl -H "Authorization: Bearer SEU_SECRET" http://localhost:3000/api/cron/low-stock-alert`
+
 ## Rotas principais
 
 - Landing: `/`
@@ -79,7 +89,11 @@ npm run dev
 - `POST /api/admin/codes/import`
 - `GET /api/admin/orders`
 - `GET /api/admin/codes`
+- `PATCH /api/admin/codes/[id]` (editar: plano / código / usuário-senha; só disponível ou bloqueado)
+- `DELETE /api/admin/codes/[id]` (excluir; só sem venda)
 - `GET/POST /api/admin/plans`
+- `GET/PUT /api/admin/settings/low-stock-alert` (alerta de estoque)
+- `GET /api/cron/low-stock-alert` (cron; `Authorization: Bearer CRON_SECRET`)
 
 ## Deploy
 

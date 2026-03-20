@@ -3,23 +3,23 @@ import { PaymentProvider, SiteTheme } from "@prisma/client";
 import { isValidWhatsAppNumber, normalizeWhatsAppNumber } from "@/lib/whatsapp";
 
 export const registerSchema = z.object({
-  name: z.string().min(2, "Nome inválido"),
-  email: z.email("E-mail inválido").transform((value) => value.toLowerCase()),
-  phone: z.string().min(10, "Telefone inválido").optional().or(z.literal("")),
+  name: z.string().min(2, "Nome inv?lido"),
+  email: z.email("E-mail inv?lido").transform((value) => value.toLowerCase()),
+  phone: z.string().min(10, "Telefone inv?lido").optional().or(z.literal("")),
   password: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
 });
 
 export const loginSchema = z.object({
-  email: z.email("E-mail inválido").transform((value) => value.toLowerCase()),
-  password: z.string().min(6, "Senha inválida"),
+  email: z.email("E-mail inv?lido").transform((value) => value.toLowerCase()),
+  password: z.string().min(6, "Senha inv?lida"),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.email("E-mail inválido").transform((value) => value.toLowerCase()),
+  email: z.email("E-mail inv?lido").transform((value) => value.toLowerCase()),
 });
 
 export const resetPasswordSchema = z.object({
-  token: z.string().min(20, "Token inválido"),
+  token: z.string().min(20, "Token inv?lido"),
   newPassword: z.string().min(6, "A nova senha deve ter ao menos 6 caracteres"),
 });
 
@@ -37,8 +37,36 @@ export const importCodesSchema = z.object({
   codes: z.array(z.string().min(2)).min(1),
 });
 
+/** Edi??o manual no admin (s? dispon?vel/bloqueado sem venda) */
+export const adminActivationCodePatchSchema = z
+  .object({
+    planId: z.string().min(1).optional(),
+    code: z.string().optional(),
+    username: z.string().min(1).optional(),
+    password: z.string().min(1).optional(),
+  })
+  .superRefine((val, ctx) => {
+    const touchedPlan = val.planId !== undefined;
+    const touchedActivationCode = val.code !== undefined && val.code.trim() !== "";
+    const touchedUser = val.username !== undefined;
+    const touchedPass = val.password !== undefined;
+    if (!touchedPlan && !touchedActivationCode && !touchedUser && !touchedPass) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Envie ao menos um campo para atualizar.",
+      });
+    }
+    if (touchedUser !== touchedPass) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Para credencial usu?rio/senha, informe usu?rio e senha juntos.",
+        path: touchedUser ? ["password"] : ["username"],
+      });
+    }
+  });
+
 export const updateProfileSchema = z.object({
-  name: z.string().min(2, "Nome inválido"),
+  name: z.string().min(2, "Nome inv?lido"),
   phone: z.string().optional().or(z.literal("")),
 });
 
@@ -50,7 +78,7 @@ export const changePasswordSchema = z.object({
 /** Envio de e-mail de teste pelo admin */
 export const adminEmailTestSchema = z.object({
   template: z.enum(["activation", "welcome", "password", "reset"]),
-  to: z.email("E-mail inválido").transform((v) => v.toLowerCase()),
+  to: z.email("E-mail inv?lido").transform((v) => v.toLowerCase()),
 });
 
 const dataImageUrl = z
@@ -59,7 +87,7 @@ const dataImageUrl = z
     /^data:image\/(png|jpeg|jpg|webp|gif);base64,/i,
     "Use PNG, JPG, WebP ou GIF em base64",
   )
-  .max(2_500_000, "Imagem muito grande (máx. ~1,8 MB em base64)");
+  .max(2_500_000, "Imagem muito grande (m?x. ~1,8 MB em base64)");
 
 const faviconDataUrl = z
   .string()
@@ -112,14 +140,14 @@ export const siteBrandingPatchSchema = z
         downloadAppsSubtitle: z.string().min(8).max(260),
         downloadAppsButtonLabel: z.string().min(2).max(32),
         downloadApp1Name: z.string().max(50),
-        downloadApp1Url: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
-        downloadApp1ImageUrl: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
+        downloadApp1Url: z.union([z.string().url("Informe uma URL v?lida"), z.literal("")]),
+        downloadApp1ImageUrl: z.union([z.string().url("Informe uma URL v?lida"), z.literal("")]),
         downloadApp2Name: z.string().max(50),
-        downloadApp2Url: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
-        downloadApp2ImageUrl: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
+        downloadApp2Url: z.union([z.string().url("Informe uma URL v?lida"), z.literal("")]),
+        downloadApp2ImageUrl: z.union([z.string().url("Informe uma URL v?lida"), z.literal("")]),
         downloadApp3Name: z.string().max(50),
-        downloadApp3Url: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
-        downloadApp3ImageUrl: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
+        downloadApp3Url: z.union([z.string().url("Informe uma URL v?lida"), z.literal("")]),
+        downloadApp3ImageUrl: z.union([z.string().url("Informe uma URL v?lida"), z.literal("")]),
       })
       .optional(),
   })
@@ -145,7 +173,7 @@ export const contactSettingsSchema = z
     if (val.whatsappEnabled && !isValidWhatsAppNumber(normalized)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Informe um número de WhatsApp válido para ativar o botão.",
+        message: "Informe um n?mero de WhatsApp v?lido para ativar o bot?o.",
         path: ["whatsappNumber"],
       });
     }
@@ -158,3 +186,22 @@ export const wooviSettingsSchema = z.object({
   ggpixApiKey: z.string().max(300).optional().or(z.literal("")),
   ggpixWebhookSecret: z.string().max(300).optional().or(z.literal("")),
 });
+
+export const lowStockAlertSettingsSchema = z
+  .object({
+    lowStockAlertEnabled: z.boolean(),
+    lowStockThreshold: z.coerce.number().int().min(0).max(1_000_000),
+    lowStockNotifyEmail: z.string().max(254).optional().or(z.literal("")),
+  })
+  .superRefine((val, ctx) => {
+    const raw = (val.lowStockNotifyEmail ?? "").trim();
+    if (!raw) return;
+    const parsed = z.email().safeParse(raw);
+    if (!parsed.success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "E-mail inv?lido",
+        path: ["lowStockNotifyEmail"],
+      });
+    }
+  });
