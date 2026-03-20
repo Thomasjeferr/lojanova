@@ -8,7 +8,6 @@ import { currencyBRL } from "@/lib/utils";
 import {
   AlertTriangle,
   ArrowRight,
-  Copy,
   Eye,
   EyeOff,
   Loader2,
@@ -22,6 +21,7 @@ import {
   CredentialSuccessPanel,
   type CheckoutCredentialDetail,
 } from "@/components/checkout/credential-success-panel";
+import { CopyFeedbackButton } from "@/components/copy-feedback-button";
 
 function mapStatusCredential(raw: unknown): CheckoutCredentialDetail | null {
   if (!raw || typeof raw !== "object") return null;
@@ -207,7 +207,6 @@ export function CheckoutModal({
   const [deliveryCode, setDeliveryCode] = useState("");
   const [credentialDetail, setCredentialDetail] = useState<CheckoutCredentialDetail | null>(null);
   const [payerDocument, setPayerDocument] = useState("");
-  const [pollingPayment, setPollingPayment] = useState(false);
   const pollCountRef = useRef(0);
 
   useEffect(() => {
@@ -228,7 +227,6 @@ export function CheckoutModal({
   useEffect(() => {
     if (!open || !orderId) {
       pollCountRef.current = 0;
-      setPollingPayment(false);
       return;
     }
 
@@ -236,7 +234,6 @@ export function CheckoutModal({
     const waitingCredential = step === 4 && !deliveryCode.trim();
     if (!waitingPixConfirm && !waitingCredential) {
       pollCountRef.current = 0;
-      setPollingPayment(false);
       return;
     }
 
@@ -268,12 +265,10 @@ export function CheckoutModal({
 
     void tick();
     pollCountRef.current = 0;
-    setPollingPayment(true);
     const id = setInterval(() => {
       if (cancelled) return;
       pollCountRef.current += 1;
       if (pollCountRef.current >= maxPolls) {
-        setPollingPayment(false);
         clearInterval(id);
         return;
       }
@@ -283,7 +278,6 @@ export function CheckoutModal({
     return () => {
       cancelled = true;
       clearInterval(id);
-      setPollingPayment(false);
     };
   }, [open, step, orderId, qrCode, deliveryCode]);
 
@@ -485,32 +479,6 @@ export function CheckoutModal({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao gerar Pix");
       return false;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function checkPayment() {
-    if (!orderId) return;
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`/api/checkout/status?orderId=${orderId}`, {
-        credentials: "same-origin",
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Não foi possível verificar o pagamento");
-      }
-      if (data.status === "paid") {
-        setDeliveryCode(typeof data.code === "string" ? data.code : "");
-        setCredentialDetail(mapStatusCredential(data.credential));
-        setStep(4);
-      } else {
-        setError("Pagamento ainda não confirmado. Aguarde ou tente de novo em instantes.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Falha ao verificar");
     } finally {
       setLoading(false);
     }
@@ -758,23 +726,26 @@ export function CheckoutModal({
                   </div>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs break-all">{pixCode}</div>
-                <Button
+                <CopyFeedbackButton
+                  text={pixCode}
+                  label="Copiar código Pix"
+                  copiedLabel="Código Pix copiado!"
                   variant="outline"
-                  className="w-full rounded-xl py-3"
-                  onClick={() => navigator.clipboard.writeText(pixCode)}
+                  className="rounded-xl py-3"
+                />
+                <div
+                  className="flex flex-col items-center gap-2 rounded-xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-center"
+                  role="status"
+                  aria-live="polite"
                 >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copiar código Pix
-                </Button>
-                <PaymentButton onClick={checkPayment} disabled={loading} loading={loading}>
-                  Já paguei, verificar agora
-                </PaymentButton>
-                {pollingPayment && step === 3 && qrCode ? (
-                  <p className="flex items-center justify-center gap-2 text-center text-xs text-zinc-500">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-                    Confirmando pagamento automaticamente…
+                  <p className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-900">
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin text-emerald-600" aria-hidden />
+                    Aguardando confirmação do pagamento…
                   </p>
-                ) : null}
+                  <p className="text-xs text-emerald-800/85">
+                    Assim que o Pix for compensado, esta tela avança sozinha. Você não precisa fazer mais nada.
+                  </p>
+                </div>
                 <SecurityInfo />
               </>
             )}

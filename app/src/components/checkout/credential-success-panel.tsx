@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Copy, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { CopyFeedbackButton } from "@/components/copy-feedback-button";
 
 export type CheckoutCredentialDetail = {
   type: "activation_code" | "username_password";
@@ -79,12 +79,32 @@ export function CredentialSuccessPanel({
               <div className="mt-1 rounded-lg border border-zinc-200/80 bg-white px-3 py-2 font-mono text-sm text-zinc-900">
                 {credential.username || "—"}
               </div>
+              {credential.username ? (
+                <CopyFeedbackButton
+                  text={credential.username}
+                  label="Copiar usuário"
+                  copiedLabel="Usuário copiado!"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 rounded-lg py-2 text-xs"
+                />
+              ) : null}
             </div>
             <div>
               <p className="text-xs font-semibold text-zinc-500">Senha</p>
               <div className="mt-1 rounded-lg border border-zinc-200/80 bg-white px-3 py-2 font-mono text-sm text-zinc-900">
                 {credential.password || "—"}
               </div>
+              {credential.password ? (
+                <CopyFeedbackButton
+                  text={credential.password}
+                  label="Copiar senha"
+                  copiedLabel="Senha copiada!"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 rounded-lg py-2 text-xs"
+                />
+              ) : null}
             </div>
           </div>
         ) : (
@@ -97,15 +117,13 @@ export function CredentialSuccessPanel({
         )}
       </div>
 
-      <Button
+      <CopyFeedbackButton
+        text={copyAllText}
+        label="Copiar todas as credenciais"
+        copiedLabel="Tudo copiado com sucesso!"
         variant="theme"
-        className="w-full rounded-2xl py-4 text-base font-bold"
-        type="button"
-        onClick={() => navigator.clipboard.writeText(copyAllText)}
-      >
-        <Copy className="mr-2 h-4 w-4" />
-        Copiar tudo
-      </Button>
+        className="rounded-2xl py-4 text-base font-bold"
+      />
       <p className="text-xs text-zinc-500">
         Salvamos também na sua área do cliente.
       </p>
