@@ -21,6 +21,11 @@ enum ActivationCodeStatus {
   blocked
 }
 
+enum ActivationCredentialType {
+  activation_code
+  username_password
+}
+
 enum DeliveryStatus {
   delivered
   failed
@@ -47,6 +52,7 @@ model User {
   updatedAt    DateTime  @updatedAt
   sessions     Session[]
   orders       Order[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Session {
@@ -58,6 +64,18 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
 }
 
 model Plan {
@@ -77,17 +95,20 @@ model Plan {
 }
 
 model ActivationCode {
-  id          String               @id @default(cuid())
-  code        String               @unique
-  status      ActivationCodeStatus @default(available)
-  blockedReason String?
-  planId      String
-  orderId     String?              @unique
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  plan        Plan                 @relation(fields: [planId], references: [id], onDelete: Cascade)
-  order       Order?               @relation(fields: [orderId], references: [id])
-  deliveries  Delivery[]
+  id             String                   @id @default(cuid())
+  code           String                   @unique
+  credentialType ActivationCredentialType @default(activation_code)
+  username       String?
+  password       String?
+  status         ActivationCodeStatus     @default(available)
+  blockedReason  String?
+  planId         String
+  orderId        String?                  @unique
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  plan           Plan                     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  order          Order?                   @relation(fields: [orderId], references: [id])
+  deliveries     Delivery[]
 
   @@index([planId, status])
 }

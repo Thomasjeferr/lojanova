@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
-/** Sem `turbopack.root` aqui: na Vercel, `outputFileTracingRoot` e `turbopack.root` precisam coincidir — o default evita o warning e mantém o build alinhado. */
-const nextConfig: NextConfig = {};
+/**
+ * Local: forçamos a raiz do Turbopack para a pasta `app` para evitar
+ * resolução errada de dependências quando há múltiplos package-lock no sistema.
+ * Vercel: não definimos, pois a plataforma controla `outputFileTracingRoot`.
+ */
+const nextConfig: NextConfig = process.env.VERCEL
+  ? {}
+  : {
+      turbopack: {
+        root: __dirname,
+      },
+    };
 
 export default nextConfig;

@@ -1,6 +1,7 @@
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AccessPageClient } from "@/components/account/access-page-client";
+import { renderCredentialLine } from "@/lib/activation-credentials";
 
 export default async function AccessPage() {
   const auth = await getAuthUser();
@@ -16,7 +17,13 @@ export default async function AccessPage() {
     id: d.id,
     planTitle: d.order.plan.title,
     durationDays: d.order.plan.durationDays,
-    code: d.activationCode.code,
+    code: renderCredentialLine({
+      credentialType: d.activationCode.credentialType,
+      code: d.activationCode.code,
+      username: d.activationCode.username,
+      password: d.activationCode.password,
+    }),
+    credentialType: d.activationCode.credentialType,
     deliveredAt: d.deliveredAt,
   }));
 

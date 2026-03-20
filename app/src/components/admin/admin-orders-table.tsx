@@ -116,7 +116,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                     {new Date(row.createdAt).toLocaleString("pt-BR")}
                   </AdminTableCell>
                   <AdminTableCell className="font-mono text-xs text-zinc-600">
-                    {row.code ? `${row.code.slice(0, 8)}…` : "—"}
+                    {row.code ? row.code.replace(/\n/g, " / ").slice(0, 28) + "…" : "—"}
                   </AdminTableCell>
                   <AdminTableCell>
                     <button

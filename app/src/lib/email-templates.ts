@@ -6,6 +6,7 @@ export const EMAIL_TEMPLATE_IDS = {
   activationCodeDelivered: "activation_code_delivered_v1",
   welcomeAccount: "welcome_account_v1",
   passwordChanged: "password_changed_v1",
+  passwordResetRequested: "password_reset_requested_v1",
 } as const;
 
 export type EmailTemplateId =
@@ -14,7 +15,8 @@ export type EmailTemplateId =
 export type ActivationCodeDeliveredInput = TemplateInputBase & {
   name: string;
   planName: string;
-  code: string;
+  credentialLabel: string;
+  credentialValue: string;
 };
 
 export type WelcomeAccountInput = TemplateInputBase & {
@@ -26,6 +28,12 @@ export type PasswordChangedInput = TemplateInputBase & {
   name: string;
   changedAt: Date;
   accountUrl: string;
+};
+
+export type PasswordResetRequestedInput = TemplateInputBase & {
+  name: string;
+  resetUrl: string;
+  expiresInMinutes: number;
 };
 
 function layout(content: string, storeName: string) {
@@ -68,6 +76,10 @@ export const EMAIL_TEMPLATES: Record<
     name: "Senha alterada",
     description: "Enviado quando o usuário altera a senha.",
   },
+  [EMAIL_TEMPLATE_IDS.passwordResetRequested]: {
+    name: "Recuperação de senha",
+    description: "Enviado quando o usuário solicita redefinição de senha.",
+  },
 };
 
 export function activationCodeDeliveredTemplate(
@@ -80,9 +92,9 @@ export function activationCodeDeliveredTemplate(
     <p style="margin:0 0 12px;font-size:15px">
       O pagamento do plano <strong>${input.planName}</strong> foi confirmado.
     </p>
-    <p style="margin:0 0 10px;font-size:14px;color:#52525b">Seu código de ativação:</p>
-    <pre style="margin:0 0 16px;padding:12px 14px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:10px;font-size:20px;letter-spacing:.08em;font-weight:700">${input.code}</pre>
-    <p style="margin:0;font-size:14px;color:#52525b">Guarde este código em local seguro.</p>
+    <p style="margin:0 0 10px;font-size:14px;color:#52525b">Sua credencial (${input.credentialLabel}):</p>
+    <pre style="margin:0 0 16px;padding:12px 14px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:10px;font-size:18px;line-height:1.5;font-weight:700;white-space:pre-wrap">${input.credentialValue}</pre>
+    <p style="margin:0;font-size:14px;color:#52525b">Guarde esta informação em local seguro.</p>
     `,
     input.storeName,
   );
@@ -121,5 +133,28 @@ export function passwordChangedTemplate(input: PasswordChangedInput): RenderedTe
     input.storeName,
   );
   return { id: EMAIL_TEMPLATE_IDS.passwordChanged, subject, html };
+}
+
+export function passwordResetRequestedTemplate(
+  input: PasswordResetRequestedInput,
+): RenderedTemplate {
+  const subject = `Redefinição de senha - ${input.storeName}`;
+  const html = layout(
+    `
+    <p style="margin:0 0 12px;font-size:15px">Olá, <strong>${input.name}</strong>!</p>
+    <p style="margin:0 0 12px;font-size:15px">
+      Recebemos uma solicitação para redefinir sua senha.
+    </p>
+    <p style="margin:0 0 16px;font-size:14px;color:#52525b">
+      Clique no botão abaixo para criar uma nova senha. Este link expira em <strong>${input.expiresInMinutes} minutos</strong>.
+    </p>
+    <a href="${input.resetUrl}" style="display:inline-block;padding:10px 16px;background:#18181b;color:#fff;text-decoration:none;border-radius:10px;font-weight:600">Redefinir minha senha</a>
+    <p style="margin:18px 0 0;font-size:13px;color:#71717a">
+      Se você não pediu essa alteração, ignore este e-mail.
+    </p>
+    `,
+    input.storeName,
+  );
+  return { id: EMAIL_TEMPLATE_IDS.passwordResetRequested, subject, html };
 }
 

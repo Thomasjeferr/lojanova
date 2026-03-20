@@ -108,6 +108,11 @@ export function LoginForm({
           {loading ? "Entrando..." : "Entrar"}
         </Button>
       </form>
+      <p className="mt-3 text-center text-sm">
+        <Link href="/redefinir-senha" className="theme-link hover:underline">
+          Esqueci minha senha
+        </Link>
+      </p>
       <p className="mt-4 text-center text-sm text-zinc-500">
         <Link href="/" className="theme-link hover:underline">
           Voltar para a página inicial

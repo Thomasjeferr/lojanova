@@ -2,13 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/admin/page-header";
 import { SectionCard } from "@/components/admin/section-card";
 import { AdminOrdersTable } from "@/components/admin/admin-orders-table";
+import { renderCredentialLine } from "@/lib/activation-credentials";
 
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
     include: {
       user: { select: { name: true, email: true } },
       plan: true,
-      activationCode: { select: { code: true } },
+      activationCode: { select: { code: true, credentialType: true, username: true, password: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -33,7 +34,14 @@ export default async function AdminOrdersPage() {
             status: o.status,
             createdAt: o.createdAt.toISOString(),
             paidAt: o.paidAt?.toISOString(),
-            code: o.activationCode?.code,
+            code: o.activationCode
+              ? renderCredentialLine({
+                  credentialType: o.activationCode.credentialType,
+                  code: o.activationCode.code,
+                  username: o.activationCode.username,
+                  password: o.activationCode.password,
+                })
+              : undefined,
           }))}
         />
       </SectionCard>

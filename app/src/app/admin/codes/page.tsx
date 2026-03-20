@@ -25,7 +25,7 @@ export default async function AdminCodesPage() {
       />
       <SectionCard
         title="Importar códigos"
-        subtitle="Cole um código por linha ou separados por vírgula. Códigos duplicados são ignorados."
+        subtitle="Importe por tipo: código de ativação (16 chars) ou usuário/senha. Duplicados são ignorados."
       >
         <AdminCodesImportCard plans={plans.map((p) => ({ id: p.id, title: p.title }))} />
       </SectionCard>
@@ -37,6 +37,8 @@ export default async function AdminCodesPage() {
           initialCodes={codes.map((c) => ({
             id: c.id,
             code: c.code,
+            credentialType: c.credentialType,
+            username: c.username,
             status: c.status,
             planTitle: c.plan.title,
             orderEmail: c.order?.user?.email,

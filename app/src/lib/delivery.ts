@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { sendActivationEmail } from "@/lib/email";
+import {
+  credentialKindLabel,
+  renderCredentialLine,
+} from "@/lib/activation-credentials";
 
 export async function deliverActivationCode(orderId: string) {
   const result = await prisma.$transaction(async (tx) => {
@@ -14,15 +18,33 @@ export async function deliverActivationCode(orderId: string) {
 
     if (order.delivery) {
       return {
-        deliveredCode: order.activationCode?.code || "",
+        deliveredCode: order.activationCode
+          ? renderCredentialLine({
+              credentialType: order.activationCode.credentialType,
+              code: order.activationCode.code,
+              username: order.activationCode.username,
+              password: order.activationCode.password,
+            })
+          : "",
+        credentialLabel: order.activationCode
+          ? credentialKindLabel(order.activationCode.credentialType)
+          : "Credencial",
         user: order.user,
         plan: order.plan,
       };
     }
 
     // Lock de linha para evitar entrega duplicada do mesmo código
-    const availableCodeRows = await tx.$queryRaw<Array<{ id: string; code: string }>>`
-      SELECT id, code
+    const availableCodeRows = await tx.$queryRaw<
+      Array<{
+        id: string;
+        code: string;
+        credentialType: "activation_code" | "username_password";
+        username: string | null;
+        password: string | null;
+      }>
+    >`
+      SELECT id, code, "credentialType", username, password
       FROM "ActivationCode"
       WHERE "planId" = ${order.planId}
         AND status = 'available'
@@ -62,7 +84,13 @@ export async function deliverActivationCode(orderId: string) {
     });
 
     return {
-      deliveredCode: availableCode.code,
+      deliveredCode: renderCredentialLine({
+        credentialType: availableCode.credentialType,
+        code: availableCode.code,
+        username: availableCode.username,
+        password: availableCode.password,
+      }),
+      credentialLabel: credentialKindLabel(availableCode.credentialType),
       user: order.user,
       plan: order.plan,
       order: paidOrder,
@@ -73,7 +101,8 @@ export async function deliverActivationCode(orderId: string) {
     to: result.user.email,
     name: result.user.name,
     planName: result.plan.title,
-    code: result.deliveredCode,
+    credentialLabel: result.credentialLabel,
+    credentialValue: result.deliveredCode,
   });
 
   return result.deliveredCode;

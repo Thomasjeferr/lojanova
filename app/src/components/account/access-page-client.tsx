@@ -9,6 +9,7 @@ type AccessItem = {
   planTitle: string;
   durationDays: number;
   code: string;
+  credentialType: "activation_code" | "username_password";
   deliveredAt: Date | string;
 };
 
@@ -45,6 +46,7 @@ export function AccessPageClient({ access }: AccessPageClientProps) {
             planTitle={item.planTitle}
             durationDays={item.durationDays}
             code={item.code}
+            credentialType={item.credentialType}
             deliveredAt={item.deliveredAt}
             isRecent={isRecent}
           />

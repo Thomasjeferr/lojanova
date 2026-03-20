@@ -148,9 +148,9 @@ export function OrdersTable({ orders }: OrdersTableProps) {
               </div>
               {detailOrder.code && (
                 <div>
-                  <dt className="text-zinc-500">Código entregue</dt>
+                  <dt className="text-zinc-500">Credencial entregue</dt>
                   <dd className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-lg border bg-zinc-50 px-3 py-2 font-mono text-sm">
+                    <span className="whitespace-pre-wrap rounded-lg border bg-zinc-50 px-3 py-2 font-mono text-sm">
                       {detailOrder.code}
                     </span>
                     <CopyButton value={detailOrder.code} />

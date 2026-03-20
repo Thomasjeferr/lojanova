@@ -16,6 +16,8 @@ import { Key } from "lucide-react";
 type CodeRow = {
   id: string;
   code: string;
+  credentialType: "activation_code" | "username_password";
+  username?: string | null;
   status: "available" | "sold" | "blocked";
   planTitle: string;
   orderEmail?: string;
@@ -25,6 +27,13 @@ type CodeRow = {
 function maskCode(code: string) {
   if (code.length <= 8) return "••••••••";
   return code.slice(0, 4) + "••••••••" + code.slice(-4);
+}
+
+function maskUsername(username?: string | null) {
+  const value = (username ?? "").trim();
+  if (!value) return "—";
+  if (value.length <= 4) return `${value[0] ?? ""}•••`;
+  return `${value.slice(0, 2)}••••${value.slice(-2)}`;
 }
 
 export function AdminCodesTable({ initialCodes }: { initialCodes: CodeRow[] }) {
@@ -43,6 +52,8 @@ export function AdminCodesTable({ initialCodes }: { initialCodes: CodeRow[] }) {
               (c: {
                 id: string;
                 code: string;
+                credentialType: "activation_code" | "username_password";
+                username?: string | null;
                 status: string;
                 plan: { title: string };
                 order?: { user?: { email?: string } };
@@ -50,6 +61,8 @@ export function AdminCodesTable({ initialCodes }: { initialCodes: CodeRow[] }) {
               }) => ({
                 id: c.id,
                 code: c.code,
+                credentialType: c.credentialType,
+                username: c.username,
                 status: c.status,
                 planTitle: c.plan?.title ?? "",
                 orderEmail: c.order?.user?.email,
@@ -117,7 +130,8 @@ export function AdminCodesTable({ initialCodes }: { initialCodes: CodeRow[] }) {
       ) : (
         <AdminTable>
           <AdminTableHead>
-            <AdminTableHeaderCell>Código</AdminTableHeaderCell>
+            <AdminTableHeaderCell>Credencial</AdminTableHeaderCell>
+            <AdminTableHeaderCell>Tipo</AdminTableHeaderCell>
             <AdminTableHeaderCell>Plano</AdminTableHeaderCell>
             <AdminTableHeaderCell>Status</AdminTableHeaderCell>
             <AdminTableHeaderCell>Cliente</AdminTableHeaderCell>
@@ -127,7 +141,12 @@ export function AdminCodesTable({ initialCodes }: { initialCodes: CodeRow[] }) {
             {filtered.map((row) => (
               <AdminTableRow key={row.id}>
                 <AdminTableCell className="font-mono text-zinc-800">
-                  {maskCode(row.code)}
+                  {row.credentialType === "username_password"
+                    ? `Usuario: ${maskUsername(row.username)}`
+                    : maskCode(row.code)}
+                </AdminTableCell>
+                <AdminTableCell>
+                  {row.credentialType === "username_password" ? "Usuario/Senha" : "Código"}
                 </AdminTableCell>
                 <AdminTableCell>{row.planTitle}</AdminTableCell>
                 <AdminTableCell>

@@ -3,11 +3,12 @@ import {
   activationCodeDeliveredTemplate,
   welcomeAccountTemplate,
   passwordChangedTemplate,
+  passwordResetRequestedTemplate,
   type EmailTemplateId,
 } from "@/lib/email-templates";
 
 /** Templates disponíveis para “Enviar teste” no admin */
-export type EmailTestTemplateKey = "activation" | "welcome" | "password";
+export type EmailTestTemplateKey = "activation" | "welcome" | "password" | "reset";
 
 const DEFAULT_STORE = "Loja Digital";
 const DEFAULT_FROM = "Loja Digital <no-reply@seudominio.com>";
@@ -48,18 +49,21 @@ export async function sendActivationEmail({
   to,
   name,
   planName,
-  code,
+  credentialLabel,
+  credentialValue,
 }: {
   to: string;
   name: string;
   planName: string;
-  code: string;
+  credentialLabel: string;
+  credentialValue: string;
 }) {
   const tpl = activationCodeDeliveredTemplate({
     storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
     name,
     planName,
-    code,
+    credentialLabel,
+    credentialValue,
   });
   await sendEmail({
     to,
@@ -112,6 +116,31 @@ export async function sendPasswordChangedEmail({
   });
 }
 
+export async function sendPasswordResetRequestedEmail({
+  to,
+  name,
+  resetUrl,
+  expiresInMinutes,
+}: {
+  to: string;
+  name: string;
+  resetUrl: string;
+  expiresInMinutes: number;
+}) {
+  const tpl = passwordResetRequestedTemplate({
+    storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
+    name,
+    resetUrl,
+    expiresInMinutes,
+  });
+  await sendEmail({
+    to,
+    templateId: tpl.id,
+    subject: tpl.subject,
+    html: tpl.html,
+  });
+}
+
 /**
  * Envia um e-mail de teste (dados fictícios) e devolve sucesso ou mensagem de erro.
  * Usado apenas no painel admin para validar Resend + domínio + templates.
@@ -139,7 +168,8 @@ export async function sendTestTransactionalEmail(
         storeName,
         name: "Cliente (e-mail de teste)",
         planName: "Plano demonstração 30 dias",
-        code: "DEMO-ATIVACAO-001",
+        credentialLabel: "Código de ativação",
+        credentialValue: "AB12CD34EF56GH78",
       });
       subject = `[TESTE] ${tpl.subject}`;
       html = tpl.html;
@@ -161,6 +191,17 @@ export async function sendTestTransactionalEmail(
         name: "Cliente (e-mail de teste)",
         changedAt: new Date(),
         accountUrl: `${appUrl}/account/profile`,
+      });
+      subject = `[TESTE] ${tpl.subject}`;
+      html = tpl.html;
+      break;
+    }
+    case "reset": {
+      const tpl = passwordResetRequestedTemplate({
+        storeName,
+        name: "Cliente (e-mail de teste)",
+        resetUrl: `${appUrl}/redefinir-senha?token=token-de-teste`,
+        expiresInMinutes: 30,
       });
       subject = `[TESTE] ${tpl.subject}`;
       html = tpl.html;

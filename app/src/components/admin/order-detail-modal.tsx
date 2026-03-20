@@ -116,7 +116,7 @@ export function OrderDetailModal({
               <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Código entregue
               </p>
-              <p className="mt-1.5 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 font-mono text-sm text-zinc-900">
+              <p className="mt-1.5 whitespace-pre-wrap rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 font-mono text-sm text-zinc-900">
                 {order.code}
               </p>
             </div>

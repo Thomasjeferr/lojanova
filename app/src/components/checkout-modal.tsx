@@ -490,9 +490,9 @@ export function CheckoutModal({
             >
               Pagamento aprovado!
             </p>
-            <p className="text-zinc-600">Seu código de ativação foi liberado:</p>
+            <p className="text-zinc-600">Sua credencial de acesso foi liberada:</p>
             <div
-              className="rounded-xl border p-4 font-mono text-lg"
+              className="whitespace-pre-wrap rounded-xl border p-4 font-mono text-lg"
               style={{
                 backgroundColor: "var(--theme-success-bg)",
                 borderColor: "color-mix(in srgb, var(--theme-success) 25%, transparent)",
@@ -502,10 +502,10 @@ export function CheckoutModal({
             </div>
             <Button variant="theme" className="w-full rounded-2xl py-4 text-base font-bold" onClick={() => navigator.clipboard.writeText(deliveryCode)}>
               <Copy className="mr-2 h-4 w-4" />
-              Copiar código
+              Copiar credencial
             </Button>
             <p className="text-xs text-zinc-500">
-              Guarde este código. Ele também está disponível na sua área do cliente.
+              Guarde esta credencial. Ela também está disponível na sua área do cliente.
             </p>
           </div>
         )}

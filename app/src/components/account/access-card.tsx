@@ -8,6 +8,7 @@ type AccessCardProps = {
   planTitle: string;
   durationDays: number;
   code: string;
+  credentialType: "activation_code" | "username_password";
   deliveredAt: Date | string;
   isRecent?: boolean;
 };
@@ -31,6 +32,7 @@ export function AccessCard({
   planTitle,
   durationDays,
   code,
+  credentialType,
   deliveredAt,
   isRecent,
 }: AccessCardProps) {
@@ -65,7 +67,7 @@ export function AccessCard({
         )}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <div className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 font-mono text-sm tracking-wide text-zinc-800">
+        <div className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3 font-mono text-sm text-zinc-800 whitespace-pre-wrap">
           {displayCode}
         </div>
         <button
@@ -76,6 +78,9 @@ export function AccessCard({
           {revealed ? "Ocultar" : "Mostrar"}
         </button>
         <CopyButton value={code} variant="default" />
+        <span className="text-xs text-zinc-500">
+          {credentialType === "username_password" ? "Formato: Usuario/Senha" : "Formato: Código"}
+        </span>
       </div>
     </div>
   );

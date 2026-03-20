@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ok, unauthorized } from "@/lib/http";
 import { requireUser } from "@/lib/auth";
+import { renderCredentialLine } from "@/lib/activation-credentials";
 
 export async function GET() {
   try {
@@ -20,7 +21,13 @@ export async function GET() {
         orderId: item.orderId,
         planTitle: item.order.plan.title,
         durationDays: item.order.plan.durationDays,
-        code: item.activationCode.code,
+        code: renderCredentialLine({
+          credentialType: item.activationCode.credentialType,
+          code: item.activationCode.code,
+          username: item.activationCode.username,
+          password: item.activationCode.password,
+        }),
+        credentialType: item.activationCode.credentialType,
         deliveredAt: item.deliveredAt,
       })),
     });

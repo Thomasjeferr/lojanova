@@ -3,6 +3,7 @@ import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DashboardStats } from "@/components/account/dashboard-stats";
 import { AccountDashboardClient } from "@/components/account/account-dashboard-client";
+import { renderCredentialLine } from "@/lib/activation-credentials";
 
 export default async function AccountDashboardPage() {
   const auth = await getAuthUser();
@@ -32,7 +33,14 @@ export default async function AccountDashboardPage() {
     : 0;
   const paidOrders = orders.filter((o) => o.status === "paid");
   const lastOrder = orders[0] ?? null;
-  const lastCode = deliveries[0]?.activationCode?.code ?? null;
+  const lastCode = deliveries[0]?.activationCode
+    ? renderCredentialLine({
+        credentialType: deliveries[0].activationCode.credentialType,
+        code: deliveries[0].activationCode.code,
+        username: deliveries[0].activationCode.username,
+        password: deliveries[0].activationCode.password,
+      })
+    : null;
 
   return (
     <div className="space-y-8">
@@ -61,7 +69,12 @@ export default async function AccountDashboardPage() {
           id: d.id,
           planTitle: d.order.plan.title,
           durationDays: d.order.plan.durationDays,
-          code: d.activationCode.code,
+          code: renderCredentialLine({
+            credentialType: d.activationCode.credentialType,
+            code: d.activationCode.code,
+            username: d.activationCode.username,
+            password: d.activationCode.password,
+          }),
           deliveredAt: d.deliveredAt,
         }))}
         lastOrders={orders.map((o) => ({

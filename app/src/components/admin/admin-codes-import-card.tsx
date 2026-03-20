@@ -11,6 +11,9 @@ export function AdminCodesImportCard({
   plans: Array<{ id: string; title: string }>;
 }) {
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
+  const [credentialType, setCredentialType] = useState<
+    "activation_code" | "username_password"
+  >("activation_code");
   const [codesRaw, setCodesRaw] = useState("");
   const [message, setMessage] = useState<{
     type: "ok" | "err";
@@ -20,7 +23,7 @@ export function AdminCodesImportCard({
 
   async function submit() {
     const codes = codesRaw
-      .split(/\r?\n|,/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 
@@ -35,7 +38,7 @@ export function AdminCodesImportCard({
       const res = await fetch("/api/admin/codes/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, codes }),
+        body: JSON.stringify({ planId, credentialType, codes }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -46,9 +49,11 @@ export function AdminCodesImportCard({
         setLoading(false);
         return;
       }
+      const kind =
+        credentialType === "activation_code" ? "código(s) de ativação" : "credencial(is) usuário/senha";
       setMessage({
         type: "ok",
-        text: `${data.imported} código(s) importado(s) com sucesso.`,
+        text: `${data.imported} ${kind} importado(s) com sucesso.`,
       });
       setCodesRaw("");
       window.dispatchEvent(new CustomEvent("admin-codes-refresh"));
@@ -82,19 +87,47 @@ export function AdminCodesImportCard({
       </div>
       <div className="space-y-2">
         <label
+          htmlFor="codes-type"
+          className="block text-sm font-medium text-zinc-700"
+        >
+          Tipo de credencial
+        </label>
+        <select
+          id="codes-type"
+          className="w-full max-w-sm rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          value={credentialType}
+          onChange={(e) => setCredentialType(e.target.value as "activation_code" | "username_password")}
+        >
+          <option value="activation_code">Código de ativação (16 caracteres)</option>
+          <option value="username_password">Usuário + Senha</option>
+        </select>
+      </div>
+      <div className="space-y-2">
+        <label
           htmlFor="codes-textarea"
           className="block text-sm font-medium text-zinc-700"
         >
-          Códigos (um por linha ou separados por vírgula)
+          {credentialType === "activation_code"
+            ? "Códigos (um por linha, 16 caracteres alfanuméricos)"
+            : "Credenciais (uma por linha no formato: usuario,senha)"}
         </label>
         <Textarea
           id="codes-textarea"
           rows={12}
-          placeholder="CODE-XXX-001&#10;CODE-XXX-002&#10;CODE-XXX-003"
+          placeholder={
+            credentialType === "activation_code"
+              ? "AB12CD34EF56GH78&#10;ZX90YU12TR34WE56"
+              : "1234567890,123456&#10;9988776655,minhaSenha7"
+          }
           value={codesRaw}
           onChange={(e) => setCodesRaw(e.target.value)}
           className="min-h-[200px] rounded-xl font-mono text-sm"
         />
+        <p className="text-xs text-zinc-500">
+          {credentialType === "activation_code"
+            ? "Aceita apenas letras/números com 16 caracteres. Duplicados são ignorados."
+            : 'Separe com vírgula (,) ou ponto e vírgula (;). Ex.: "usuario,senha".'}
+        </p>
       </div>
       {message && (
         <div

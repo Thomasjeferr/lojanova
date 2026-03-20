@@ -1,6 +1,7 @@
 import { getAuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { OrdersTable } from "@/components/account/orders-table";
+import { renderCredentialLine } from "@/lib/activation-credentials";
 
 export default async function OrdersPage() {
   const auth = await getAuthUser();
@@ -19,7 +20,14 @@ export default async function OrdersPage() {
     amountCents: o.amountCents,
     status: o.status,
     createdAt: o.createdAt.toISOString(),
-    code: o.activationCode?.code ?? null,
+    code: o.activationCode
+      ? renderCredentialLine({
+          credentialType: o.activationCode.credentialType,
+          code: o.activationCode.code,
+          username: o.activationCode.username,
+          password: o.activationCode.password,
+        })
+      : null,
     paidAt: o.paidAt?.toISOString() ?? null,
   }));
 

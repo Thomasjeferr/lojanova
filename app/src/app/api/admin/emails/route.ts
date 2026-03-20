@@ -21,6 +21,12 @@ const TEMPLATE_ROWS = [
     ...EMAIL_TEMPLATES[EMAIL_TEMPLATE_IDS.passwordChanged],
     trigger: "Após o usuário alterar a senha na área logada.",
   },
+  {
+    key: "reset" as const,
+    internalId: EMAIL_TEMPLATE_IDS.passwordResetRequested,
+    ...EMAIL_TEMPLATES[EMAIL_TEMPLATE_IDS.passwordResetRequested],
+    trigger: "Após solicitação de recuperação de senha (esqueci minha senha).",
+  },
 ];
 
 /** Lista metadados dos templates (admin) + status da configuração Resend */
