@@ -73,6 +73,8 @@ export function LandingPage({
       <FloatingWhatsAppButton settings={contactSettings} />
       <CheckoutModal
         plan={selectedPlan}
+        allPlans={plans}
+        onPlanChange={setSelectedPlan}
         open={Boolean(selectedPlan)}
         onClose={() => setSelectedPlan(null)}
         loggedInUser={userSession}

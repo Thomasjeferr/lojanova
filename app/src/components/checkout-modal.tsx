@@ -6,24 +6,35 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { currencyBRL } from "@/lib/utils";
 import {
+  AlertTriangle,
   ArrowRight,
   CheckCircle2,
   Copy,
   Eye,
   EyeOff,
+  Loader2,
   ShieldCheck,
   X,
   Zap,
 } from "lucide-react";
+import type { Plan } from "@/components/landing/plan-card";
 
-type Plan = {
-  id: string;
-  title: string;
-  logoDataUrl?: string | null;
-  durationDays: number;
-  priceCents: number;
-  isFeatured?: boolean;
-};
+function pickAlternativePlans(
+  selected: Plan,
+  allPlans: Plan[],
+  stock: Record<string, number>,
+  limit = 3,
+): Plan[] {
+  return allPlans
+    .filter((p) => p.id !== selected.id && (stock[p.id] ?? 0) > 0)
+    .sort((a, b) => {
+      const da = Math.abs(a.durationDays - selected.durationDays);
+      const db = Math.abs(b.durationDays - selected.durationDays);
+      if (da !== db) return da - db;
+      return Math.abs(a.priceCents - selected.priceCents) - Math.abs(b.priceCents - selected.priceCents);
+    })
+    .slice(0, limit);
+}
 
 function Stepper({
   step,
@@ -34,7 +45,7 @@ function Stepper({
 }) {
   const items = ["Resumo", "Pagamento", "Confirmação"];
   return (
-    <div className="mb-6 grid grid-cols-3 gap-2 rounded-xl border border-zinc-200/70 bg-zinc-50/70 p-1.5">
+    <div className="mb-6 grid grid-cols-3 gap-2 rounded-xl border border-zinc-200/70 bg-zinc-50/70 p-1.5 transition-colors duration-300">
       {items.map((label, i) => {
         const idx = i + 1;
         const targetStep = (idx as 1 | 2 | 3);
@@ -52,10 +63,10 @@ function Stepper({
             disabled={!canNavigate}
             className={
               active
-                ? "rounded-lg bg-white px-2 py-2 text-center text-xs font-semibold text-zinc-900 shadow-sm"
+                ? "rounded-lg bg-white px-2 py-2 text-center text-xs font-semibold text-zinc-900 shadow-sm transition-all duration-300 ease-out"
                 : canNavigate
-                  ? "px-2 py-2 text-center text-xs font-medium text-zinc-500 transition hover:text-zinc-800"
-                  : "px-2 py-2 text-center text-xs font-medium text-zinc-400"
+                  ? "rounded-lg px-2 py-2 text-center text-xs font-medium text-zinc-500 transition-all duration-300 ease-out hover:bg-white/60 hover:text-zinc-800"
+                  : "rounded-lg px-2 py-2 text-center text-xs font-medium text-zinc-400 transition-colors duration-200"
             }
           >
             {label}
@@ -69,14 +80,23 @@ function Stepper({
 function PlanSummaryCard({
   plan,
   priceCaption,
+  outOfStock = false,
 }: {
   plan: Plan;
   priceCaption?: string;
+  outOfStock?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-[0_14px_30px_-22px_rgba(0,0,0,0.35)]">
+    <div
+      className={`relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-[0_14px_30px_-22px_rgba(0,0,0,0.35)] transition-[opacity,box-shadow,transform] duration-500 ease-out motion-reduce:transition-none ${outOfStock ? "opacity-75 ring-2 ring-amber-200/80" : ""}`}
+    >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[var(--theme-primary)]/90 via-[var(--theme-gradient-via)]/80 to-transparent" />
-      {plan.isFeatured && (
+      {outOfStock && (
+        <span className="mb-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-amber-900">
+          Esgotado no momento
+        </span>
+      )}
+      {!outOfStock && plan.isFeatured && (
         <span className="mb-3 inline-flex rounded-full bg-[var(--theme-soft)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--theme-primary)]">
           Melhor escolha
         </span>
@@ -109,7 +129,7 @@ function PaymentButton({
   return (
     <button
       {...props}
-      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--theme-gradient-from)] via-[var(--theme-gradient-via)] to-[var(--theme-gradient-to)] px-6 py-4 text-base font-bold text-white shadow-[0_18px_34px_-14px_var(--theme-featured-shadow)] transition-all duration-300 hover:scale-[1.02] hover:brightness-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--theme-gradient-from)] via-[var(--theme-gradient-via)] to-[var(--theme-gradient-to)] px-6 py-4 text-base font-bold text-white shadow-[0_18px_34px_-14px_var(--theme-featured-shadow)] transition-[transform,filter,box-shadow] duration-300 ease-out hover:scale-[1.02] hover:brightness-[1.03] hover:shadow-[0_22px_40px_-12px_var(--theme-featured-shadow)] active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:scale-100 disabled:cursor-not-allowed disabled:opacity-70"
     >
       <Zap className="h-4 w-4" />
       {loading ? "Processando..." : children}
@@ -135,22 +155,24 @@ function SecurityInfo() {
 
 export function CheckoutModal({
   plan,
+  allPlans,
+  onPlanChange,
   open,
   onClose,
   loggedInUser = null,
 }: {
   plan: Plan | null;
+  allPlans: Plan[];
+  onPlanChange: (plan: Plan) => void;
   open: boolean;
   onClose: () => void;
   loggedInUser?: { email: string } | null;
 }) {
   const [step, setStep] = useState(1);
-
-  useEffect(() => {
-    if (!open || !plan) {
-      setStep(1);
-    }
-  }, [open, plan]);
+  const [stockByPlanId, setStockByPlanId] = useState<Record<string, number> | null>(null);
+  const [stockLoading, setStockLoading] = useState(false);
+  const [stockFetchError, setStockFetchError] = useState<string | null>(null);
+  const [stockRetryTick, setStockRetryTick] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
@@ -166,12 +188,64 @@ export function CheckoutModal({
   const [pixCode, setPixCode] = useState("");
   const [deliveryCode, setDeliveryCode] = useState("");
 
+  useEffect(() => {
+    if (!open || !plan) {
+      setStep(1);
+    }
+  }, [open, plan]);
+
+  useEffect(() => {
+    if (!open) {
+      setStockByPlanId(null);
+      setStockFetchError(null);
+      setStockRetryTick(0);
+      return;
+    }
+    let cancelled = false;
+    setStockLoading(true);
+    setStockFetchError(null);
+    setStockByPlanId(null);
+    fetch("/api/public/plans-stock")
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Falha ao consultar estoque");
+        if (!data.stock || typeof data.stock !== "object") throw new Error("Resposta inválida");
+        if (!cancelled) setStockByPlanId(data.stock as Record<string, number>);
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setStockFetchError(e instanceof Error ? e.message : "Erro de rede");
+          setStockByPlanId(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setStockLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, stockRetryTick]);
+
   const title = useMemo(() => {
     if (step === 1) return "Resumo do plano";
     if (step === 2) return "Identificação";
     if (step === 3) return "Pagamento via Pix";
     return "Pagamento aprovado";
   }, [step]);
+
+  const alternatives = useMemo(() => {
+    if (!plan || !stockByPlanId) return [];
+    return pickAlternativePlans(plan, allPlans, stockByPlanId);
+  }, [plan, allPlans, stockByPlanId]);
+
+  const stockReady = Boolean(stockByPlanId && !stockFetchError);
+  const unitsForPlan = plan && stockByPlanId ? (stockByPlanId[plan.id] ?? 0) : 0;
+  const outOfStock = Boolean(stockReady && plan && unitsForPlan === 0);
+  const anyAlternative = alternatives.length > 0;
+  const globalSoldOut = Boolean(stockReady && plan && outOfStock && !anyAlternative);
+  const canProceedStep1 = Boolean(
+    plan && stockByPlanId && !stockLoading && !stockFetchError && (stockByPlanId[plan.id] ?? 0) > 0,
+  );
 
   if (!open || !plan) return null;
 
@@ -334,10 +408,14 @@ export function CheckoutModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-      <Card className="w-full max-w-2xl rounded-2xl border-zinc-200/80 bg-white/95 p-7 shadow-2xl animate-in fade-in zoom-in-95 duration-200 sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <div
+        className="checkout-modal-backdrop absolute inset-0 bg-black/50 backdrop-blur-md supports-[backdrop-filter]:bg-black/40"
+        aria-hidden
+      />
+      <Card className="checkout-modal-panel relative z-10 w-full max-w-2xl rounded-2xl border-zinc-200/70 bg-white/95 p-7 shadow-[0_25px_80px_-24px_rgba(0,0,0,0.3)] sm:p-8">
         <div className="mb-5 flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <h3 className="text-2xl font-bold tracking-tight text-zinc-900">
               {step === 1 ? "Resumo do seu plano" : title}
             </h3>
@@ -346,7 +424,8 @@ export function CheckoutModal({
             </p>
           </div>
           <button
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition hover:border-zinc-300 hover:text-zinc-700"
+            type="button"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-all duration-200 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 active:scale-95"
             onClick={onClose}
             aria-label="Fechar modal"
           >
@@ -355,27 +434,101 @@ export function CheckoutModal({
         </div>
         <Stepper step={step} onNavigate={navigateStepper} />
 
+        <div key={step} className="checkout-modal-step">
         {step === 1 && (
           <div className="space-y-5">
-            <p className="text-sm font-medium text-zinc-600">Você está comprando:</p>
-            <PlanSummaryCard plan={plan} />
-            {loggedInUser ? (
-              <PaymentButton
-                onClick={async () => {
-                  await createPix();
-                  setStep(3);
-                }}
-                disabled={loading}
-                loading={loading}
-              >
-                Pagar com Pix
-              </PaymentButton>
-            ) : (
-              <Button variant="theme" className="w-full rounded-2xl py-4 text-base font-bold" onClick={() => setStep(2)}>
-                Continuar compra
-              </Button>
+            {stockLoading && (
+              <div className="flex flex-col items-center gap-3 py-8 text-sm text-zinc-600">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+                Verificando disponibilidade…
+              </div>
             )}
-            <SecurityInfo />
+
+            {!stockLoading && stockFetchError && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                <p>{stockFetchError}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3 rounded-xl"
+                  onClick={() => setStockRetryTick((t) => t + 1)}
+                >
+                  Tentar novamente
+                </Button>
+              </div>
+            )}
+
+            {!stockLoading && stockReady && (
+              <>
+                {outOfStock && (
+                  <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
+                    <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" aria-hidden />
+                    <div>
+                      <p className="font-semibold">Estoque esgotado para este plano</p>
+                      <p className="mt-1 text-amber-900/90">
+                        {globalSoldOut
+                          ? "No momento não há códigos disponíveis em nenhum plano. Tente mais tarde ou fale conosco pelo WhatsApp."
+                          : "Outras opções ainda têm código disponível para liberação imediata:"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-sm font-medium text-zinc-600">Você está comprando:</p>
+                <PlanSummaryCard plan={plan} outOfStock={outOfStock} />
+
+                {outOfStock && anyAlternative && (
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-zinc-700">Planos disponíveis agora</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {alternatives.map((alt) => (
+                        <button
+                          key={alt.id}
+                          type="button"
+                          onClick={() => onPlanChange(alt)}
+                          className="rounded-2xl border border-zinc-200/90 bg-white p-4 text-left shadow-sm ring-0 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[var(--theme-primary)] hover:shadow-[0_12px_32px_-18px_rgba(0,0,0,0.18)] hover:ring-2 hover:ring-[var(--theme-ring)]/20 active:translate-y-0 motion-reduce:hover:translate-y-0"
+                        >
+                          <p className="font-semibold text-zinc-900">{alt.title}</p>
+                          <p className="mt-0.5 text-xs text-zinc-500">{alt.durationDays} dias</p>
+                          <p
+                            className="mt-2 text-lg font-bold"
+                            style={{ color: "var(--theme-price-accent)" }}
+                          >
+                            {currencyBRL(alt.priceCents)}
+                          </p>
+                          <span className="mt-2 inline-block text-xs font-semibold text-[var(--theme-primary)]">
+                            Escolher este plano →
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {loggedInUser ? (
+                  <PaymentButton
+                    onClick={async () => {
+                      await createPix();
+                      setStep(3);
+                    }}
+                    disabled={loading || !canProceedStep1}
+                    loading={loading}
+                  >
+                    Pagar com Pix
+                  </PaymentButton>
+                ) : (
+                  <Button
+                    variant="theme"
+                    className="w-full rounded-2xl py-4 text-base font-bold transition-[transform,filter,box-shadow] duration-300 ease-out hover:brightness-105 active:scale-[0.99] disabled:pointer-events-none disabled:active:scale-100"
+                    onClick={() => setStep(2)}
+                    disabled={!canProceedStep1}
+                  >
+                    Continuar compra
+                  </Button>
+                )}
+                <SecurityInfo />
+              </>
+            )}
           </div>
         )}
 
@@ -509,8 +662,13 @@ export function CheckoutModal({
             </p>
           </div>
         )}
+        </div>
 
-        {error && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+        {error && (
+          <p className="checkout-modal-error mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </p>
+        )}
       </Card>
     </div>
   );

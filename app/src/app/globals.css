@@ -153,6 +153,82 @@
     }
   }
 
+  /**
+   * Checkout modal — referência: camadas escalonadas (fundo → cartão → corpo),
+   * easing tipo Material / modais “sheet” (desaceleração longa, sem snap).
+   */
+  @keyframes checkout-modal-backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes checkout-modal-panel-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, max(20px, 3vh), 0) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  /** Troca de etapa: só subida leve + fade (evita “slide lateral” seco) */
+  @keyframes checkout-modal-step-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .checkout-modal-backdrop {
+    animation: checkout-modal-backdrop-in 0.52s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  /* Painel começa um instante depois do fundo — sensação de hierarquia */
+  .checkout-modal-panel {
+    animation: checkout-modal-panel-in 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    transform-origin: 50% 50%;
+  }
+
+  /* Corpo entra por último para não “brigar” com o cartão */
+  .checkout-modal-step {
+    animation: checkout-modal-step-in 0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s both;
+  }
+
+  @keyframes checkout-modal-error-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 6px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .checkout-modal-error {
+    animation: checkout-modal-error-in 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .checkout-modal-backdrop,
+    .checkout-modal-panel,
+    .checkout-modal-step,
+    .checkout-modal-error {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0s !important;
+    }
+  }
+
   .landing-section-alt {
     background: var(--landing-section-alt-bg);
     border-color: var(--landing-section-alt-border);

@@ -94,6 +94,7 @@ Em **Configurações** do admin: ative o alerta, defina o **limite global** (ex.
 - `GET/POST /api/admin/plans`
 - `GET/PUT /api/admin/settings/low-stock-alert` (alerta de estoque)
 - `GET /api/cron/low-stock-alert` (cron; `Authorization: Bearer CRON_SECRET`)
+- `GET /api/public/plans-stock` (contagem de códigos disponíveis por plano — checkout)
 
 ## Deploy
 
