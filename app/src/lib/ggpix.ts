@@ -9,6 +9,34 @@ type PixChargeResponse = {
 
 /** Documentação: POST /api/v1/pix/in com X-API-Key e payerDocument obrigatório. */
 const GGPIX_PIX_IN_URL = "https://ggpixapi.com/api/v1/pix/in";
+const GGPIX_API_BASE = "https://ggpixapi.com/api/v1";
+
+/** Polling oficial quando o webhook atrasa ou falha na validação. */
+export async function fetchGgPixTransactionById(
+  transactionId: string,
+  apiKey: string,
+): Promise<{ status: string } | null> {
+  const key = apiKey.trim().replace(/^Bearer\s+/i, "");
+  const id = encodeURIComponent(transactionId.trim());
+  if (!id) return null;
+
+  const res = await fetch(`${GGPIX_API_BASE}/transactions/${id}`, {
+    method: "GET",
+    headers: {
+      "X-API-Key": key,
+      Authorization: `Bearer ${key}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!res.ok) return null;
+  try {
+    const data = (await res.json()) as Record<string, unknown>;
+    return { status: String(data.status ?? "") };
+  } catch {
+    return null;
+  }
+}
 
 export async function createGgPixCharge({
   amountCents,

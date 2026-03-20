@@ -95,6 +95,47 @@ export function isValidWooviWebhookRequest(rawBody: string, request: Request): b
   return isValidWooviWebhookRequestWithSecret(rawBody, request, secret);
 }
 
+/**
+ * GGPIXAPI: `X-Webhook-Signature: t=unix,v1=hex` — HMAC-SHA256 do par `{timestamp}.{rawBody}`.
+ * @see https://ggpixapi.com/docs — seção Webhooks / HMAC
+ */
+export function verifyGgPixWebhookTimestampV1(
+  rawBody: string,
+  signatureHeader: string | null,
+  secret: string,
+): boolean {
+  if (!signatureHeader?.trim() || !secret.trim()) return false;
+  const h = signatureHeader.trim();
+  if (!h.includes("t=") || !h.includes("v1=")) return false;
+
+  let timestamp = "";
+  let receivedHex = "";
+  for (const part of h.split(",")) {
+    const p = part.trim();
+    const low = p.toLowerCase();
+    if (low.startsWith("t=")) timestamp = p.slice(2).trim();
+    else if (low.startsWith("v1=")) receivedHex = p.slice(3).trim();
+  }
+  if (!timestamp || !receivedHex) return false;
+
+  const ts = Number.parseInt(timestamp, 10);
+  if (Number.isNaN(ts)) return false;
+  const ageSec = Math.abs(Date.now() / 1000 - ts);
+  if (ageSec > 300) return false;
+
+  const signedPayload = `${timestamp}.${rawBody}`;
+  const expectedHex = crypto.createHmac("sha256", secret.trim()).update(signedPayload).digest("hex");
+
+  try {
+    const a = Buffer.from(receivedHex.toLowerCase(), "hex");
+    const b = Buffer.from(expectedHex, "hex");
+    if (a.length !== b.length) return false;
+    return crypto.timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+
 export function isValidGgPixWebhookRequestWithSecret(
   rawBody: string,
   request: Request,
@@ -103,13 +144,31 @@ export function isValidGgPixWebhookRequestWithSecret(
   const cleanSecret = secret.trim();
   if (!cleanSecret) return false;
 
-  const rsaSig = request.headers.get("x-webhook-signature");
-  if (rsaSig && verifyWooviWebhookRsa(rawBody, rsaSig)) return true;
+  const xWebhookSig =
+    request.headers.get("x-webhook-signature") ?? request.headers.get("X-Webhook-Signature");
+
+  const xw = xWebhookSig?.toLowerCase() ?? "";
+  if (xw.includes("v1=") && xw.includes("t=")) {
+    if (verifyGgPixWebhookTimestampV1(rawBody, xWebhookSig, cleanSecret)) return true;
+  }
+
+  const auth = request.headers.get("authorization")?.trim();
+  if (auth?.toLowerCase().startsWith("bearer ")) {
+    const token = auth.slice(7).trim();
+    const bearerEnv = process.env.GGPIX_WEBHOOK_BEARER?.trim();
+    if (token && (token === cleanSecret || (bearerEnv && token === bearerEnv))) {
+      return true;
+    }
+  }
+
+  if (xWebhookSig && !xWebhookSig.includes("t=") && verifyWooviWebhookRsa(rawBody, xWebhookSig)) {
+    return true;
+  }
 
   const hmac256 =
     request.headers.get("x-ggpix-signature") ??
     request.headers.get("x-signature") ??
-    request.headers.get("x-webhook-signature");
+    (xWebhookSig && !xWebhookSig.includes("t=") ? xWebhookSig : null);
   if (verifyHmacSha256Hex(rawBody, cleanSecret, hmac256)) return true;
 
   const hmacBase64 =
