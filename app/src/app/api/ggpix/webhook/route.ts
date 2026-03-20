@@ -41,37 +41,35 @@ export async function POST(request: Request) {
   const nestedData = asObject(payload.data);
   const nestedPix = nestedData ? asObject(nestedData.pix) : null;
 
-  const eventId = String(
-    payload.eventId ??
+  const transactionId = String(
+    payload.transactionId ??
+      nestedData?.transactionId ??
       payload.id ??
       nestedData?.id ??
-      payload.externalId ??
-      nestedData?.externalId ??
-      payload.txid ??
-      nestedData?.txid ??
       "",
-  );
+  ).trim();
+  const externalId = String(payload.externalId ?? nestedData?.externalId ?? "").trim();
+  const txidPix = String(payload.txid ?? nestedData?.txid ?? "").trim();
+
+  const eventId = String(
+    payload.eventId ?? transactionId ?? txidPix ?? externalId ?? payload.id ?? "",
+  ).trim();
+
   const eventType = String(payload.type ?? payload.event ?? nestedData?.type ?? "unknown");
   const status = String(payload.status ?? nestedData?.status ?? nestedPix?.status ?? "").toUpperCase();
-  const txid = String(
-    payload.txid ??
-      nestedData?.txid ??
-      payload.transactionId ??
-      nestedData?.transactionId ??
-      payload.externalId ??
-      nestedData?.externalId ??
-      "",
-  );
+  /** GGPIXAPI usa COMPLETE no webhook oficial; não confundir com COMPLETED. */
   const paid =
     status === "PAID" ||
     status === "COMPLETED" ||
+    status === "COMPLETE" ||
     status === "APPROVED" ||
     status === "CONFIRMED" ||
     eventType.toUpperCase().includes("PAID") ||
-    eventType.toUpperCase().includes("CONFIRMED");
+    eventType.toUpperCase().includes("CONFIRM") ||
+    eventType.toUpperCase().includes("COMPLETE");
 
-  if (!eventId || !txid) {
-    return badRequest("Payload de webhook inválido");
+  if (!eventId) {
+    return badRequest("Payload de webhook inválido: falta identificador do evento");
   }
 
   const existing = await prisma.webhookLog.findUnique({ where: { eventId } });
@@ -89,9 +87,25 @@ export async function POST(request: Request) {
     return ok({ message: "Evento recebido, aguardando pagamento" });
   }
 
-  const order = await prisma.order.findFirst({ where: { wooviTxid: txid } });
+  const or: Prisma.OrderWhereInput[] = [];
+  const refs = new Set<string>();
+  for (const v of [transactionId, txidPix, externalId]) {
+    if (v) refs.add(v);
+  }
+  for (const ref of refs) {
+    or.push({ wooviTxid: ref }, { wooviChargeId: ref });
+  }
+  if (externalId) {
+    or.push({ id: externalId });
+  }
+
+  if (or.length === 0) {
+    return badRequest("Payload de webhook sem transactionId, txid ou externalId");
+  }
+
+  const order = await prisma.order.findFirst({ where: { OR: or } });
   if (!order) {
-    return badRequest("Pedido não encontrado para txid");
+    return badRequest("Pedido não encontrado para esta transação (txid/charge/externalId)");
   }
 
   if (order.status !== "paid") {

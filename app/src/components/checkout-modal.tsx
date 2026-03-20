@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,6 @@ import { currencyBRL } from "@/lib/utils";
 import {
   AlertTriangle,
   ArrowRight,
-  CheckCircle2,
   Copy,
   Eye,
   EyeOff,
@@ -19,6 +18,24 @@ import {
 } from "lucide-react";
 import type { Plan } from "@/components/landing/plan-card";
 import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
+import {
+  CredentialSuccessPanel,
+  type CheckoutCredentialDetail,
+} from "@/components/checkout/credential-success-panel";
+
+function mapStatusCredential(raw: unknown): CheckoutCredentialDetail | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const type = o.type;
+  if (type !== "activation_code" && type !== "username_password") return null;
+  return {
+    type,
+    kindLabel: String(o.kindLabel ?? ""),
+    activationCode: o.activationCode != null ? String(o.activationCode) : null,
+    username: o.username != null ? String(o.username) : null,
+    password: o.password != null ? String(o.password) : null,
+  };
+}
 
 function pickAlternativePlans(
   selected: Plan,
@@ -188,14 +205,87 @@ export function CheckoutModal({
   const [qrCode, setQrCode] = useState("");
   const [pixCode, setPixCode] = useState("");
   const [deliveryCode, setDeliveryCode] = useState("");
+  const [credentialDetail, setCredentialDetail] = useState<CheckoutCredentialDetail | null>(null);
   const [payerDocument, setPayerDocument] = useState("");
+  const [pollingPayment, setPollingPayment] = useState(false);
+  const pollCountRef = useRef(0);
 
   useEffect(() => {
     if (!open || !plan) {
       setStep(1);
       setPayerDocument("");
+      setOrderId("");
+      setQrCode("");
+      setPixCode("");
+      setDeliveryCode("");
+      setCredentialDetail(null);
+      setError("");
+      pollCountRef.current = 0;
     }
   }, [open, plan]);
+
+  /** Confirmação automática após o Pix e, se preciso, espera a credencial do webhook. */
+  useEffect(() => {
+    if (!open || !orderId) {
+      pollCountRef.current = 0;
+      setPollingPayment(false);
+      return;
+    }
+
+    const waitingPixConfirm = step === 3 && Boolean(qrCode);
+    const waitingCredential = step === 4 && !deliveryCode.trim();
+    if (!waitingPixConfirm && !waitingCredential) {
+      pollCountRef.current = 0;
+      setPollingPayment(false);
+      return;
+    }
+
+    let cancelled = false;
+    const intervalMs = 3500;
+    const maxPolls = 200;
+
+    async function tick() {
+      try {
+        const res = await fetch(`/api/checkout/status?orderId=${orderId}`, {
+          credentials: "same-origin",
+        });
+        const data = await res.json();
+        if (!res.ok || cancelled) return;
+        if (data.status === "paid") {
+          setStep(4);
+          setError("");
+          const line = typeof data.code === "string" ? data.code : "";
+          const cred = mapStatusCredential(data.credential);
+          if (line) {
+            setDeliveryCode(line);
+            setCredentialDetail(cred);
+          }
+        }
+      } catch {
+        /* ignora falhas de rede pontuais no poll */
+      }
+    }
+
+    void tick();
+    pollCountRef.current = 0;
+    setPollingPayment(true);
+    const id = setInterval(() => {
+      if (cancelled) return;
+      pollCountRef.current += 1;
+      if (pollCountRef.current >= maxPolls) {
+        setPollingPayment(false);
+        clearInterval(id);
+        return;
+      }
+      void tick();
+    }, intervalMs);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      setPollingPayment(false);
+    };
+  }, [open, step, orderId, qrCode, deliveryCode]);
 
   useEffect(() => {
     if (!open) {
@@ -403,17 +493,24 @@ export function CheckoutModal({
   async function checkPayment() {
     if (!orderId) return;
     setLoading(true);
+    setError("");
     try {
       const res = await fetch(`/api/checkout/status?orderId=${orderId}`, {
         credentials: "same-origin",
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Não foi possível verificar o pagamento");
+      }
       if (data.status === "paid") {
-        setDeliveryCode(data.code || "");
+        setDeliveryCode(typeof data.code === "string" ? data.code : "");
+        setCredentialDetail(mapStatusCredential(data.credential));
         setStep(4);
       } else {
-        setError("Pagamento ainda não confirmado. Tente novamente em alguns segundos.");
+        setError("Pagamento ainda não confirmado. Aguarde ou tente de novo em instantes.");
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha ao verificar");
     } finally {
       setLoading(false);
     }
@@ -672,6 +769,12 @@ export function CheckoutModal({
                 <PaymentButton onClick={checkPayment} disabled={loading} loading={loading}>
                   Já paguei, verificar agora
                 </PaymentButton>
+                {pollingPayment && step === 3 && qrCode ? (
+                  <p className="flex items-center justify-center gap-2 text-center text-xs text-zinc-500">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                    Confirmando pagamento automaticamente…
+                  </p>
+                ) : null}
                 <SecurityInfo />
               </>
             )}
@@ -679,34 +782,11 @@ export function CheckoutModal({
         )}
 
         {step === 4 && (
-          <div className="space-y-5 text-center">
-            <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-              <CheckCircle2 className="h-7 w-7" />
-            </div>
-            <p
-              className="text-xl font-bold"
-              style={{ color: "var(--theme-success)" }}
-            >
-              Pagamento aprovado!
-            </p>
-            <p className="text-zinc-600">Sua credencial de acesso foi liberada:</p>
-            <div
-              className="whitespace-pre-wrap rounded-xl border p-4 font-mono text-lg"
-              style={{
-                backgroundColor: "var(--theme-success-bg)",
-                borderColor: "color-mix(in srgb, var(--theme-success) 25%, transparent)",
-              }}
-            >
-              {deliveryCode}
-            </div>
-            <Button variant="theme" className="w-full rounded-2xl py-4 text-base font-bold" onClick={() => navigator.clipboard.writeText(deliveryCode)}>
-              <Copy className="mr-2 h-4 w-4" />
-              Copiar credencial
-            </Button>
-            <p className="text-xs text-zinc-500">
-              Guarde esta credencial. Ela também está disponível na sua área do cliente.
-            </p>
-          </div>
+          <CredentialSuccessPanel
+            copyAllText={deliveryCode}
+            credential={credentialDetail}
+            releasing={!deliveryCode.trim()}
+          />
         )}
         </div>
 

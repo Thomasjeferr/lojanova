@@ -1,14 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
-import { CopyButton } from "@/components/account/copy-button";
 import { currencyBRL } from "@/lib/utils";
-import { ArrowRight, CheckCircle2, Copy, Loader2, X, Zap } from "lucide-react";
+import { ArrowRight, Copy, Loader2, X, Zap } from "lucide-react";
+import {
+  CredentialSuccessPanel,
+  type CheckoutCredentialDetail,
+} from "@/components/checkout/credential-success-panel";
+
+function mapStatusCredential(raw: unknown): CheckoutCredentialDetail | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const type = o.type;
+  if (type !== "activation_code" && type !== "username_password") return null;
+  return {
+    type,
+    kindLabel: String(o.kindLabel ?? ""),
+    activationCode: o.activationCode != null ? String(o.activationCode) : null,
+    username: o.username != null ? String(o.username) : null,
+    password: o.password != null ? String(o.password) : null,
+  };
+}
 
 type PayPendingOrderModalProps = {
   open: boolean;
@@ -32,7 +49,10 @@ export function PayPendingOrderModal({
   const [pixCode, setPixCode] = useState("");
   const [paid, setPaid] = useState(false);
   const [deliveryLine, setDeliveryLine] = useState("");
+  const [credentialDetail, setCredentialDetail] = useState<CheckoutCredentialDetail | null>(null);
   const [payerDocument, setPayerDocument] = useState("");
+  const [pollingPayment, setPollingPayment] = useState(false);
+  const pollCountRef = useRef(0);
 
   useEffect(() => {
     if (open) {
@@ -42,9 +62,72 @@ export function PayPendingOrderModal({
       setPixCode("");
       setPaid(false);
       setDeliveryLine("");
+      setCredentialDetail(null);
       setPayerDocument("");
     }
   }, [open, orderId]);
+
+  useEffect(() => {
+    if (!open || !orderId) {
+      pollCountRef.current = 0;
+      setPollingPayment(false);
+      return;
+    }
+
+    const waitingPayment = Boolean(qrCode && !paid);
+    const waitingCredential = paid && !deliveryLine.trim();
+    if (!waitingPayment && !waitingCredential) {
+      pollCountRef.current = 0;
+      setPollingPayment(false);
+      return;
+    }
+
+    let cancelled = false;
+    const intervalMs = 3500;
+    const maxPolls = 200;
+
+    async function tick() {
+      try {
+        const res = await fetch(`/api/checkout/status?orderId=${orderId}`, {
+          credentials: "same-origin",
+        });
+        const data = await res.json();
+        if (!res.ok || cancelled) return;
+        if (data.status === "paid") {
+          setPaid(true);
+          setError("");
+          const line = typeof data.code === "string" ? data.code : "";
+          if (line) {
+            setDeliveryLine(line);
+            setCredentialDetail(mapStatusCredential(data.credential));
+          }
+          router.refresh();
+        }
+      } catch {
+        /* poll silencioso */
+      }
+    }
+
+    void tick();
+    pollCountRef.current = 0;
+    setPollingPayment(true);
+    const id = setInterval(() => {
+      if (cancelled) return;
+      pollCountRef.current += 1;
+      if (pollCountRef.current >= maxPolls) {
+        setPollingPayment(false);
+        clearInterval(id);
+        return;
+      }
+      void tick();
+    }, intervalMs);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      setPollingPayment(false);
+    };
+  }, [open, orderId, qrCode, paid, deliveryLine, router]);
 
   if (!open) return null;
 
@@ -88,7 +171,8 @@ export function PayPendingOrderModal({
         throw new Error(data.error || "Não foi possível verificar o pagamento");
       }
       if (data.status === "paid") {
-        setDeliveryLine(data.code || "");
+        setDeliveryLine(typeof data.code === "string" ? data.code : "");
+        setCredentialDetail(mapStatusCredential(data.credential));
         setPaid(true);
         router.refresh();
       } else {
@@ -132,28 +216,12 @@ export function PayPendingOrderModal({
         </div>
 
         {paid ? (
-          <div className="space-y-4 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-              <CheckCircle2 className="h-7 w-7" />
-            </div>
-            <p className="text-lg font-bold" style={{ color: "var(--theme-success, #059669)" }}>
-              Pagamento confirmado!
-            </p>
-            {deliveryLine ? (
-              <>
-                <p className="text-sm text-zinc-600">Seu acesso:</p>
-                <div className="whitespace-pre-wrap rounded-xl border bg-zinc-50 p-4 font-mono text-left text-sm">
-                  {deliveryLine}
-                </div>
-                <div className="flex justify-center">
-                  <CopyButton value={deliveryLine} />
-                </div>
-              </>
-            ) : (
-              <p className="text-sm text-zinc-600">
-                Pagamento registrado. Veja o código em <strong>Meus acessos</strong>.
-              </p>
-            )}
+          <div className="space-y-5">
+            <CredentialSuccessPanel
+              copyAllText={deliveryLine}
+              credential={credentialDetail}
+              releasing={!deliveryLine.trim()}
+            />
             <Button variant="theme" className="w-full rounded-xl py-3" onClick={handleClose}>
               Fechar
             </Button>
@@ -229,6 +297,12 @@ export function PayPendingOrderModal({
                   ) : null}
                   Já paguei — verificar agora
                 </Button>
+                {pollingPayment ? (
+                  <p className="flex items-center justify-center gap-2 text-center text-xs text-zinc-500">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                    Confirmando pagamento automaticamente…
+                  </p>
+                ) : null}
               </div>
             )}
             {error ? (
