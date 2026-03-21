@@ -31,7 +31,7 @@ export async function GET(request: Request) {
             const remote = await fetchGgPixTransactionById(txRef, apiKey);
             const st = remote?.status?.toUpperCase() ?? "";
             if (st === "COMPLETE" || st === "PAID") {
-              await deliverActivationCode(order.id);
+              await deliverActivationCode(order.id, { request });
               const refreshed = await prisma.order.findFirst({
                 where: { id: orderId, userId: auth.userId },
                 include: {

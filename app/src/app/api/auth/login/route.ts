@@ -1,8 +1,10 @@
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { badRequest, ok } from "@/lib/http";
 import { comparePassword, createSessionCookies } from "@/lib/auth";
 import { loginSchema } from "@/lib/validators";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { recordLoginActivity } from "@/lib/activity-log";
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -36,6 +38,8 @@ export async function POST(request: Request) {
     email: user.email,
     isAdmin: user.isAdmin,
   });
+
+  after(() => recordLoginActivity(user.id, request));
 
   return ok({
     message: "Login realizado com sucesso",

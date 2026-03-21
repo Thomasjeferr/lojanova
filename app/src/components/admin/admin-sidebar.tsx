@@ -13,6 +13,7 @@ import {
   Mail,
   ChevronLeft,
   ChevronRight,
+  Globe2,
 } from "lucide-react";
 import { useAdminLayout } from "./admin-layout-context";
 import { BrandingLogo } from "@/components/branding-logo";
@@ -20,6 +21,7 @@ import type { SiteBrandingPublic } from "@/lib/site-branding";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/atividade", label: "Atividade global", icon: Globe2 },
   { href: "/admin/plans", label: "Planos", icon: Package },
   { href: "/admin/codes", label: "Códigos", icon: Key },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingCart },

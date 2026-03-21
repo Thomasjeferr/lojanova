@@ -21,40 +21,56 @@ import {
 } from "@/components/admin/dashboard/dashboard-stock-card";
 import { DashboardAlertStock } from "@/components/admin/dashboard/dashboard-alert-stock";
 import { DashboardCodesSummary } from "@/components/admin/dashboard/dashboard-codes-summary";
+import {
+  getActivityDashboardSummary,
+  getActivityMapPoints,
+  getActivityRecent,
+} from "@/lib/activity-admin";
+import { ActivityGlobalSection } from "@/components/admin/activity/activity-global-section";
 
 export default async function AdminDashboardPage() {
   const [
-    plans,
-    totalSales,
-    todaySales,
-    ordersPaidCount,
-    ordersPendingCount,
-    stockByPlan,
-    recentOrders,
-    codesByStatus,
+    [
+      plans,
+      totalSales,
+      todaySales,
+      ordersPaidCount,
+      ordersPendingCount,
+      stockByPlan,
+      recentOrders,
+      codesByStatus,
+    ],
+    [activityMapPoints, activitySummary, activityRecent],
   ] = await Promise.all([
-    prisma.plan.findMany({ orderBy: { durationDays: "asc" } }),
-    prisma.order.aggregate({ _sum: { amountCents: true }, where: { status: "paid" } }),
-    prisma.order.aggregate({
-      _sum: { amountCents: true },
-      where: {
-        status: "paid",
-        paidAt: { gte: getBrazilTodayStartUtc() },
-      },
-    }),
-    prisma.order.count({ where: { status: "paid" } }),
-    prisma.order.count({ where: { status: "pending" } }),
-    prisma.activationCode.groupBy({
-      by: ["planId"],
-      where: { status: "available" },
-      _count: { id: true },
-    }),
-    prisma.order.findMany({
-      include: { user: true, plan: true, activationCode: true },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    }),
-    prisma.activationCode.groupBy({ by: ["status"], _count: { id: true } }),
+    Promise.all([
+      prisma.plan.findMany({ orderBy: { durationDays: "asc" } }),
+      prisma.order.aggregate({ _sum: { amountCents: true }, where: { status: "paid" } }),
+      prisma.order.aggregate({
+        _sum: { amountCents: true },
+        where: {
+          status: "paid",
+          paidAt: { gte: getBrazilTodayStartUtc() },
+        },
+      }),
+      prisma.order.count({ where: { status: "paid" } }),
+      prisma.order.count({ where: { status: "pending" } }),
+      prisma.activationCode.groupBy({
+        by: ["planId"],
+        where: { status: "available" },
+        _count: { id: true },
+      }),
+      prisma.order.findMany({
+        include: { user: true, plan: true, activationCode: true },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+      }),
+      prisma.activationCode.groupBy({ by: ["status"], _count: { id: true } }),
+    ]),
+    Promise.all([
+      getActivityMapPoints(),
+      getActivityDashboardSummary(),
+      getActivityRecent(10),
+    ]),
   ]);
 
   const totalStock = stockByPlan.reduce((acc, s) => acc + s._count.id, 0);
@@ -140,6 +156,12 @@ export default async function AdminDashboardPage() {
             accent="rose"
           />
         </section>
+
+        <ActivityGlobalSection
+          points={activityMapPoints}
+          summary={activitySummary}
+          initialRecent={activityRecent}
+        />
 
         <DashboardAlertStock
           planTitles={plansWithZeroStock.map((p) => p.title)}

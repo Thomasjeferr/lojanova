@@ -72,12 +72,23 @@ Em **Configurações** do admin: ative o alerta, defina o **limite global** (ex.
 4. No painel da Vercel, associe o mesmo `CRON_SECRET` ao job de cron se solicitado.
 5. Teste local: `curl -H "Authorization: Bearer SEU_SECRET" http://localhost:3000/api/cron/low-stock-alert`
 
+## Atividade global (admin)
+
+Mapa e feed usam a tabela `ActivityLog` (geolocalização aproximada). O IP **não** é guardado em claro: grava-se `ipHash` (SHA-256 com salt) para detecção de volume/padrões no painel de analytics. Opcional: `ACTIVITY_IP_SALT` (senão usa `JWT_SECRET`). Eventos: **login** (`POST /api/auth/login`), **acesso** à área `/account` (no máximo 1 a cada 4 h por usuário) e **compra** após entrega do código (com geo do cliente quando o pagamento é confirmado via `GET /api/checkout/status`; webhooks usam última geo conhecida ou centro do Brasil).
+
+1. `npx prisma db push` (modelo `ActivityLog` + colunas `ipHash`, `userAgent`).
+2. Em produção na **Vercel**, país/cidade/coordenadas vêm dos headers `x-vercel-ip-*`. Em dev/local, usa-se **ip-api.com** (HTTP) a partir do IP do request.
+
+- Página: `/admin/atividade` (painel analytics: KPIs, filtros, mapa + heatmap, feed ao vivo, gráficos). Há um bloco resumido no dashboard.
+- APIs legadas (admin): `GET /api/admin/activity/map`, `GET /api/admin/activity/recent`.
+- APIs analytics (admin, query `range=today|24h|7d`, `type`, `country`): `GET /api/admin/analytics/map`, `GET /api/admin/analytics/realtime`, `GET /api/admin/analytics/stats`.
+
 ## Rotas principais
 
 - Landing: `/`
 - Jurídico / suporte: `/termos`, `/privacidade`, `/contato`
 - Área do cliente: `/account`, `/orders`, `/access`
-- Admin: `/admin`
+- Admin: `/admin`, `/admin/atividade`
 
 ## APIs implementadas
 

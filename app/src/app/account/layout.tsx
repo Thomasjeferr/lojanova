@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
+import { recordAccessActivity } from "@/lib/activity-log";
 import { prisma } from "@/lib/prisma";
 import { getSiteBranding } from "@/lib/site-branding";
 import { AccountLayoutProvider } from "@/components/account/account-layout-context";
@@ -31,6 +34,9 @@ export default async function AccountLayout({
     getSiteBranding(),
   ]);
   if (!user) redirect("/entrar");
+
+  const h = await headers();
+  after(() => recordAccessActivity(auth.userId, h));
 
   return (
     <AccountLayoutProvider>

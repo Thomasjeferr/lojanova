@@ -697,6 +697,348 @@
       0 0 0 1px color-mix(in srgb, var(--theme-primary) 12%, transparent),
       var(--landing-card-inset-shine);
   }
+
+  /* Admin — mapa de atividade (SVG + HUD) */
+  @keyframes activity-map-halo-breathe {
+    0%,
+    100% {
+      opacity: 0.18;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.48;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes activity-map-shimmer {
+    0% {
+      transform: translateX(-40%);
+    }
+    100% {
+      transform: translateX(140%);
+    }
+  }
+
+  .activity-map-halo {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: activity-map-halo-breathe 2.65s ease-in-out infinite;
+  }
+
+  .activity-map-halo--delayed {
+    animation-delay: 0.6s;
+  }
+
+  .activity-map-land {
+    transition:
+      fill 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      stroke 0.45s ease;
+  }
+
+  .activity-map-zoom-layer {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .activity-map-loading-track {
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes analytics-feed-in-cf {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(16px) scale(0.96);
+    }
+    65% {
+      filter: blur(0);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .analytics-feed-item {
+    animation: analytics-feed-in-cf 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes analytics-feed-live-ring {
+    0% {
+      box-shadow:
+        0 0 0 0 rgba(139, 92, 246, 0.55),
+        0 0 40px -8px rgba(34, 211, 238, 0.25);
+    }
+    100% {
+      box-shadow:
+        0 0 0 20px transparent,
+        0 0 60px -12px rgba(34, 211, 238, 0.08);
+    }
+  }
+
+  .analytics-feed-live-flash {
+    animation: analytics-feed-live-ring 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes analytics-feed-live-ring-once {
+    0% {
+      opacity: 1;
+      box-shadow:
+        inset 0 0 0 1px rgba(167, 139, 250, 0.45),
+        0 0 0 0 rgba(139, 92, 246, 0.5),
+        0 0 48px -8px rgba(34, 211, 238, 0.2);
+    }
+    100% {
+      opacity: 0;
+      box-shadow:
+        inset 0 0 0 1px transparent,
+        0 0 0 22px transparent,
+        0 0 72px -12px transparent;
+    }
+  }
+
+  .analytics-feed-live-flash-overlay {
+    animation: analytics-feed-live-ring-once 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    pointer-events: none;
+  }
+
+  @keyframes analytics-cf-grid-drift {
+    to {
+      background-position: 56px 56px;
+    }
+  }
+
+  .analytics-cf-grid-bg {
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.045) 1px, transparent 1px),
+      linear-gradient(rgba(34, 211, 238, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 211, 238, 0.02) 1px, transparent 1px);
+    background-size:
+      56px 56px,
+      56px 56px,
+      14px 14px,
+      14px 14px;
+    animation: analytics-cf-grid-drift 90s linear infinite;
+  }
+
+  @keyframes analytics-cf-vignette-breathe {
+    0%,
+    100% {
+      opacity: 0.85;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .analytics-cf-vignette {
+    background: radial-gradient(
+      ellipse 120% 90% at 50% 45%,
+      transparent 35%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+    animation: analytics-cf-vignette-breathe 10s ease-in-out infinite;
+  }
+
+  @keyframes analytics-cf-hero-sheen {
+    0% {
+      transform: translateX(-120%) skewX(-18deg);
+    }
+    100% {
+      transform: translateX(220%) skewX(-18deg);
+    }
+  }
+
+  .analytics-cf-hero-sheen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .analytics-cf-hero-sheen::after {
+    content: "";
+    position: absolute;
+    inset: -40% -60%;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.07) 48%,
+      rgba(167, 139, 250, 0.12) 52%,
+      transparent 100%
+    );
+    animation: analytics-cf-hero-sheen 9.5s ease-in-out infinite;
+  }
+
+  @keyframes analytics-cf-live-dot {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.35);
+      opacity: 0.75;
+    }
+  }
+
+  .analytics-cf-live-dot {
+    animation: analytics-cf-live-dot 1.6s ease-in-out infinite;
+  }
+
+  @keyframes analytics-kpi-cf-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .analytics-kpi-cf-card {
+    animation: analytics-kpi-cf-float 6.5s ease-in-out infinite;
+  }
+
+  @keyframes analytics-chart-cf-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 24px 70px -32px rgba(0, 0, 0, 0.92),
+        0 0 48px -16px rgba(139, 92, 246, 0.12);
+    }
+    50% {
+      box-shadow:
+        0 28px 80px -28px rgba(0, 0, 0, 0.88),
+        0 0 64px -12px rgba(139, 92, 246, 0.22),
+        0 0 40px -8px rgba(34, 211, 238, 0.08);
+    }
+  }
+
+  .analytics-chart-cf-panel {
+    animation: analytics-chart-cf-glow 7s ease-in-out infinite;
+  }
+
+  @keyframes analytics-map-cf-aurora {
+    0%,
+    100% {
+      opacity: 0.22;
+    }
+    50% {
+      opacity: 0.42;
+    }
+  }
+
+  .analytics-map-cf-aurora {
+    animation: analytics-map-cf-aurora 12s ease-in-out infinite;
+  }
+
+  @keyframes analytics-cf-orbit-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .analytics-cf-orbit {
+    animation: analytics-cf-orbit-spin 100s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .analytics-feed-item,
+    .analytics-feed-live-flash,
+    .analytics-feed-live-flash-overlay,
+    .analytics-cf-grid-bg,
+    .analytics-cf-vignette,
+    .analytics-cf-hero-sheen::after,
+    .analytics-cf-live-dot,
+    .analytics-kpi-cf-card,
+    .analytics-chart-cf-panel,
+    .analytics-map-cf-aurora,
+    .analytics-cf-orbit {
+      animation: none !important;
+    }
+  }
+
+  @keyframes analytics-map-marker-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.35);
+    }
+    70% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .analytics-map-marker-node {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: analytics-map-marker-pop 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes analytics-map-beam-flow {
+    to {
+      stroke-dashoffset: -120;
+    }
+  }
+
+  .analytics-map-beam-line {
+    animation: analytics-map-beam-flow 11s linear infinite;
+  }
+
+  @keyframes analytics-heat-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.82;
+    }
+  }
+
+  .analytics-heat-cell {
+    animation: analytics-heat-pulse 4.5s ease-in-out infinite;
+  }
+
+  @keyframes analytics-kpi-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .analytics-kpi-loading {
+    background: linear-gradient(
+      100deg,
+      rgba(39, 39, 42, 0.4) 0%,
+      rgba(63, 63, 70, 0.55) 45%,
+      rgba(39, 39, 42, 0.4) 90%
+    );
+    background-size: 200% 100%;
+    animation: analytics-kpi-shimmer 1.8s ease-in-out infinite;
+  }
+
+  .activity-map-loading-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.06) 45%,
+      transparent 90%
+    );
+    animation: activity-map-shimmer 2s ease-in-out infinite;
+  }
 }
 
 :root {

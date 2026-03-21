@@ -5,8 +5,12 @@ import {
   credentialKindLabel,
   renderCredentialLine,
 } from "@/lib/activation-credentials";
+import { schedulePurchaseActivity } from "@/lib/activity-log";
 
-export async function deliverActivationCode(orderId: string) {
+export async function deliverActivationCode(
+  orderId: string,
+  options?: { request?: Request },
+) {
   const result = await prisma.$transaction(async (tx) => {
     const order = await tx.order.findUnique({
       where: { id: orderId },
@@ -114,6 +118,15 @@ export async function deliverActivationCode(orderId: string) {
       planName: result.plan.title,
       credentialLabel: result.credentialLabel,
       credentialValue: result.deliveredCode,
+    });
+  }
+
+  if (result.notifyChannels && "order" in result && result.order) {
+    schedulePurchaseActivity({
+      userId: result.user.id,
+      orderId: result.order.id,
+      amountCents: result.order.amountCents,
+      request: options?.request,
     });
   }
 

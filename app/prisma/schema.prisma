@@ -41,6 +41,12 @@ enum PaymentProvider {
   ggpix
 }
 
+enum ActivityEventType {
+  login
+  purchase
+  access
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -53,6 +59,7 @@ model User {
   sessions     Session[]
   orders       Order[]
   passwordResetTokens PasswordResetToken[]
+  activityLogs ActivityLog[]
 }
 
 model Session {
@@ -130,9 +137,35 @@ model Order {
   plan            Plan        @relation(fields: [planId], references: [id], onDelete: Restrict)
   activationCode  ActivationCode?
   delivery        Delivery?
+  activityLogs    ActivityLog[]
 
   @@index([userId, createdAt])
   @@index([status])
+}
+
+/// Eventos de uso para mapa de atividade (admin). IP apenas como hash (detecção / agregação).
+model ActivityLog {
+  id          String            @id @default(cuid())
+  userId      String
+  orderId     String?
+  type        ActivityEventType
+  country     String?
+  countryCode String?
+  city        String?
+  lat         Float?
+  lng         Float?
+  amountCents Int?
+  /// SHA-256 com salt (ACTIVITY_IP_SALT) — agrupa mesma origem sem guardar IP em claro
+  ipHash      String?
+  userAgent   String?           @db.VarChar(512)
+  createdAt   DateTime          @default(now())
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order       Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@index([countryCode])
+  @@index([ipHash, createdAt])
 }
 
 model Delivery {

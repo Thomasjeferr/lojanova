@@ -6,6 +6,10 @@ import type { SiteBrandingPublic } from "@/lib/site-branding";
 
 const routeTitles: Record<string, { title: string; subtitle?: string }> = {
   "/admin": { title: "Dashboard", subtitle: "Visão geral do negócio" },
+  "/admin/atividade": {
+    title: "Atividade global",
+    subtitle: "Mapa e eventos geolocalizados",
+  },
   "/admin/plans": { title: "Planos", subtitle: "Gerencie planos e preços" },
   "/admin/codes": { title: "Códigos", subtitle: "Importe e gerencie códigos de ativação" },
   "/admin/orders": { title: "Pedidos", subtitle: "Histórico e status dos pedidos" },
