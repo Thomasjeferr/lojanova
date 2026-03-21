@@ -1,3 +1,5 @@
+import { formatDateTimePtBr } from "@/lib/brazil-time";
+
 type TemplateInputBase = {
   storeName: string;
 };
@@ -130,7 +132,7 @@ export function welcomeAccountTemplate(input: WelcomeAccountInput): RenderedTemp
 
 export function passwordChangedTemplate(input: PasswordChangedInput): RenderedTemplate {
   const subject = `Senha alterada - ${input.storeName}`;
-  const changedAt = input.changedAt.toLocaleString("pt-BR");
+  const changedAt = formatDateTimePtBr(input.changedAt);
   const html = layout(
     `
     <p style="margin:0 0 12px;font-size:15px">Olá, <strong>${input.name}</strong>!</p>

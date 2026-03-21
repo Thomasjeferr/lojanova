@@ -16,6 +16,7 @@ import {
 import { ShoppingCart } from "lucide-react";
 import { CopyButton } from "@/components/account/copy-button";
 import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
+import { formatDateTimePtBr } from "@/lib/brazil-time";
 import { OrderDetailModal, type OrderRow } from "./order-detail-modal";
 
 export type { OrderRow };
@@ -248,7 +249,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                     />
                   </AdminTableCell>
                   <AdminTableCell className="text-zinc-500">
-                    {new Date(row.createdAt).toLocaleString("pt-BR")}
+                    {formatDateTimePtBr(row.createdAt)}
                   </AdminTableCell>
                   <AdminTableCell className="font-mono text-xs text-zinc-600">
                     {row.code

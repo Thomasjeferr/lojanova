@@ -2,6 +2,7 @@
 
 import { currencyBRL } from "@/lib/utils";
 import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
+import { formatDateTimePtBr } from "@/lib/brazil-time";
 import { CopyButton } from "@/components/account/copy-button";
 import { StatusBadge } from "./status-badge";
 import { X } from "lucide-react";
@@ -128,7 +129,7 @@ export function OrderDetailModal({
               Data do pedido
             </p>
             <p className="mt-1 text-zinc-700">
-              {new Date(order.createdAt).toLocaleString("pt-BR")}
+              {formatDateTimePtBr(order.createdAt)}
             </p>
           </div>
           {order.paidAt && (
@@ -137,7 +138,7 @@ export function OrderDetailModal({
                 Pago em
               </p>
               <p className="mt-1 text-zinc-700">
-                {new Date(order.paidAt).toLocaleString("pt-BR")}
+                {formatDateTimePtBr(order.paidAt)}
               </p>
             </div>
           )}

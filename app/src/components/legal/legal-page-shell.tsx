@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import { formatDatePtBrNumeric } from "@/lib/brazil-time";
 
 export function LegalPageShell({
   branding,
@@ -59,7 +60,7 @@ export function LegalPageShell({
           </div>
 
           <p className="mt-16 text-sm text-zinc-500">
-            Última atualização: {new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}.
+            Última atualização: {formatDatePtBrNumeric(new Date())}.
           </p>
         </div>
       </article>

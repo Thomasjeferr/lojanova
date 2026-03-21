@@ -2,6 +2,7 @@
 
 import { currencyBRL } from "@/lib/utils";
 import { displayOrderNumber } from "@/lib/order-ref";
+import { formatDateTimePtBr } from "@/lib/brazil-time";
 import { StatusBadge } from "./status-badge";
 
 export type CustomerOrderRow = {
@@ -62,10 +63,7 @@ export function CustomerDetailModal({
             ) : null}
             <p className="mt-2 text-xs text-zinc-400">
               Cadastro:{" "}
-              {new Date(customer.createdAt).toLocaleString("pt-BR", {
-                dateStyle: "short",
-                timeStyle: "short",
-              })}
+              {formatDateTimePtBr(customer.createdAt)}
             </p>
           </div>
           <button
@@ -124,10 +122,7 @@ export function CustomerDetailModal({
                       {displayOrderNumber(o.orderNumber)}
                     </span>
                     <span className="text-xs text-zinc-500">
-                      {new Date(o.createdAt).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
+                      {formatDateTimePtBr(o.createdAt)}
                     </span>
                     <StatusBadge
                       status={
@@ -148,10 +143,7 @@ export function CustomerDetailModal({
                   {o.paidAt ? (
                     <p className="mt-0.5 text-xs text-emerald-700">
                       Pago em{" "}
-                      {new Date(o.paidAt).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
+                      {formatDateTimePtBr(o.paidAt)}
                     </p>
                   ) : null}
                 </li>

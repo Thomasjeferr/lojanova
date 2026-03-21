@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { currencyBRL } from "@/lib/utils";
 import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
+import { formatDatePtBrShortMonth } from "@/lib/brazil-time";
 import { StatusBadge } from "./status-badge";
 import { CopyButton } from "./copy-button";
 import { EmptyState } from "./empty-state";
@@ -26,14 +27,6 @@ export type OrderRow = {
 type OrdersTableProps = {
   orders: OrderRow[];
 };
-
-function formatDate(s: string) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(s));
-}
 
 export function OrdersTable({ orders }: OrdersTableProps) {
   const [detailOrder, setDetailOrder] = useState<OrderRow | null>(null);
@@ -104,7 +97,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                     <StatusBadge status={order.status} />
                   </td>
                   <td className="px-4 py-3 text-zinc-600">
-                    {formatDate(order.createdAt)}
+                    {formatDatePtBrShortMonth(order.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
@@ -182,7 +175,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
               <div>
                 <dt className="text-zinc-500">Data</dt>
                 <dd className="font-medium text-zinc-900">
-                  {formatDate(detailOrder.createdAt)}
+                  {formatDatePtBrShortMonth(detailOrder.createdAt)}
                 </dd>
               </div>
               {detailOrder.code && (

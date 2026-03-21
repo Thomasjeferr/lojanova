@@ -68,8 +68,9 @@ Em **Configurações** do admin: ative o alerta, defina o **limite global** (ex.
 
 1. `npx prisma db push` (novas colunas em `AppSettings`).
 2. Defina `CRON_SECRET` no ambiente (string longa aleatória).
-3. Na **Vercel**, cron configurado em `vercel.json` chama `GET /api/cron/low-stock-alert` com `Authorization: Bearer <CRON_SECRET>`. No painel da Vercel, associe o mesmo segredo ao job de cron se solicitado.
-4. Teste local: `curl -H "Authorization: Bearer SEU_SECRET" http://localhost:3000/api/cron/low-stock-alert`
+3. Na **Vercel**, cron em `vercel.json` usa horário **UTC**. O agendamento atual (`0 11 * * *`) corresponde a **08:00 em Brasília** (UTC−3). Ajuste o `schedule` se quiser outro horário.
+4. No painel da Vercel, associe o mesmo `CRON_SECRET` ao job de cron se solicitado.
+5. Teste local: `curl -H "Authorization: Bearer SEU_SECRET" http://localhost:3000/api/cron/low-stock-alert`
 
 ## Rotas principais
 

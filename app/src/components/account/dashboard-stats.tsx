@@ -1,13 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { ShoppingBag, KeyRound, Calendar, Copy } from "lucide-react";
+import { formatDatePtBrShortMonth } from "@/lib/brazil-time";
 
 function formatDate(d: Date | null) {
   if (!d) return "—";
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(d));
+  return formatDatePtBrShortMonth(d);
 }
 
 type DashboardStatsProps = {

@@ -14,6 +14,7 @@ import {
 import { AdminCodeEditModal, type EditableCodeRow } from "./admin-code-edit-modal";
 import { Key, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDateShortPtBr } from "@/lib/brazil-time";
 
 export type CodeRow = {
   id: string;
@@ -261,7 +262,7 @@ export function AdminCodesTable({
                   {row.orderEmail ?? "—"}
                 </AdminTableCell>
                 <AdminTableCell className="text-zinc-500">
-                  {new Date(row.createdAt).toLocaleDateString("pt-BR")}
+                  {formatDateShortPtBr(row.createdAt)}
                 </AdminTableCell>
                 <AdminTableCell className="text-right">
                   {canMutate(row) ? (

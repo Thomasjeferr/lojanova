@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CopyButton } from "./copy-button";
 import { cn } from "@/lib/utils";
+import { formatDateTimePtBr } from "@/lib/brazil-time";
 
 type AccessCardProps = {
   planTitle: string;
@@ -16,16 +17,6 @@ type AccessCardProps = {
 function maskCode(code: string) {
   if (code.length <= 8) return "••••••••";
   return code.slice(0, 4) + "••••••••" + code.slice(-4);
-}
-
-function formatDate(d: Date | string) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(d));
 }
 
 export function AccessCard({
@@ -51,7 +42,7 @@ export function AccessCard({
           <p className="font-semibold text-zinc-900">{planTitle}</p>
           <p className="text-sm text-zinc-500">{durationDays} dias de acesso</p>
           <p className="mt-1 text-xs text-zinc-400">
-            Entregue em {formatDate(deliveredAt)}
+            Entregue em {formatDateTimePtBr(deliveredAt)}
           </p>
         </div>
         {isRecent && (

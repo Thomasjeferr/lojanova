@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { currencyBRL } from "@/lib/utils";
+import { formatDateShortPtBr, formatDateTimePtBr } from "@/lib/brazil-time";
 import { EmptyState } from "./empty-state";
 import {
   AdminTable,
@@ -290,7 +291,7 @@ export function AdminCustomersTable({
                     {row.phone?.trim() || "—"}
                   </AdminTableCell>
                   <AdminTableCell className="text-zinc-500">
-                    {new Date(row.createdAt).toLocaleDateString("pt-BR")}
+                    {formatDateShortPtBr(row.createdAt)}
                   </AdminTableCell>
                   <AdminTableCell className="text-right tabular-nums font-medium text-zinc-900">
                     {row.orderCount}
@@ -303,10 +304,7 @@ export function AdminCustomersTable({
                   </AdminTableCell>
                   <AdminTableCell className="text-zinc-500">
                     {row.lastActivityAt
-                      ? new Date(row.lastActivityAt).toLocaleString("pt-BR", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })
+                      ? formatDateTimePtBr(row.lastActivityAt)
                       : "—"}
                   </AdminTableCell>
                   <AdminTableCell>

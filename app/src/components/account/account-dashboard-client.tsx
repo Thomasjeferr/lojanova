@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { currencyBRL } from "@/lib/utils";
 import { displayOrderNumber } from "@/lib/order-ref";
+import { formatDatePtBrShortMonth } from "@/lib/brazil-time";
 import { CreditCard } from "lucide-react";
 
 type LastAccessItem = {
@@ -32,14 +33,6 @@ type AccountDashboardClientProps = {
   lastAccess: LastAccessItem[];
   lastOrders: LastOrderItem[];
 };
-
-function formatDate(d: Date | string) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(d));
-}
 
 export function AccountDashboardClient({
   lastAccess,
@@ -69,7 +62,7 @@ export function AccountDashboardClient({
                 <div>
                   <p className="font-medium text-zinc-900">{item.planTitle}</p>
                   <p className="text-xs text-zinc-500">
-                    {formatDate(item.deliveredAt)}
+                    {formatDatePtBrShortMonth(item.deliveredAt)}
                   </p>
                 </div>
                 <CopyButton value={item.code} />
@@ -107,7 +100,7 @@ export function AccountDashboardClient({
                     Pedido {displayOrderNumber(o.orderNumber)}
                   </p>
                   <p className="font-medium text-zinc-900">{o.planTitle}</p>
-                  <p className="text-xs text-zinc-500">{formatDate(o.createdAt)}</p>
+                  <p className="text-xs text-zinc-500">{formatDatePtBrShortMonth(o.createdAt)}</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <StatusBadge status={o.status} />

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { formatDateTimePtBr } from "@/lib/brazil-time";
 
 export type LowStockAlertSettingsFormState = {
   lowStockAlertEnabled: boolean;
@@ -29,7 +30,7 @@ export function LowStockAlertSettingsForm({
   const [toastMsg, setToastMsg] = useState("");
 
   const lastSentLabel = form.lowStockAlertLastSentAt
-    ? new Date(form.lowStockAlertLastSentAt).toLocaleString("pt-BR")
+    ? formatDateTimePtBr(form.lowStockAlertLastSentAt)
     : "—";
 
   async function save() {
