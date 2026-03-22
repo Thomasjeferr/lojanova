@@ -16,6 +16,7 @@ import { FloatingWhatsAppButton } from "@/components/floating-whatsapp-button";
 import type { Plan } from "@/components/landing/plan-card";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
 import type { ContactSettingsPublic } from "@/lib/contact-settings";
+import type { LandingUserSession } from "@/lib/landing-user-session";
 
 export type LandingMode = "home" | "planos" | "comprar";
 
@@ -29,7 +30,7 @@ export function LandingPage({
 }: {
   plans: Plan[];
   dbConnected?: boolean;
-  userSession?: { email: string } | null;
+  userSession?: LandingUserSession | null;
   branding: SiteBrandingPublic;
   contactSettings: ContactSettingsPublic;
   landingMode?: LandingMode;

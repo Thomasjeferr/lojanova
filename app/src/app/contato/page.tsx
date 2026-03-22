@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MessageCircle, Mail, HelpCircle } from "lucide-react";
-import { getAuthUser } from "@/lib/auth";
+import { getLandingUserSession } from "@/lib/landing-user-session";
 import { getSiteBranding } from "@/lib/site-branding";
 import { getPublicContactSettings } from "@/lib/contact-settings";
 import { buildPageMetadata } from "@/lib/seo/metadata-builders";
@@ -22,12 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContatoPage() {
-  const [branding, auth, contact] = await Promise.all([
+  const [branding, userSession, contact] = await Promise.all([
     getSiteBranding(),
-    getAuthUser(),
+    getLandingUserSession(),
     getPublicContactSettings(),
   ]);
-  const userSession = auth ? { email: auth.email } : null;
 
   return (
     <LegalPageShell

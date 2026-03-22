@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { currencyBRL } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
 import { EmptyState } from "./empty-state";
@@ -36,12 +37,84 @@ function matchesOrderSearch(row: OrderRow, q: string): boolean {
 }
 
 export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] }) {
-  const [orders] = useState<OrderRow[]>(initialOrders);
+  const router = useRouter();
+  const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(25);
   const [selectedOrder, setSelectedOrder] = useState<OrderRow | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [actionBanner, setActionBanner] = useState<{
+    type: "ok" | "err";
+    text: string;
+  } | null>(null);
+
+  useEffect(() => {
+    setOrders(initialOrders);
+  }, [initialOrders]);
+
+  async function handleApprove(row: OrderRow) {
+    const isResend = row.hasDelivery === true;
+    if (
+      !window.confirm(
+        isResend
+          ? `Reenviar e-mail e SMS para ${row.userEmail} com o acesso?`
+          : `Aprovar manualmente o pedido ${displayOrderNumber(row.orderNumber)}? Um código será reservado, o pedido será marcado como pago e o cliente receberá e-mail e SMS.`,
+      )
+    ) {
+      return;
+    }
+    setApprovingId(row.id);
+    setActionBanner(null);
+    try {
+      const res = await fetch(`/api/admin/orders/${encodeURIComponent(row.id)}/approve`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        message?: string;
+        order?: { status: string; paidAt: string | null; code?: string };
+      };
+      if (!res.ok) {
+        setActionBanner({ type: "err", text: data.error || "Falha ao processar" });
+        return;
+      }
+      setActionBanner({ type: "ok", text: data.message || "Concluído." });
+      if (data.order) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === row.id
+              ? {
+                  ...o,
+                  status: data.order!.status,
+                  paidAt: data.order!.paidAt ?? o.paidAt,
+                  code: data.order!.code ?? o.code,
+                  hasDelivery: true,
+                }
+              : o,
+          ),
+        );
+        setSelectedOrder((prev) =>
+          prev && prev.id === row.id
+            ? {
+                ...prev,
+                status: data.order!.status,
+                paidAt: data.order!.paidAt ?? prev.paidAt,
+                code: data.order!.code ?? prev.code,
+                hasDelivery: true,
+              }
+            : prev,
+        );
+      }
+      router.refresh();
+    } catch {
+      setActionBanner({ type: "err", text: "Erro de rede." });
+    } finally {
+      setApprovingId(null);
+    }
+  }
 
   const filtered = useMemo(() => {
     let list = orders.filter((o) => matchesOrderSearch(o, search));
@@ -125,6 +198,19 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
         </Link>
       </div>
 
+      {actionBanner ? (
+        <div
+          role="status"
+          className={`rounded-xl border px-4 py-3 text-sm ${
+            actionBanner.type === "ok"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : "border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
+          {actionBanner.text}
+        </div>
+      ) : null}
+
       {filtered.length === 0 ? (
         <EmptyState
           icon={ShoppingCart}
@@ -201,7 +287,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
               <AdminTableHeaderCell>Status</AdminTableHeaderCell>
               <AdminTableHeaderCell>Data</AdminTableHeaderCell>
               <AdminTableHeaderCell>Código</AdminTableHeaderCell>
-              <AdminTableHeaderCell className="w-20">Ações</AdminTableHeaderCell>
+              <AdminTableHeaderCell className="min-w-[9.5rem]">Ações</AdminTableHeaderCell>
             </AdminTableHead>
             <AdminTableBody>
               {paginated.map((row) => (
@@ -256,17 +342,33 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                       ? row.code.replace(/\n/g, " / ").slice(0, 28) + "…"
                       : "—"}
                   </AdminTableCell>
-                  <AdminTableCell>
-                    <button
-                      type="button"
-                      className="font-medium text-blue-600 hover:text-blue-700"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedOrder(row);
-                      }}
+                  <AdminTableCell className="align-top">
+                    <div
+                      className="flex flex-col gap-1.5"
+                      onClick={(e: React.MouseEvent) => e.stopPropagation()}
                     >
-                      Ver
-                    </button>
+                      {row.status !== "cancelled" ? (
+                        <button
+                          type="button"
+                          disabled={approvingId === row.id}
+                          onClick={() => void handleApprove(row)}
+                          className="text-left text-sm font-semibold text-emerald-700 hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {approvingId === row.id
+                            ? "Processando…"
+                            : row.hasDelivery
+                              ? "Reenviar"
+                              : "Aprovar"}
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="text-left text-sm font-medium text-blue-600 hover:text-blue-700"
+                        onClick={() => setSelectedOrder(row)}
+                      >
+                        Ver
+                      </button>
+                    </div>
                   </AdminTableCell>
                 </AdminTableRow>
               ))}
@@ -276,6 +378,8 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
           <OrderDetailModal
             order={selectedOrder}
             onClose={() => setSelectedOrder(null)}
+            approvingId={approvingId}
+            onApprove={handleApprove}
           />
         </>
       )}

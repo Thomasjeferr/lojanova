@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { getAuthUser } from "@/lib/auth";
+import { getLandingUserSession } from "@/lib/landing-user-session";
 import { getSiteBranding } from "@/lib/site-branding";
 import { LandingPage } from "@/components/landing-page";
 import type { Plan } from "@/components/landing/plan-card";
@@ -57,12 +57,11 @@ export default async function ComprarAcessoPage() {
     dbConnected = false;
   }
 
-  const [auth, branding, contactSettings] = await Promise.all([
-    getAuthUser(),
+  const [userSession, branding, contactSettings] = await Promise.all([
+    getLandingUserSession(),
     getSiteBranding(),
     getPublicContactSettings(),
   ]);
-  const userSession = auth ? { email: auth.email } : null;
 
   return (
     <>

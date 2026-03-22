@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import type { LandingUserSession } from "@/lib/landing-user-session";
 import { IptvInlineText } from "@/components/marketing/iptv-inline-text";
 import type { IptvPageContent } from "@/lib/seo/iptv-pages-content";
 
@@ -13,7 +14,7 @@ export function IptvGuideShell({
 }: {
   children: React.ReactNode;
   branding: SiteBrandingPublic;
-  userSession?: { email: string } | null;
+  userSession?: LandingUserSession | null;
 }) {
   return (
     <div

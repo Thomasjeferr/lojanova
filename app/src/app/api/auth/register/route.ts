@@ -3,6 +3,7 @@ import { badRequest, ok } from "@/lib/http";
 import { hashPassword, createSessionCookies } from "@/lib/auth";
 import { registerSchema } from "@/lib/validators";
 import { sendWelcomeEmail } from "@/lib/email";
+import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
 
 export async function POST(request: Request) {
   const json = await request.json();
@@ -17,11 +18,15 @@ export async function POST(request: Request) {
     return badRequest("Já existe uma conta com este e-mail");
   }
 
+  const cpfNorm = normalizePayerDocument(data.payerCpf ?? "");
+  const payerCpf = isValidPayerDocument(cpfNorm) ? cpfNorm : null;
+
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
       phone: data.phone || null,
+      payerCpf,
       passwordHash: await hashPassword(data.password),
       isAdmin: false,
     },

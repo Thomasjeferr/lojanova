@@ -18,14 +18,20 @@ export type OrderRow = {
   createdAt: string;
   paidAt?: string;
   code?: string;
+  /** Já existe registro de entrega (permite reenviar e-mail/SMS) */
+  hasDelivery?: boolean;
 };
 
 export function OrderDetailModal({
   order,
   onClose,
+  approvingId,
+  onApprove,
 }: {
   order: OrderRow | null;
   onClose: () => void;
+  approvingId: string | null;
+  onApprove: (row: OrderRow) => void | Promise<void>;
 }) {
   if (!order) return null;
 
@@ -153,6 +159,27 @@ export function OrderDetailModal({
             </div>
           )}
         </div>
+        {order.status !== "cancelled" ? (
+          <div className="flex flex-wrap gap-2 border-t border-zinc-100 px-6 py-4">
+            <button
+              type="button"
+              disabled={approvingId === order.id}
+              onClick={() => void onApprove(order)}
+              className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
+            >
+              {approvingId === order.id
+                ? "Processando…"
+                : order.hasDelivery
+                  ? "Reenviar e-mail / SMS"
+                  : "Aprovar e entregar"}
+            </button>
+            <p className="w-full text-xs text-zinc-500">
+              {order.hasDelivery
+                ? "Reenvia as mesmas credenciais já vinculadas ao pedido."
+                : "Confirme o pagamento fora do sistema: vincula um código disponível, marca como pago e dispara e-mail e SMS."}
+            </p>
+          </div>
+        ) : null}
       </div>
     </div>
   );

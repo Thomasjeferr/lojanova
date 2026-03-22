@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { BrandingLogo } from "@/components/branding-logo";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import type { LandingUserSession } from "@/lib/landing-user-session";
 
 export function LandingHeader({
   userSession = null,
@@ -13,7 +14,7 @@ export function LandingHeader({
   primaryCtaHref = "#planos",
   primaryCtaLabel = "Ver planos",
 }: {
-  userSession?: { email: string } | null;
+  userSession?: LandingUserSession | null;
   branding: SiteBrandingPublic;
   primaryCtaHref?: string;
   primaryCtaLabel?: string;

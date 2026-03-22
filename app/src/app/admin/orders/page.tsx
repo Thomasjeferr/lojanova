@@ -10,6 +10,7 @@ export default async function AdminOrdersPage() {
       user: { select: { name: true, email: true } },
       plan: true,
       activationCode: { select: { code: true, credentialType: true, username: true, password: true } },
+      delivery: { select: { id: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -43,6 +44,7 @@ export default async function AdminOrdersPage() {
                   password: o.activationCode.password,
                 })
               : undefined,
+            hasDelivery: Boolean(o.delivery),
           }))}
         />
       </SectionCard>

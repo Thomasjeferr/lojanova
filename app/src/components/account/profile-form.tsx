@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
 
 type Profile = {
   name: string;
   email: string;
   phone: string | null;
+  payerCpf: string | null;
 };
 
 type ProfileFormProps = {
@@ -20,6 +22,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [payerCpf, setPayerCpf] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -29,6 +32,10 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       setName(initialProfile.name);
       setEmail(initialProfile.email);
       setPhone(initialProfile.phone ?? "");
+      const saved = initialProfile.payerCpf
+        ? normalizePayerDocument(initialProfile.payerCpf)
+        : "";
+      setPayerCpf(isValidPayerDocument(saved) ? saved : "");
     }
   }, [initialProfile]);
 
@@ -36,12 +43,21 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     e.preventDefault();
     setError("");
     setSuccess("");
+    const cpfDigits = normalizePayerDocument(payerCpf);
+    if (cpfDigits.length > 0 && !isValidPayerDocument(cpfDigits)) {
+      setError("Informe um CPF válido (11 dígitos) ou deixe em branco para remover.");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone: phone || undefined }),
+        body: JSON.stringify({
+          name,
+          phone: phone || undefined,
+          payerCpf: cpfDigits.length === 0 ? "" : cpfDigits,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -94,6 +110,25 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             className="mt-1"
             placeholder="(11) 99999-9999"
           />
+        </div>
+        <div>
+          <Label htmlFor="payerCpf">CPF do pagador (Pix)</Label>
+          <Input
+            id="payerCpf"
+            inputMode="numeric"
+            autoComplete="off"
+            value={payerCpf}
+            onChange={(e) => {
+              setPayerCpf(e.target.value.replace(/[^\d]/g, "").slice(0, 11));
+              setError("");
+            }}
+            className="mt-1"
+            placeholder="Opcional — 11 dígitos"
+          />
+          <p className="mt-1 text-xs text-zinc-500">
+            Usado para pré-preencher o checkout Pix. Deixe vazio para apagar o CPF salvo ou altere se
+            outra pessoa costuma pagar.
+          </p>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         {success && <p className="text-sm text-emerald-600">{success}</p>}

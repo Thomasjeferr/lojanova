@@ -3,6 +3,7 @@ import { badRequest, ok, unauthorized } from "@/lib/http";
 import { createPixSchema } from "@/lib/validators";
 import { requireUser } from "@/lib/auth";
 import { createPixChargeByActiveProvider } from "@/lib/payment-gateway";
+import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
 
 export async function POST(request: Request) {
   try {
@@ -36,6 +37,21 @@ export async function POST(request: Request) {
       where: { id: order.id },
       data: { wooviChargeId: pix.chargeId, wooviTxid: pix.txid },
     });
+
+    const docRaw = (parsed.data.payerDocument ?? "").trim();
+    if (docRaw) {
+      const d = normalizePayerDocument(docRaw);
+      if (isValidPayerDocument(d)) {
+        await prisma.user
+          .update({
+            where: { id: auth.userId },
+            data: { payerCpf: d },
+          })
+          .catch(() => {
+            /* não bloquear checkout */
+          });
+      }
+    }
 
     return ok({
       message: "Cobrança Pix gerada",

@@ -8,7 +8,7 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
-    select: { name: true, email: true, phone: true },
+    select: { name: true, email: true, phone: true, payerCpf: true },
   });
 
   return (
@@ -20,6 +20,7 @@ export default async function ProfilePage() {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                payerCpf: user.payerCpf,
               }
             : null
         }

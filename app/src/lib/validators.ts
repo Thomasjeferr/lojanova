@@ -1,25 +1,40 @@
 import { z } from "zod";
 import { PaymentProvider, SiteTheme } from "@prisma/client";
 import { isValidWhatsAppNumber, normalizeWhatsAppNumber } from "@/lib/whatsapp";
+import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
 
-export const registerSchema = z.object({
-  name: z.string().min(2, "Nome inv?lido"),
-  email: z.email("E-mail inv?lido").transform((value) => value.toLowerCase()),
-  phone: z.string().min(10, "Telefone inv?lido").optional().or(z.literal("")),
-  password: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
-});
+export const registerSchema = z
+  .object({
+    name: z.string().min(2, "Nome inválido"),
+    email: z.email("E-mail inválido").transform((value) => value.toLowerCase()),
+    phone: z.string().min(10, "Telefone inválido").optional().or(z.literal("")),
+    password: z.string().min(6, "A senha deve ter ao menos 6 caracteres"),
+    /** CPF do pagador (checkout); opcional. */
+    payerCpf: z.string().optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    const p = normalizePayerDocument(data.payerCpf ?? "");
+    if (!p) return;
+    if (!isValidPayerDocument(p)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CPF inválido",
+        path: ["payerCpf"],
+      });
+    }
+  });
 
 export const loginSchema = z.object({
-  email: z.email("E-mail inv?lido").transform((value) => value.toLowerCase()),
-  password: z.string().min(6, "Senha inv?lida"),
+  email: z.email("E-mail inválido").transform((value) => value.toLowerCase()),
+  password: z.string().min(6, "Senha inválida"),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.email("E-mail inv?lido").transform((value) => value.toLowerCase()),
+  email: z.email("E-mail inválido").transform((value) => value.toLowerCase()),
 });
 
 export const resetPasswordSchema = z.object({
-  token: z.string().min(20, "Token inv?lido"),
+  token: z.string().min(20, "Token inválido"),
   newPassword: z.string().min(6, "A nova senha deve ter ao menos 6 caracteres"),
 });
 
@@ -67,10 +82,25 @@ export const adminActivationCodePatchSchema = z
     }
   });
 
-export const updateProfileSchema = z.object({
-  name: z.string().min(2, "Nome inv?lido"),
-  phone: z.string().optional().or(z.literal("")),
-});
+export const updateProfileSchema = z
+  .object({
+    name: z.string().min(2, "Nome inválido"),
+    phone: z.string().optional().or(z.literal("")),
+    /** Omitir no JSON = não alterar; "" = remover CPF salvo. */
+    payerCpf: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.payerCpf === undefined) return;
+    if (data.payerCpf.trim() === "") return;
+    const p = normalizePayerDocument(data.payerCpf);
+    if (!isValidPayerDocument(p)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CPF inválido",
+        path: ["payerCpf"],
+      });
+    }
+  });
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Informe a senha atual"),

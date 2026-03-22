@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import type { LandingUserSession } from "@/lib/landing-user-session";
 import { formatDatePtBrNumeric } from "@/lib/brazil-time";
 
 export function LegalPageShell({
@@ -13,7 +14,7 @@ export function LegalPageShell({
   children,
 }: {
   branding: SiteBrandingPublic;
-  userSession?: { email: string } | null;
+  userSession?: LandingUserSession | null;
   title: string;
   intro?: string;
   children: React.ReactNode;

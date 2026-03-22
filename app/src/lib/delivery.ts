@@ -132,3 +132,100 @@ export async function deliverActivationCode(
 
   return result.deliveredCode;
 }
+
+export type AdminFulfillKind = "delivered_new" | "resent" | "recovered";
+
+export type AdminFulfillResult = {
+  kind: AdminFulfillKind;
+  codeLine: string;
+};
+
+/**
+ * Aprovação manual (admin): entrega código + e-mail/SMS quando o gateway falhou,
+ * ou apenas reenvia as notificações se a entrega já existir.
+ */
+export async function adminFulfillOrResendOrder(
+  orderId: string,
+  options?: { request?: Request },
+): Promise<AdminFulfillResult> {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      user: true,
+      plan: true,
+      activationCode: true,
+      delivery: true,
+    },
+  });
+
+  if (!order) {
+    throw new Error("Pedido não encontrado");
+  }
+  if (order.status === "cancelled") {
+    throw new Error("Pedido cancelado não pode ser aprovado.");
+  }
+
+  const notify = async (codeLine: string, credentialLabel: string) => {
+    await sendActivationEmail({
+      to: order.user.email,
+      name: order.user.name,
+      planName: order.plan.title,
+      credentialLabel,
+      credentialValue: codeLine,
+    });
+    await sendActivationSms({
+      phone: order.user.phone,
+      name: order.user.name,
+      planName: order.plan.title,
+      credentialLabel,
+      credentialValue: codeLine,
+    });
+  };
+
+  if (order.delivery && order.activationCode) {
+    const codeLine = renderCredentialLine({
+      credentialType: order.activationCode.credentialType,
+      code: order.activationCode.code,
+      username: order.activationCode.username,
+      password: order.activationCode.password,
+    });
+    const credentialLabel = credentialKindLabel(order.activationCode.credentialType);
+    await notify(codeLine, credentialLabel);
+    return { kind: "resent", codeLine };
+  }
+
+  if (order.status === "pending" || order.status === "failed") {
+    const codeLine = await deliverActivationCode(orderId, options);
+    return { kind: "delivered_new", codeLine };
+  }
+
+  if (order.status === "paid" && order.activationCode && !order.delivery) {
+    await prisma.delivery.create({
+      data: {
+        orderId: order.id,
+        activationCodeId: order.activationCode.id,
+        status: "delivered",
+        message: "Entrega registrada manualmente (admin)",
+      },
+    });
+    const codeLine = renderCredentialLine({
+      credentialType: order.activationCode.credentialType,
+      code: order.activationCode.code,
+      username: order.activationCode.username,
+      password: order.activationCode.password,
+    });
+    const credentialLabel = credentialKindLabel(order.activationCode.credentialType);
+    await notify(codeLine, credentialLabel);
+    schedulePurchaseActivity({
+      userId: order.userId,
+      orderId: order.id,
+      amountCents: order.amountCents,
+      request: options?.request,
+    });
+    return { kind: "recovered", codeLine };
+  }
+
+  throw new Error(
+    "Não é possível aprovar este pedido no estado atual (confira status e estoque de códigos).",
+  );
+}

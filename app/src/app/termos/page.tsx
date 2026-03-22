@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAuthUser } from "@/lib/auth";
+import { getLandingUserSession } from "@/lib/landing-user-session";
 import { getSiteBranding } from "@/lib/site-branding";
 import { buildPageMetadata } from "@/lib/seo/metadata-builders";
 import { LegalPageShell, LegalSection } from "@/components/legal/legal-page-shell";
@@ -20,8 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TermosPage() {
-  const [branding, auth] = await Promise.all([getSiteBranding(), getAuthUser()]);
-  const userSession = auth ? { email: auth.email } : null;
+  const [branding, userSession] = await Promise.all([
+    getSiteBranding(),
+    getLandingUserSession(),
+  ]);
   const name = branding.storeDisplayName;
 
   return (

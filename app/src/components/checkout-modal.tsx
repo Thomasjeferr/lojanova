@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { currencyBRL } from "@/lib/utils";
 import {
@@ -184,7 +185,7 @@ export function CheckoutModal({
   onPlanChange: (plan: Plan) => void;
   open: boolean;
   onClose: () => void;
-  loggedInUser?: { email: string } | null;
+  loggedInUser?: { email: string; payerCpf?: string | null } | null;
 }) {
   const [step, setStep] = useState(1);
   const [stockByPlanId, setStockByPlanId] = useState<Record<string, number> | null>(null);
@@ -208,7 +209,11 @@ export function CheckoutModal({
   const [deliveryCode, setDeliveryCode] = useState("");
   const [credentialDetail, setCredentialDetail] = useState<CheckoutCredentialDetail | null>(null);
   const [payerDocument, setPayerDocument] = useState("");
+  /** null = carregando hints; GGPIX exige CPF na API, Woovi não. */
+  const [checkoutHints, setCheckoutHints] = useState<{ requiresPayerCpf: boolean } | null>(null);
+  const [cpfWiggle, setCpfWiggle] = useState(false);
   const pollCountRef = useRef(0);
+  const cpfInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open || !plan) {
@@ -221,9 +226,50 @@ export function CheckoutModal({
       setDeliveryCode("");
       setCredentialDetail(null);
       setError("");
+      setCheckoutHints(null);
+      setCpfWiggle(false);
       pollCountRef.current = 0;
+      return;
     }
-  }, [open, plan]);
+
+    setStep(1);
+    setOrderId("");
+    setOrderNumber(null);
+    setQrCode("");
+    setPixCode("");
+    setDeliveryCode("");
+    setCredentialDetail(null);
+    setError("");
+    setCheckoutHints(null);
+    setCpfWiggle(false);
+    pollCountRef.current = 0;
+
+    const saved = loggedInUser?.payerCpf
+      ? normalizePayerDocument(loggedInUser.payerCpf)
+      : "";
+    setPayerDocument(isValidPayerDocument(saved) ? saved : "");
+  }, [open, plan, loggedInUser?.email, loggedInUser?.payerCpf]);
+
+  useEffect(() => {
+    if (!open) {
+      setCheckoutHints(null);
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/public/checkout-hints")
+      .then(async (res) => {
+        const data = (await res.json().catch(() => ({}))) as { requiresPayerCpf?: boolean };
+        if (!cancelled) {
+          setCheckoutHints({ requiresPayerCpf: data.requiresPayerCpf !== false });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCheckoutHints({ requiresPayerCpf: true });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   /** Confirmação automática após o Pix e, se preciso, espera a credencial do webhook. */
   useEffect(() => {
@@ -336,6 +382,23 @@ export function CheckoutModal({
     plan && stockByPlanId && !stockLoading && !stockFetchError && (stockByPlanId[plan.id] ?? 0) > 0,
   );
   const payerDocOk = isValidPayerDocument(normalizePayerDocument(payerDocument));
+  /** Até carregar hints, assume CPF obrigatório (compatível com GGPIX). */
+  const requiresPayerCpf = checkoutHints === null ? true : checkoutHints.requiresPayerCpf;
+  const payerDocDigitsLen = normalizePayerDocument(payerDocument).length;
+
+  function triggerCpfAttention() {
+    setError("Informe o CPF do titular com 11 dígitos para gerar o Pix.");
+    setCpfWiggle(true);
+    window.setTimeout(() => setCpfWiggle(false), 480);
+    cpfInputRef.current?.focus();
+    requestAnimationFrame(() => {
+      cpfInputRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    });
+  }
 
   if (!open || !plan) return null;
 
@@ -394,10 +457,13 @@ export function CheckoutModal({
       return;
     }
 
-    const docDigits = normalizePayerDocument(payerDocument);
-    if (!isValidPayerDocument(docDigits)) {
-      setError("Informe um CPF válido do titular do pagamento.");
-      return;
+    if (requiresPayerCpf) {
+      const docDigits = normalizePayerDocument(payerDocument);
+      if (!isValidPayerDocument(docDigits)) {
+        setError("Informe um CPF válido do titular do pagamento.");
+        triggerCpfAttention();
+        return;
+      }
     }
 
     if (password.length < 6) {
@@ -420,16 +486,20 @@ export function CheckoutModal({
         body: JSON.stringify({ email: emailTrimmed, password }),
       });
       if (!login.ok) {
+        const registerBody: Record<string, string> = {
+          name: nameTrimmed,
+          email: emailTrimmed,
+          phone: phoneTrimmed,
+          password,
+        };
+        if (requiresPayerCpf) {
+          registerBody.payerCpf = normalizePayerDocument(payerDocument);
+        }
         const register = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "same-origin",
-          body: JSON.stringify({
-            name: nameTrimmed,
-            email: emailTrimmed,
-            phone: phoneTrimmed,
-            password,
-          }),
+          body: JSON.stringify(registerBody),
         });
         if (!register.ok) {
           const data = await register.json();
@@ -447,8 +517,9 @@ export function CheckoutModal({
   async function createPix(): Promise<boolean> {
     if (!plan) return false;
     const docDigits = normalizePayerDocument(payerDocument);
-    if (!isValidPayerDocument(docDigits)) {
+    if (requiresPayerCpf && !isValidPayerDocument(docDigits)) {
       setError("Informe um CPF válido do titular do pagamento.");
+      triggerCpfAttention();
       return false;
     }
     setLoading(true);
@@ -467,14 +538,18 @@ export function CheckoutModal({
         setOrderNumber(orderData.orderNumber);
       }
 
+      const pixBody: { orderId: string; payerDocument?: string } = {
+        orderId: orderData.orderId,
+      };
+      if (requiresPayerCpf) {
+        pixBody.payerDocument = docDigits;
+      }
+
       const pixRes = await fetch("/api/checkout/create-pix", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({
-          orderId: orderData.orderId,
-          payerDocument: docDigits,
-        }),
+        body: JSON.stringify(pixBody),
       });
       const pixData = await pixRes.json();
       if (!pixRes.ok) throw new Error(pixData.error);
@@ -602,28 +677,110 @@ export function CheckoutModal({
                 )}
 
                 {loggedInUser ? (
-                  <div className="space-y-3">
-                    <Input
-                      placeholder="CPF do pagador (somente números)"
-                      value={payerDocument}
-                      onChange={(e) => setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
-                      inputMode="numeric"
-                      autoComplete="off"
-                      className="rounded-xl"
-                    />
-                    <p className="text-xs text-zinc-500">
-                      Dados exigidos pelo provedor de Pix para emitir o QR Code.
-                    </p>
+                  <div className="space-y-4">
+                    <div className="rounded-xl border border-zinc-200/90 bg-zinc-50/90 px-3 py-2.5 text-sm text-zinc-700">
+                      <p>
+                        Conta:{" "}
+                        <span className="font-semibold text-zinc-900">{loggedInUser.email}</span>
+                      </p>
+                      {requiresPayerCpf ? (
+                        <p className="mt-1 text-xs text-zinc-600">
+                          Antes do Pix, informe o <strong>CPF de quem vai pagar</strong> (obrigatório
+                          para gerar o QR Code).
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-xs text-zinc-600">
+                          Toque em <strong>Pagar com Pix</strong> para gerar o QR Code.
+                        </p>
+                      )}
+                    </div>
+
+                    {requiresPayerCpf ? (
+                      <div
+                        className={`space-y-2 rounded-xl border-2 bg-white p-3 transition-[border-color,box-shadow] duration-200 sm:p-4 ${
+                          cpfWiggle ? "checkout-cpf-wiggle" : ""
+                        } ${
+                          payerDocOk
+                            ? "border-emerald-200/90 shadow-sm shadow-emerald-500/5"
+                            : "border-amber-200/90 shadow-sm shadow-amber-500/10"
+                        }`}
+                      >
+                        <Label
+                          htmlFor="checkout-payer-cpf"
+                          className="flex flex-wrap items-center gap-1.5 text-zinc-900"
+                        >
+                          CPF do pagador
+                          <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-900">
+                            Obrigatório
+                          </span>
+                        </Label>
+                        <Input
+                          ref={cpfInputRef}
+                          id="checkout-payer-cpf"
+                          placeholder="Somente números (11 dígitos)"
+                          value={payerDocument}
+                          onChange={(e) => {
+                            setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11));
+                            setError("");
+                          }}
+                          inputMode="numeric"
+                          autoComplete="off"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          aria-invalid={requiresPayerCpf && !payerDocOk}
+                          aria-describedby="checkout-payer-cpf-hint"
+                          className="rounded-xl border-zinc-300 text-base text-zinc-900 placeholder:text-zinc-400"
+                        />
+                        <p id="checkout-payer-cpf-hint" className="text-xs leading-relaxed text-zinc-600">
+                          {payerDocDigitsLen > 0 && payerDocDigitsLen < 11 ? (
+                            <span className="font-medium text-amber-800">
+                              Faltam {11 - payerDocDigitsLen} dígito(s). Complete o CPF para habilitar o
+                              pagamento.
+                            </span>
+                          ) : payerDocOk &&
+                            loggedInUser?.payerCpf &&
+                            normalizePayerDocument(loggedInUser.payerCpf) ===
+                              normalizePayerDocument(payerDocument) ? (
+                            <>
+                              <span className="font-medium text-emerald-800">
+                                CPF salvo da sua conta (último pagamento).
+                              </span>{" "}
+                              <span className="text-zinc-600">
+                                Edite o campo se <strong>outra pessoa</strong> for pagar o Pix.
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              Use o CPF de quem paga no app do banco.{" "}
+                              <span className="text-zinc-500">
+                                Dados exigidos pelo provedor de Pix.
+                              </span>
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    ) : null}
+
                     <PaymentButton
+                      type="button"
                       onClick={async () => {
+                        if (requiresPayerCpf && !payerDocOk) {
+                          triggerCpfAttention();
+                          return;
+                        }
                         const okPix = await createPix();
                         if (okPix) setStep(3);
                       }}
-                      disabled={loading || !canProceedStep1 || !payerDocOk}
+                      disabled={loading || !canProceedStep1}
                       loading={loading}
                     >
                       Pagar com Pix
                     </PaymentButton>
+                    {requiresPayerCpf && !payerDocOk && canProceedStep1 ? (
+                      <p className="text-center text-xs font-medium text-amber-800">
+                        Preencha o CPF acima para continuar.
+                      </p>
+                    ) : null}
                   </div>
                 ) : (
                   <Button
@@ -661,13 +818,30 @@ export function CheckoutModal({
               inputMode="numeric"
               maxLength={16}
             />
-            <Input
-              placeholder="CPF do pagador (somente números)"
-              value={payerDocument}
-              onChange={(e) => setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
-              inputMode="numeric"
-              autoComplete="off"
-            />
+            {requiresPayerCpf ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="checkout-payer-cpf-step2" className="text-zinc-900">
+                  CPF do pagador{" "}
+                  <span className="text-amber-700">(obrigatório para o Pix)</span>
+                </Label>
+                <Input
+                  ref={cpfInputRef}
+                  id="checkout-payer-cpf-step2"
+                  placeholder="Somente números (11 dígitos)"
+                  value={payerDocument}
+                  onChange={(e) => setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  className={`rounded-xl ${cpfWiggle ? "checkout-cpf-wiggle" : ""}`}
+                  aria-invalid={!payerDocOk && payerDocDigitsLen > 0}
+                />
+                {payerDocDigitsLen > 0 && payerDocDigitsLen < 11 ? (
+                  <p className="text-xs font-medium text-amber-800">
+                    Faltam {11 - payerDocDigitsLen} dígito(s).
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}

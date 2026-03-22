@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAuthUser } from "@/lib/auth";
+import { getLandingUserSession } from "@/lib/landing-user-session";
 import { getSiteBranding } from "@/lib/site-branding";
 import { IPTV_PAGES } from "@/lib/seo/iptv-pages-content";
 import { buildPageMetadata } from "@/lib/seo/metadata-builders";
@@ -23,8 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ComoFuncionaIptvPage() {
-  const [branding, auth] = await Promise.all([getSiteBranding(), getAuthUser()]);
-  const userSession = auth ? { email: auth.email } : null;
+  const [branding, userSession] = await Promise.all([
+    getSiteBranding(),
+    getLandingUserSession(),
+  ]);
 
   return (
     <>
