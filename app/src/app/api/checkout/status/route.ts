@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { credentialKindLabel, renderCredentialLine } from "@/lib/activation-credentials";
 import { getPaymentGatewaySettings } from "@/lib/woovi-settings";
 import { fetchGgPixTransactionById } from "@/lib/ggpix";
+import { fetchWooviChargeStatus, isWooviChargePaidStatus } from "@/lib/woovi";
 import { deliverActivationCode } from "@/lib/delivery";
 
 export async function GET(request: Request) {
@@ -44,6 +45,38 @@ export async function GET(request: Request) {
             }
           } catch (e) {
             console.error("[checkout/status] sync GGPIX", e);
+          }
+        }
+      }
+      if (settings.paymentProvider === "woovi") {
+        const apiKey = settings.wooviApiKey || process.env.WOOVI_API_KEY || "";
+        const tryIds = [order.wooviChargeId, order.wooviTxid].filter(
+          (v): v is string => Boolean(v?.trim()),
+        );
+        if (apiKey.trim() && tryIds.length > 0) {
+          try {
+            let paidRemote = false;
+            for (const ref of tryIds) {
+              const remoteStatus = await fetchWooviChargeStatus(ref, apiKey);
+              if (remoteStatus && isWooviChargePaidStatus(remoteStatus)) {
+                paidRemote = true;
+                break;
+              }
+            }
+            if (paidRemote) {
+              await deliverActivationCode(order.id, { request });
+              const refreshed = await prisma.order.findFirst({
+                where: { id: orderId, userId: auth.userId },
+                include: {
+                  activationCode: {
+                    select: { code: true, credentialType: true, username: true, password: true },
+                  },
+                },
+              });
+              if (refreshed) order = refreshed;
+            }
+          } catch (e) {
+            console.error("[checkout/status] sync Woovi", e);
           }
         }
       }

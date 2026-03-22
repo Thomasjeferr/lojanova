@@ -54,3 +54,53 @@ export async function createWooviPixCharge({
     qrCodeImage: data.charge?.pixQrCodeImage || data.pixQrCodeImage,
   };
 }
+
+function asChargeRecord(v: unknown): Record<string, unknown> | undefined {
+  if (v && typeof v === "object" && !Array.isArray(v)) {
+    return v as Record<string, unknown>;
+  }
+  return undefined;
+}
+
+function strVal(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+/**
+ * Consulta cobrança na Woovi (fallback quando o webhook atrasa ou falha na validação).
+ * Docs: GET /api/v1/charge/{id} — id pode ser _id da cobrança ou identificador Pix.
+ */
+export async function fetchWooviChargeStatus(
+  chargeIdOrTxid: string,
+  apiKey: string,
+): Promise<string | null> {
+  const key = apiKey.trim();
+  const raw = chargeIdOrTxid.trim();
+  if (!key || !raw) return null;
+
+  const id = encodeURIComponent(raw);
+  const res = await fetch(`https://api.woovi.com/api/v1/charge/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: key,
+    },
+    cache: "no-store",
+  });
+
+  if (!res.ok) return null;
+
+  try {
+    const data = (await res.json()) as Record<string, unknown>;
+    const charge = asChargeRecord(data.charge) ?? data;
+    const status = strVal(charge.status);
+    return status || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Status retornado pela API / webhook Woovi quando o Pix foi pago. */
+export function isWooviChargePaidStatus(status: string): boolean {
+  const s = status.toUpperCase();
+  return s === "COMPLETED" || s === "PAID";
+}
