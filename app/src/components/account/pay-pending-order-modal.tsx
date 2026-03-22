@@ -12,6 +12,7 @@ import {
   CredentialSuccessPanel,
   type CheckoutCredentialDetail,
 } from "@/components/checkout/credential-success-panel";
+import { CopyButton } from "@/components/account/copy-button";
 
 function mapStatusCredential(raw: unknown): CheckoutCredentialDetail | null {
   if (!raw || typeof raw !== "object") return null;
@@ -231,22 +232,37 @@ export function PayPendingOrderModal({
             ) : (
               <div className="space-y-4">
                 <p className="text-sm font-medium text-zinc-600">
-                  Escaneie o QR Code ou use o código abaixo no app do banco:
+                  Escaneie o QR Code ou use <strong className="text-zinc-800">Pix copia e cola</strong> no app do
+                  banco:
                 </p>
                 <div className="flex justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={qrCode}
                     alt="QR Code Pix"
-                    className="h-52 w-52 rounded-xl border border-zinc-200 bg-white p-2 sm:h-56 sm:w-56"
+                    className="h-52 w-52 max-w-full rounded-xl border border-zinc-200 bg-white p-2 sm:h-56 sm:w-56"
                   />
                 </div>
-                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs break-all text-zinc-800 select-all">
-                  {pixCode}
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Código Pix (copia e cola)
+                  </p>
+                  <div className="max-h-40 overflow-auto rounded-xl border border-zinc-200 bg-white p-3 shadow-sm sm:max-h-48">
+                    <code className="block select-text break-all font-mono text-[11px] leading-relaxed text-zinc-900 sm:text-xs">
+                      {pixCode}
+                    </code>
+                  </div>
+                  <CopyButton
+                    value={pixCode}
+                    label="Copiar código Pix"
+                    copiedLabel="Copiado! Abra o app do banco e cole"
+                    className="min-h-[48px] w-full justify-center rounded-xl bg-emerald-600 py-3.5 text-base font-semibold text-white shadow-md hover:bg-emerald-700 active:bg-emerald-800"
+                  />
+                  <p className="text-center text-xs leading-relaxed text-zinc-500">
+                    No app: <strong className="text-zinc-700">Pix</strong> →{" "}
+                    <strong className="text-zinc-700">Pix copia e cola</strong> → cole o código.
+                  </p>
                 </div>
-                <p className="text-center text-xs text-zinc-500">
-                  Toque e segure no código para selecionar e copiar, se precisar.
-                </p>
                 <div
                   className="flex flex-col items-center gap-2 rounded-xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-center"
                   role="status"
