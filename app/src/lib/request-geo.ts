@@ -3,6 +3,8 @@
  * Não armazena IP — só país/cidade/coordenadas aproximadas.
  */
 
+import { decodeGeoDisplayPart } from "@/lib/geo-display";
+
 export type ResolvedGeo = {
   country: string | null;
   countryCode: string | null;
@@ -40,7 +42,8 @@ function enrichCountryName(geo: ResolvedGeo): ResolvedGeo {
 /** Headers que a Vercel define em produção (sem custo extra). */
 function geoFromVercelHeaders(h: Headers): ResolvedGeo | null {
   const countryCode = h.get("x-vercel-ip-country")?.trim().toUpperCase() || null;
-  const city = h.get("x-vercel-ip-city")?.trim() || null;
+  const cityRaw = h.get("x-vercel-ip-city")?.trim() || null;
+  const city = cityRaw ? decodeGeoDisplayPart(cityRaw) : null;
   const latStr = h.get("x-vercel-ip-latitude");
   const lngStr = h.get("x-vercel-ip-longitude");
   const lat = latStr != null && latStr !== "" ? Number.parseFloat(latStr) : NaN;

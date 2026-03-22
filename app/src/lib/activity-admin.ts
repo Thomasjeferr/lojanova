@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getBrazilTodayStartUtc } from "@/lib/brazil-time";
+import { decodeGeoDisplayPart } from "@/lib/geo-display";
 
 export type ActivityMapPointDTO = {
   lat: number;
@@ -46,8 +47,8 @@ export async function getActivityMapPoints(): Promise<ActivityMapPointDTO[]> {
     const key = `${r.lat.toFixed(1)},${r.lng.toFixed(1)}`;
     const prev = map.get(key);
     const label =
-      r.city?.trim() ||
-      r.country?.trim() ||
+      decodeGeoDisplayPart(r.city) ||
+      decodeGeoDisplayPart(r.country) ||
       r.countryCode ||
       "Localização";
     if (prev) {
@@ -100,9 +101,9 @@ export async function getActivityRecent(limit = 40): Promise<ActivityRecentDTO[]
   return rows.map((r) => ({
     id: r.id,
     type: r.type,
-    country: r.country,
+    country: decodeGeoDisplayPart(r.country),
     countryCode: r.countryCode,
-    city: r.city,
+    city: decodeGeoDisplayPart(r.city),
     amountCents: r.amountCents,
     createdAt: r.createdAt.toISOString(),
   }));
@@ -162,8 +163,8 @@ export async function getActivityDashboardSummary(): Promise<ActivityDashboardSu
       ? {
           type: last.type,
           countryCode: last.countryCode,
-          city: last.city,
-          country: last.country,
+          city: decodeGeoDisplayPart(last.city),
+          country: decodeGeoDisplayPart(last.country),
           amountCents: last.amountCents,
           createdAt: last.createdAt.toISOString(),
         }

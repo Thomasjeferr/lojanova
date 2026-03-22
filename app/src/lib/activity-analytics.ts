@@ -7,6 +7,7 @@ import {
   getBrazilTodayStartUtc,
 } from "@/lib/brazil-time";
 import type { ActivityMapPointDTO, ActivityRecentDTO } from "@/lib/activity-admin";
+import { decodeGeoDisplayPart } from "@/lib/geo-display";
 import { buildDemoActivityFeed } from "@/lib/analytics-demo-feed";
 import type { AnalyticsQuery } from "@/lib/analytics-params";
 
@@ -108,7 +109,10 @@ export async function getActivityMapPointsForQuery(
     const key = `${r.lat.toFixed(1)},${r.lng.toFixed(1)}`;
     const prev = map.get(key);
     const label =
-      r.city?.trim() || r.country?.trim() || r.countryCode || "Localização";
+      decodeGeoDisplayPart(r.city) ||
+      decodeGeoDisplayPart(r.country) ||
+      r.countryCode ||
+      "Localização";
     if (prev) {
       prev.count += 1;
       prev.types.add(r.type);
@@ -154,9 +158,9 @@ export async function getActivityRecentForQuery(
   return rows.map((r) => ({
     id: r.id,
     type: r.type,
-    country: r.country,
+    country: decodeGeoDisplayPart(r.country),
     countryCode: r.countryCode,
-    city: r.city,
+    city: decodeGeoDisplayPart(r.city),
     amountCents: r.amountCents,
     createdAt: r.createdAt.toISOString(),
   }));
