@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -173,6 +174,80 @@ function SecurityInfo() {
   );
 }
 
+/** Opção 5 — obrigatório antes de gerar/pagar Pix (logado ou convidado no passo do Pix). */
+function PrePayDeliveryNotice({
+  onConfirm,
+  whatsappLink,
+}: {
+  onConfirm: () => void;
+  whatsappLink?: string | null;
+}) {
+  const [readChecked, setReadChecked] = useState(false);
+  const wa = typeof whatsappLink === "string" ? whatsappLink.trim() : "";
+  return (
+    <div className="space-y-4 rounded-2xl border border-zinc-200/90 bg-gradient-to-b from-zinc-50/95 to-white p-4 shadow-sm sm:p-5">
+      <p className="text-base font-bold tracking-tight text-zinc-900">Antes de pagar, saiba:</p>
+      <ul className="list-disc space-y-2.5 pl-5 text-sm leading-relaxed text-zinc-700">
+        <li>
+          Com o Pix confirmado, o acesso aparece <strong className="text-zinc-900">aqui no site</strong>.
+        </li>
+        <li>
+          Enviamos também para o <strong className="text-zinc-900">e-mail do cadastro</strong> e por{" "}
+          <strong className="text-zinc-900">SMS</strong>.
+        </li>
+        <li>
+          Não encontrou? Fale no{" "}
+          {wa ? (
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[var(--theme-primary)] underline underline-offset-2 hover:brightness-110"
+            >
+              WhatsApp
+            </a>
+          ) : (
+            <Link
+              href="/contato"
+              className="font-semibold text-[var(--theme-primary)] underline underline-offset-2 hover:brightness-110"
+            >
+              WhatsApp
+            </Link>
+          )}
+          .
+        </li>
+      </ul>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-300/90 bg-white p-3.5 text-sm leading-snug text-zinc-800 shadow-sm transition-colors hover:border-zinc-400/80 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[var(--theme-primary)]/35">
+        <input
+          type="checkbox"
+          checked={readChecked}
+          onChange={(e) => setReadChecked(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-zinc-400 text-[var(--theme-primary)] focus:ring-2 focus:ring-[var(--theme-primary)]/40"
+          aria-describedby="prepay-checkbox-hint"
+        />
+        <span className="font-medium">
+          Li e entendi onde vou receber o acesso (site, e-mail e SMS) e que posso falar no WhatsApp se
+          precisar.
+        </span>
+      </label>
+      <p id="prepay-checkbox-hint" className="text-xs text-zinc-500">
+        O botão abaixo só libera depois que você marcar a caixa — assim evitamos seguir sem ler.
+      </p>
+
+      <Button
+        type="button"
+        variant="theme"
+        disabled={!readChecked}
+        className="w-full rounded-2xl py-3.5 text-base font-bold transition-[transform,filter] duration-200 hover:brightness-105 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-45"
+        onClick={onConfirm}
+      >
+        Confirmo que entendi
+      </Button>
+    </div>
+  );
+}
+
 export function CheckoutModal({
   plan,
   allPlans,
@@ -180,6 +255,7 @@ export function CheckoutModal({
   open,
   onClose,
   loggedInUser = null,
+  whatsappLink = null,
 }: {
   plan: Plan | null;
   allPlans: Plan[];
@@ -187,8 +263,11 @@ export function CheckoutModal({
   open: boolean;
   onClose: () => void;
   loggedInUser?: { email: string; payerCpf?: string | null } | null;
+  /** Link público do WhatsApp (contato); se vazio, o aviso aponta para /contato. */
+  whatsappLink?: string | null;
 }) {
   const [step, setStep] = useState(1);
+  const [prePayNoticeAcknowledged, setPrePayNoticeAcknowledged] = useState(false);
   const [stockByPlanId, setStockByPlanId] = useState<Record<string, number> | null>(null);
   const [stockLoading, setStockLoading] = useState(false);
   const [stockFetchError, setStockFetchError] = useState<string | null>(null);
@@ -219,6 +298,7 @@ export function CheckoutModal({
   useEffect(() => {
     if (!open || !plan) {
       setStep(1);
+      setPrePayNoticeAcknowledged(false);
       setPayerDocument("");
       setOrderId("");
       setOrderNumber(null);
@@ -234,6 +314,7 @@ export function CheckoutModal({
     }
 
     setStep(1);
+    setPrePayNoticeAcknowledged(false);
     setOrderId("");
     setOrderNumber(null);
     setQrCode("");
@@ -678,6 +759,12 @@ export function CheckoutModal({
                 )}
 
                 {loggedInUser ? (
+                  !prePayNoticeAcknowledged ? (
+                    <PrePayDeliveryNotice
+                      whatsappLink={whatsappLink}
+                      onConfirm={() => setPrePayNoticeAcknowledged(true)}
+                    />
+                  ) : (
                   <div className="space-y-4">
                     <div className="rounded-xl border border-zinc-200/90 bg-zinc-50/90 px-3 py-2.5 text-sm text-zinc-700">
                       <p>
@@ -783,6 +870,7 @@ export function CheckoutModal({
                       </p>
                     ) : null}
                   </div>
+                  )
                 ) : (
                   <Button
                     variant="theme"
@@ -891,9 +979,16 @@ export function CheckoutModal({
         {step === 3 && (
           <div className="space-y-5">
             {!qrCode ? (
+              !prePayNoticeAcknowledged ? (
+                <PrePayDeliveryNotice
+                  whatsappLink={whatsappLink}
+                  onConfirm={() => setPrePayNoticeAcknowledged(true)}
+                />
+              ) : (
               <PaymentButton onClick={createPix} disabled={loading} loading={loading}>
                 Gerar Pix
               </PaymentButton>
+              )
             ) : (
               <>
                 {orderNumber != null ? (

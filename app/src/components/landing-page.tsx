@@ -79,6 +79,7 @@ export function LandingPage({
         open={Boolean(selectedPlan)}
         onClose={() => setSelectedPlan(null)}
         loggedInUser={userSession}
+        whatsappLink={contactSettings.whatsappEnabled ? contactSettings.whatsappLink : null}
       />
     </main>
   );
