@@ -4,6 +4,10 @@ import { createPixSchema } from "@/lib/validators";
 import { requireUser } from "@/lib/auth";
 import { createPixChargeByActiveProvider } from "@/lib/payment-gateway";
 import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
+import {
+  ensurePixReservationForOrder,
+  releasePixReservationForOrder,
+} from "@/lib/pix-reservation";
 
 export async function POST(request: Request) {
   try {
@@ -24,14 +28,26 @@ export async function POST(request: Request) {
       return badRequest("Pedido já está pago");
     }
 
-    const pix = await createPixChargeByActiveProvider({
-      amountCents: order.amountCents,
-      payerName: order.user.name,
-      externalId: order.id,
-      payerDocument: parsed.data.payerDocument,
-      payerEmail: order.user.email,
-      payerPhone: order.user.phone,
+    await prisma.$transaction(async (tx) => {
+      await ensurePixReservationForOrder(tx, { id: order.id, planId: order.planId });
     });
+
+    let pix: Awaited<ReturnType<typeof createPixChargeByActiveProvider>>;
+    try {
+      pix = await createPixChargeByActiveProvider({
+        amountCents: order.amountCents,
+        payerName: order.user.name,
+        externalId: order.id,
+        payerDocument: parsed.data.payerDocument,
+        payerEmail: order.user.email,
+        payerPhone: order.user.phone,
+      });
+    } catch (chargeErr) {
+      await releasePixReservationForOrder(order.id).catch(() => {
+        /* não bloquear resposta de erro */
+      });
+      throw chargeErr;
+    }
 
     await prisma.order.update({
       where: { id: order.id },

@@ -27,14 +27,16 @@ export default async function AdminCodesPage() {
         title="Importar códigos"
         subtitle="Importe por tipo: código de ativação (16 chars) ou usuário/senha. Duplicados são ignorados."
       >
-        <AdminCodesImportCard plans={plans.map((p) => ({ id: p.id, title: p.title }))} />
+        <AdminCodesImportCard
+          plans={plans.map((p) => ({ id: p.id, title: p.title, durationDays: p.durationDays }))}
+        />
       </SectionCard>
       <SectionCard
         title="Lista de códigos"
-        subtitle="Últimos 100. Use os filtros para refinar."
+        subtitle="Últimos 100. A duração (30, 90 dias…) vem do plano cadastrado — mesmo título em planos diferentes fica distinguível."
       >
         <AdminCodesTable
-          plans={plans.map((p) => ({ id: p.id, title: p.title }))}
+          plans={plans.map((p) => ({ id: p.id, title: p.title, durationDays: p.durationDays }))}
           initialCodes={codes.map((c) => ({
             id: c.id,
             code: c.code,
@@ -44,6 +46,7 @@ export default async function AdminCodesPage() {
             planId: c.planId,
             status: c.status,
             planTitle: c.plan.title,
+            planDurationDays: c.plan.durationDays,
             orderEmail: c.order?.user?.email,
             createdAt: c.createdAt.toISOString(),
           }))}

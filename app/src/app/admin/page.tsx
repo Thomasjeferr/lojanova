@@ -99,6 +99,8 @@ export default async function AdminDashboardPage() {
 
   const availableCodes =
     codesByStatus.find((c) => c.status === "available")?._count.id ?? 0;
+  const reservedCodes =
+    codesByStatus.find((c) => c.status === "reserved")?._count.id ?? 0;
   const soldCodes = codesByStatus.find((c) => c.status === "sold")?._count.id ?? 0;
   const blockedCodes =
     codesByStatus.find((c) => c.status === "blocked")?._count.id ?? 0;
@@ -176,7 +178,10 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {availableCodes === 0 && soldCodes === 0 && blockedCodes === 0 ? (
+        {availableCodes === 0 &&
+        reservedCodes === 0 &&
+        soldCodes === 0 &&
+        blockedCodes === 0 ? (
           <section
             className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-8px_rgba(0,0,0,0.08)]"
           >
@@ -205,6 +210,7 @@ export default async function AdminDashboardPage() {
         ) : (
           <DashboardCodesSummary
             available={availableCodes}
+            reserved={reservedCodes}
             sold={soldCodes}
             blocked={blockedCodes}
           />

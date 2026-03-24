@@ -17,6 +17,7 @@ enum OrderStatus {
 
 enum ActivationCodeStatus {
   available
+  reserved
   sold
   blocked
 }
@@ -110,6 +111,8 @@ model ActivationCode {
   username       String?
   password       String?
   status         ActivationCodeStatus     @default(available)
+  /// Fim da reserva do Pix (checkout); após expirar, o código volta a `available`.
+  reservedUntil  DateTime?
   blockedReason  String?
   planId         String
   orderId        String?                  @unique

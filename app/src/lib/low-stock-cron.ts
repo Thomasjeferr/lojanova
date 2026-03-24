@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { sendLowStockAlertEmail } from "@/lib/email";
 import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 import { getSiteBranding } from "@/lib/site-branding";
+import { releaseExpiredPixReservationsTx } from "@/lib/pix-reservation";
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_STORE = "Loja Digital";
@@ -46,14 +47,17 @@ export async function runLowStockAlertJob(): Promise<LowStockCronResult> {
     return { sent: false, skippedReason: "no_recipient" };
   }
 
-  const plans = await prisma.plan.findMany({
-    where: { isActive: true },
-    select: {
-      title: true,
-      _count: {
-        select: { codes: { where: { status: "available" } } },
+  const plans = await prisma.$transaction(async (tx) => {
+    await releaseExpiredPixReservationsTx(tx);
+    return tx.plan.findMany({
+      where: { isActive: true },
+      select: {
+        title: true,
+        _count: {
+          select: { codes: { where: { status: "available" } } },
+        },
       },
-    },
+    });
   });
 
   const items = plans

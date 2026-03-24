@@ -6,6 +6,7 @@ type Status =
   | "failed"
   | "cancelled"
   | "available"
+  | "reserved"
   | "sold"
   | "blocked"
   | "delivered";
@@ -30,6 +31,10 @@ const statusConfig: Record<Status, { label: string; className: string }> = {
   available: {
     label: "Disponível",
     className: "border-emerald-200/80 bg-emerald-50/95 text-emerald-900",
+  },
+  reserved: {
+    label: "Reservado (Pix)",
+    className: "border-amber-200/80 bg-amber-50/95 text-amber-950",
   },
   sold: {
     label: "Vendido",

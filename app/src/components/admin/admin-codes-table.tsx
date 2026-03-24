@@ -16,6 +16,8 @@ import { Key, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateShortPtBr } from "@/lib/brazil-time";
 
+export type AdminPlanOption = { id: string; title: string; durationDays: number };
+
 export type CodeRow = {
   id: string;
   code: string;
@@ -23,8 +25,10 @@ export type CodeRow = {
   username?: string | null;
   password?: string | null;
   planId: string;
-  status: "available" | "sold" | "blocked";
+  status: "available" | "reserved" | "sold" | "blocked";
   planTitle: string;
+  /** Vem do cadastro do plano — distingue 30/31/90 dias quando o título é genérico (“Recarga”). */
+  planDurationDays: number;
   orderEmail?: string;
   createdAt: string;
 };
@@ -49,7 +53,7 @@ function mapApiToRow(c: {
   password?: string | null;
   status: string;
   planId?: string;
-  plan: { id: string; title: string };
+  plan: { id: string; title: string; durationDays: number };
   order?: { user?: { email?: string } };
   createdAt: string;
 }): CodeRow {
@@ -62,10 +66,15 @@ function mapApiToRow(c: {
     planId: c.plan?.id ?? c.planId ?? "",
     status: c.status as CodeRow["status"],
     planTitle: c.plan?.title ?? "",
+    planDurationDays: c.plan?.durationDays ?? 0,
     orderEmail: c.order?.user?.email,
     createdAt:
       typeof c.createdAt === "string" ? c.createdAt : new Date(c.createdAt).toISOString(),
   };
+}
+
+function planLabel(p: { title: string; durationDays: number }) {
+  return `${p.title} · ${p.durationDays} dias`;
 }
 
 export function AdminCodesTable({
@@ -73,11 +82,12 @@ export function AdminCodesTable({
   plans,
 }: {
   initialCodes: CodeRow[];
-  plans: Array<{ id: string; title: string }>;
+  plans: AdminPlanOption[];
 }) {
   const [codes, setCodes] = useState<CodeRow[]>(initialCodes);
   const [filterStatus, setFilterStatus] = useState<string>("");
-  const [filterPlan, setFilterPlan] = useState<string>("");
+  /** Filtro por id do plano (evita ambiguidade quando vários planos têm o mesmo título). */
+  const [filterPlanId, setFilterPlanId] = useState<string>("");
   const [editing, setEditing] = useState<EditableCodeRow | null>(null);
   const [deleting, setDeleting] = useState<CodeRow | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -97,15 +107,16 @@ export function AdminCodesTable({
   }, []);
 
   const plansSorted = plans.length
-    ? [...plans].sort((a, b) => a.title.localeCompare(b.title, "pt-BR"))
-    : Array.from(new Set(codes.map((c) => c.planId))).map((id) => ({
-        id,
-        title: codes.find((c) => c.planId === id)?.planTitle ?? id,
+    ? [...plans].sort((a, b) => a.durationDays - b.durationDays || a.title.localeCompare(b.title, "pt-BR"))
+    : Array.from(new Map(codes.map((c) => [c.planId, c])).values()).map((c) => ({
+        id: c.planId,
+        title: c.planTitle,
+        durationDays: c.planDurationDays,
       }));
 
   const filtered = codes.filter((c) => {
     if (filterStatus && c.status !== filterStatus) return false;
-    if (filterPlan && c.planTitle !== filterPlan) return false;
+    if (filterPlanId && c.planId !== filterPlanId) return false;
     return true;
   });
 
@@ -201,6 +212,7 @@ export function AdminCodesTable({
         >
           <option value="">Todos os status</option>
           <option value="available">Disponível</option>
+          <option value="reserved">Reservado (Pix)</option>
           <option value="sold">Vendido</option>
           <option value="blocked">Bloqueado</option>
         </select>
@@ -209,18 +221,16 @@ export function AdminCodesTable({
         </label>
         <select
           id="filter-plan"
-          className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          value={filterPlan}
-          onChange={(e) => setFilterPlan(e.target.value)}
+          className="min-w-[min(100%,280px)] rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          value={filterPlanId}
+          onChange={(e) => setFilterPlanId(e.target.value)}
         >
           <option value="">Todos os planos</option>
-          {Array.from(new Set(codes.map((c) => c.planTitle)))
-            .sort()
-            .map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
+          {plansSorted.map((p) => (
+            <option key={p.id} value={p.id}>
+              {planLabel(p)}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -238,7 +248,7 @@ export function AdminCodesTable({
             <AdminTableHeaderCell>Plano</AdminTableHeaderCell>
             <AdminTableHeaderCell>Status</AdminTableHeaderCell>
             <AdminTableHeaderCell>Cliente</AdminTableHeaderCell>
-            <AdminTableHeaderCell>Data</AdminTableHeaderCell>
+            <AdminTableHeaderCell>Cadastro</AdminTableHeaderCell>
             <AdminTableHeaderCell className="w-[1%] whitespace-nowrap text-right">
               Ações
             </AdminTableHeaderCell>
@@ -254,7 +264,14 @@ export function AdminCodesTable({
                 <AdminTableCell>
                   {row.credentialType === "username_password" ? "Usuario/Senha" : "Código"}
                 </AdminTableCell>
-                <AdminTableCell>{row.planTitle}</AdminTableCell>
+                <AdminTableCell className="max-w-[220px]">
+                  <div className="min-w-0">
+                    <p className="font-medium leading-snug text-zinc-900">{row.planTitle}</p>
+                    <p className="mt-0.5 text-xs tabular-nums text-zinc-500">
+                      {row.planDurationDays} dias de acesso
+                    </p>
+                  </div>
+                </AdminTableCell>
                 <AdminTableCell>
                   <StatusBadge status={row.status} />
                 </AdminTableCell>

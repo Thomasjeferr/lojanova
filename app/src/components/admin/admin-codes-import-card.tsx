@@ -8,7 +8,7 @@ import { Upload } from "lucide-react";
 export function AdminCodesImportCard({
   plans,
 }: {
-  plans: Array<{ id: string; title: string }>;
+  plans: Array<{ id: string; title: string; durationDays: number }>;
 }) {
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
   const [credentialType, setCredentialType] = useState<
@@ -81,7 +81,7 @@ export function AdminCodesImportCard({
         >
           {plans.map((plan) => (
             <option key={plan.id} value={plan.id}>
-              {plan.title}
+              {plan.title} · {plan.durationDays} dias
             </option>
           ))}
         </select>

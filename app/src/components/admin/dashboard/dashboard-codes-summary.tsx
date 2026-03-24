@@ -3,12 +3,14 @@ import { cn } from "@/lib/utils";
 
 type DashboardCodesSummaryProps = {
   available: number;
+  reserved: number;
   sold: number;
   blocked: number;
 };
 
 export function DashboardCodesSummary({
   available,
+  reserved,
   sold,
   blocked,
 }: DashboardCodesSummaryProps) {
@@ -20,6 +22,14 @@ export function DashboardCodesSummary({
       className:
         "border-emerald-200/50 bg-emerald-50/50 text-emerald-900 ring-emerald-500/10",
       iconClass: "text-emerald-600",
+    },
+    {
+      key: "reserved",
+      label: "Reservados (Pix)",
+      value: reserved,
+      className:
+        "border-amber-200/50 bg-amber-50/50 text-amber-950 ring-amber-500/10",
+      iconClass: "text-amber-600",
     },
     {
       key: "sold",

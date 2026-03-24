@@ -11,7 +11,9 @@ export async function GET(request: Request) {
 
     const codes = await prisma.activationCode.findMany({
       where: {
-        status: status ? (status as "available" | "sold" | "blocked") : undefined,
+        status: status
+          ? (status as "available" | "reserved" | "sold" | "blocked")
+          : undefined,
         planId: planId || undefined,
       },
       include: {

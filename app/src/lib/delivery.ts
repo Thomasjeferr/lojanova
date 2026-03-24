@@ -6,12 +6,15 @@ import {
   renderCredentialLine,
 } from "@/lib/activation-credentials";
 import { schedulePurchaseActivity } from "@/lib/activity-log";
+import { releaseExpiredPixReservationsTx } from "@/lib/pix-reservation";
 
 export async function deliverActivationCode(
   orderId: string,
   options?: { request?: Request },
 ) {
   const result = await prisma.$transaction(async (tx) => {
+    await releaseExpiredPixReservationsTx(tx);
+
     const order = await tx.order.findUnique({
       where: { id: orderId },
       include: { plan: true, user: true, activationCode: true, delivery: true },
@@ -40,7 +43,49 @@ export async function deliverActivationCode(
       };
     }
 
-    // Lock de linha para evitar entrega duplicada do mesmo código
+    const reserved = order.activationCode;
+    if (reserved?.status === "reserved" && reserved.planId === order.planId) {
+      await tx.activationCode.update({
+        where: { id: reserved.id },
+        data: {
+          status: "sold",
+          reservedUntil: null,
+        },
+      });
+
+      const paidOrder = await tx.order.update({
+        where: { id: order.id },
+        data: {
+          status: "paid",
+          paidAt: new Date(),
+        },
+      });
+
+      await tx.delivery.create({
+        data: {
+          orderId: order.id,
+          activationCodeId: reserved.id,
+          status: "delivered",
+          message: "Código entregue com sucesso",
+        },
+      });
+
+      return {
+        notifyChannels: true as const,
+        deliveredCode: renderCredentialLine({
+          credentialType: reserved.credentialType,
+          code: reserved.code,
+          username: reserved.username,
+          password: reserved.password,
+        }),
+        credentialLabel: credentialKindLabel(reserved.credentialType),
+        user: order.user,
+        plan: order.plan,
+        order: paidOrder,
+      };
+    }
+
+    // Pedidos antigos ou sem reserva: pega próximo disponível com lock
     const availableCodeRows = await tx.$queryRaw<
       Array<{
         id: string;

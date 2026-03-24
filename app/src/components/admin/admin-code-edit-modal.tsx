@@ -23,7 +23,7 @@ export function AdminCodeEditModal({
   onSaved,
 }: {
   row: EditableCodeRow | null;
-  plans: Array<{ id: string; title: string }>;
+  plans: Array<{ id: string; title: string; durationDays: number }>;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -124,7 +124,7 @@ export function AdminCodeEditModal({
             >
               {plans.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.title}
+                  {p.title} · {p.durationDays} dias
                 </option>
               ))}
             </select>
