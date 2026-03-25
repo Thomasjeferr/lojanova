@@ -14,7 +14,7 @@ export function LandingInnerHero({
   const isPlanos = mode === "planos";
 
   return (
-    <section className="relative z-10 overflow-hidden px-4 pt-28 pb-14 sm:pt-36 sm:pb-16 md:pt-40 md:pb-20">
+    <section className="relative z-10 overflow-hidden px-4 pt-20 pb-11 sm:pt-28 sm:pb-14 md:pt-32 md:pb-16">
       <div
         className="pointer-events-none absolute inset-0 -z-[1] opacity-70"
         style={{
@@ -26,7 +26,7 @@ export function LandingInnerHero({
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <p
-          className="landing-hero-pill mx-auto mb-6 inline-flex flex-wrap items-center justify-center rounded-full px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.18em] sm:text-[0.72rem]"
+          className="landing-hero-pill mx-auto mb-5 inline-flex flex-wrap items-center justify-center rounded-full px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.18em] sm:text-[0.72rem]"
           style={{ color: "var(--landing-text-muted)" }}
         >
           Pix no Brasil · Código de ativação · Entrega automática
@@ -57,23 +57,23 @@ export function LandingInnerHero({
           </>
         )}
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+        <div className="mt-8 flex flex-col items-center justify-center gap-2.5 sm:flex-row sm:gap-3">
           <a
             href="#planos"
-            className="theme-btn-primary-lg inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-10 py-4 text-base font-semibold sm:w-auto"
+            className="theme-btn-primary-lg inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-8 py-3.5 text-base font-semibold sm:w-auto"
           >
             {isPlanos ? "Ver tabelas de planos" : "Escolher meu plano"}
           </a>
           <a
             href="/"
-            className="landing-btn-secondary inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-10 py-4 text-base font-semibold sm:w-auto"
+            className="landing-btn-secondary inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-8 py-3.5 text-base font-semibold sm:w-auto"
           >
             Voltar à página inicial
           </a>
         </div>
 
         <p
-          className="mx-auto mt-8 max-w-xl text-sm leading-relaxed"
+          className="mx-auto mt-6 max-w-xl text-sm leading-relaxed"
           style={{ color: "var(--landing-text-muted)" }}
         >
           {branding.storeDisplayName}: acesso digital, sem mensalidade surpresa — pague uma vez pelo

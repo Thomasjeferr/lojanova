@@ -34,7 +34,7 @@ function StepConnector() {
     <>
       {/* Desktop: linha de fluxo atrás dos cards */}
       <div
-        className="pointer-events-none absolute left-16 right-16 top-[10.25rem] z-0 hidden h-px lg:block"
+        className="pointer-events-none absolute left-14 right-14 top-[8.75rem] z-0 hidden h-px lg:block"
         style={{
           background:
             "linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--theme-primary) 28%, var(--landing-border-strong)) 14%, color-mix(in srgb, var(--theme-primary) 36%, var(--landing-border-strong)) 52%, transparent 100%)",
@@ -43,7 +43,7 @@ function StepConnector() {
       />
       {/* Mobile/tablet: linha vertical lateral */}
       <div
-        className="pointer-events-none absolute bottom-10 left-7 top-44 z-0 w-px lg:hidden"
+        className="pointer-events-none absolute bottom-8 left-6 top-40 z-0 w-px lg:hidden"
         style={{
           background:
             "linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--theme-primary) 25%, var(--landing-border-strong)) 10%, color-mix(in srgb, var(--theme-primary) 32%, var(--landing-border-strong)) 78%, transparent 100%)",
@@ -67,7 +67,7 @@ function StepCard({
       className="group relative z-10 h-full landing-reveal"
       style={{ animationDelay: `${0.07 * index}s` }}
     >
-      <div className="landing-card-surface relative flex h-full flex-col overflow-hidden rounded-3xl px-6 pt-8 pb-7 shadow-[0_18px_36px_-20px_rgba(0,0,0,0.35)] transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_28px_52px_-22px_var(--theme-featured-shadow)] sm:px-7 sm:pt-9 sm:pb-8">
+      <div className="landing-card-surface relative flex h-full flex-col overflow-hidden rounded-3xl px-5 pt-6 pb-5 shadow-[0_18px_36px_-20px_rgba(0,0,0,0.35)] transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_28px_52px_-22px_var(--theme-featured-shadow)] sm:px-6 sm:pt-7 sm:pb-6">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"
           style={{
@@ -76,7 +76,7 @@ function StepCard({
           }}
         />
 
-        <div className="relative mb-5 flex items-center gap-3">
+        <div className="relative mb-4 flex items-center gap-2.5">
           <span className="theme-step-number inline-flex h-11 min-w-11 items-center justify-center rounded-2xl px-3 text-sm font-black shadow-md">
             {item.step}
           </span>
@@ -104,7 +104,7 @@ function StepCard({
 
 export function HowItWorksSection() {
   return (
-    <section className="relative overflow-hidden px-4 py-24 sm:py-28 md:py-32">
+    <section className="relative overflow-hidden px-4 py-16 sm:py-20 md:py-24">
       {/* Fundo premium com glow suave */}
       <div
         className="pointer-events-none absolute left-1/2 top-12 h-72 w-[min(90%,780px)] -translate-x-1/2 rounded-full blur-3xl"
@@ -125,19 +125,22 @@ export function HowItWorksSection() {
 
       <div className="mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
-          <h2 className="landing-heading-lg text-balance text-zinc-900">
+          <h2 className="landing-heading-lg text-balance">
             Como funciona a <span className="font-extrabold text-[var(--theme-primary)]">compra</span>{" "}
             de acesso e a ativação via Pix
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-balance text-[15px] leading-relaxed text-zinc-600 sm:text-base">
+          <p
+            className="mx-auto mt-4 max-w-2xl text-balance text-[15px] leading-relaxed sm:text-base"
+            style={{ color: "var(--landing-text-muted)" }}
+          >
             Em poucos passos você sai do checkout com o <strong>código de ativação</strong> na conta:
             escolha do plano, login, Pix e <strong>ativação automática</strong> após confirmação.
           </p>
         </div>
 
-        <div className="relative mt-16">
+        <div className="relative mt-12">
           <StepConnector />
-          <div className="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+          <div className="grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             {steps.map((item, i) => (
               <StepCard key={item.step} item={item} index={i} />
             ))}

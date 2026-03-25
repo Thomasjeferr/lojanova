@@ -10,13 +10,13 @@ export function FAQSection({ copy }: { copy: LandingCopy }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="landing-section-alt border-t px-4 py-24 sm:py-28 md:py-32">
+    <section className="landing-section-alt border-t px-4 py-16 sm:py-20 md:py-24">
       <div className="mx-auto max-w-3xl">
         <div className="text-center landing-reveal">
           <h2 className="landing-heading-lg">{copy.faqTitle}</h2>
-          <p className="landing-lead mt-6">{copy.faqSubtitle}</p>
+          <p className="landing-lead mt-5">{copy.faqSubtitle}</p>
         </div>
-        <div className="mt-14 space-y-4">
+        <div className="mt-10 space-y-3">
           {LANDING_FAQ_ITEMS.map((faq, index) => {
             const open = openIndex === index;
             return (
@@ -32,7 +32,7 @@ export function FAQSection({ copy }: { copy: LandingCopy }) {
                   <button
                     type="button"
                     onClick={() => setOpenIndex(open ? null : index)}
-                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left sm:px-7 sm:py-6"
+                    className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left sm:px-6 sm:py-5"
                     style={{ color: "var(--landing-text-primary)" }}
                     aria-expanded={open}
                   >
@@ -55,7 +55,7 @@ export function FAQSection({ copy }: { copy: LandingCopy }) {
                 >
                   <div className="overflow-hidden">
                     <p
-                      className="border-t px-6 py-5 text-sm leading-relaxed sm:px-7 sm:text-[0.9375rem]"
+                      className="border-t px-5 py-4 text-sm leading-relaxed sm:px-6 sm:text-[0.9375rem]"
                       style={{
                         borderColor: "var(--landing-faq-divider)",
                         color: "var(--landing-text-muted)",

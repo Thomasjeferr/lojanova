@@ -31,30 +31,30 @@ const benefits = [
 
 export function BenefitsSection() {
   return (
-    <section className="landing-section-alt border-t px-4 py-24 sm:py-28 md:py-32">
+    <section className="landing-section-alt border-t px-4 py-16 sm:py-20 md:py-24">
       <div className="mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
           <h2 className="landing-heading-lg text-balance">
             Por que escolher nosso serviço de código de ativação no Brasil
           </h2>
-          <p className="landing-lead mx-auto mt-6 max-w-2xl text-balance">
+          <p className="landing-lead mx-auto mt-5 max-w-2xl text-balance">
             Processo pensado para quem quer <strong>comprar acesso</strong> com clareza: Pix nacional,{" "}
             <strong>receber acesso na hora</strong> e suporte quando precisar — transparência de
             ponta a ponta.
           </p>
         </div>
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {benefits.map((item, i) => (
             <div
               key={item.title}
-              className="landing-card-surface landing-reveal rounded-2xl p-8 sm:p-9"
+              className="landing-card-surface landing-reveal rounded-2xl p-6 sm:p-7"
               style={{ animationDelay: `${0.05 * i}s` }}
             >
               <div className="theme-icon-tile flex h-14 w-14 items-center justify-center rounded-2xl">
                 <item.icon className="h-7 w-7" />
               </div>
               <h3
-                className="mt-6 text-lg font-bold tracking-tight"
+                className="mt-5 text-lg font-bold tracking-tight"
                 style={{ color: "var(--landing-text-primary)" }}
               >
                 {item.title}

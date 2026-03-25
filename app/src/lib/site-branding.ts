@@ -28,7 +28,8 @@ export type LandingCopy = {
     | "opensans"
     | "raleway"
     | "sora"
-    | "outfit";
+    | "outfit"
+    | "arial";
   fontSizePreset: "sm" | "md" | "lg";
   textPrimaryColor: string;
   textSecondaryColor: string;
@@ -73,11 +74,11 @@ export const DEFAULT_LANDING_COPY: LandingCopy = {
   faqTitle: "Perguntas frequentes",
   faqSubtitle: "Tire suas dúvidas antes de comprar.",
   footerTagline: "Ativação de acesso via Pix com entrega automática.",
-  fontPreset: "inter",
+  fontPreset: "arial",
   fontSizePreset: "md",
-  textPrimaryColor: "#18181b",
-  textSecondaryColor: "#3f3f46",
-  textMutedColor: "#71717a",
+  textPrimaryColor: "#fafafa",
+  textSecondaryColor: "#f0f0ef",
+  textMutedColor: "#d4d4d4",
   downloadAppsTitle: "Baixe o app para assistir",
   downloadAppsSubtitle:
     "Escolha um dos apps recomendados e conclua a instalação no seu dispositivo em poucos minutos.",
@@ -170,6 +171,7 @@ function mergeLandingCopy(raw: unknown): LandingCopy {
         "raleway",
         "sora",
         "outfit",
+        "arial",
       ].includes(obj.fontPreset)
         ? (obj.fontPreset as LandingCopy["fontPreset"])
         : DEFAULT_LANDING_COPY.fontPreset,

@@ -100,22 +100,22 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "theme-success-bg": "#ecfdf5",
     "theme-price-accent": "#c2410c",
 
-    /* ——— Landing (fundo, tipografia, cartões) ——— */
+    /* ——— Landing (fundo IA escuro + vidro + tipografia clara) ——— */
     "landing-shell-bg":
-      "radial-gradient(ellipse 95% 60% at 18% 22%, rgba(251, 146, 60, 0.14) 0%, transparent 52%), radial-gradient(ellipse 80% 55% at 88% 12%, rgba(220, 38, 38, 0.1) 0%, transparent 48%), radial-gradient(ellipse 110% 70% at 100% -5%, rgba(220, 38, 38, 0.11) 0%, transparent 52%), radial-gradient(ellipse 90% 60% at -5% 105%, rgba(234, 88, 12, 0.14) 0%, transparent 55%), radial-gradient(ellipse 55% 40% at 50% 115%, rgba(251, 146, 60, 0.09) 0%, transparent 62%), linear-gradient(176deg, #fdfcfb 0%, #fff8f2 16%, #ffefe4 34%, #ffe8d9 52%, #faf3ed 76%, #f2eae3 100%)",
+      "radial-gradient(ellipse 100% 70% at 50% -15%, rgba(251, 146, 60, 0.2) 0%, transparent 58%), radial-gradient(ellipse 80% 55% at 100% 20%, rgba(220, 38, 38, 0.14) 0%, transparent 50%), radial-gradient(ellipse 55% 45% at 0% 85%, rgba(234, 88, 12, 0.12) 0%, transparent 55%), linear-gradient(180deg, #070504 0%, #120a08 42%, #0a0604 100%)",
     "landing-aurora-gradient":
       "conic-gradient(from 135deg at 50% 45%, rgba(251, 146, 60, 0.42) 0deg, rgba(253, 186, 116, 0.16) 45deg, transparent 110deg, rgba(220, 38, 38, 0.2) 200deg, transparent 280deg, rgba(249, 115, 22, 0.28) 330deg, transparent 360deg)",
     "landing-aurora-opacity": "0.3",
     "landing-aurora-blend": "soft-light",
     "landing-premium-field-bg":
-      "radial-gradient(ellipse 130% 85% at 50% -25%, rgba(251, 146, 60, 0.2) 0%, transparent 52%), radial-gradient(ellipse 75% 55% at 6% 45%, rgba(234, 88, 12, 0.11) 0%, transparent 46%), radial-gradient(ellipse 80% 58% at 96% 32%, rgba(220, 38, 38, 0.13) 0%, transparent 48%), linear-gradient(168deg, rgba(255, 253, 250, 0.5) 0%, transparent 38%, transparent 62%, rgba(254, 215, 170, 0.08) 100%)",
+      "radial-gradient(ellipse 130% 85% at 50% -25%, rgba(251, 146, 60, 0.14) 0%, transparent 52%), radial-gradient(ellipse 75% 55% at 6% 45%, rgba(234, 88, 12, 0.08) 0%, transparent 46%), linear-gradient(168deg, rgba(255, 253, 250, 0.03) 0%, transparent 40%)",
     "landing-premium-field-opacity": "0.88",
     "landing-premium-field-blend": "soft-light",
-    "landing-shimmer-beams-opacity": "0.42",
-    "landing-shimmer-beams-blend": "soft-light",
+    "landing-shimmer-beams-opacity": "0.48",
+    "landing-shimmer-beams-blend": "screen",
     "landing-global-readability-fade":
-      "linear-gradient(180deg, transparent 0%, transparent 58%, rgba(255, 250, 245, 0.36) 86%, rgba(250, 245, 240, 0.55) 100%)",
-    "landing-inset-glass-bg": "rgba(255, 255, 255, 0.34)",
+      "linear-gradient(180deg, transparent 0%, transparent 62%, rgba(7, 5, 4, 0.28) 90%, rgba(5, 4, 3, 0.48) 100%)",
+    "landing-inset-glass-bg": "rgba(24, 24, 27, 0.38)",
     "landing-neural-layer-opacity": "0.72",
     "landing-neural-blend": "normal",
     "landing-neural-halo-opacity": "0.58",
@@ -137,76 +137,76 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "landing-blob-b":
       "radial-gradient(circle at 72% 38%, rgba(252, 165, 165, 0.22) 0%, rgba(253, 186, 116, 0.48) 38%, rgba(234, 88, 12, 0.14) 55%, transparent 70%)",
     "landing-blob-c":
-      "radial-gradient(circle at 18% 78%, rgba(255, 247, 237, 0.92) 0%, rgba(255, 228, 220, 0.38) 42%, rgba(254, 202, 202, 0.08) 62%, transparent 74%)",
+      "radial-gradient(circle at 18% 78%, rgba(255, 247, 237, 0.15) 0%, rgba(255, 228, 220, 0.08) 42%, transparent 62%)",
     "landing-hero-fade":
-      "linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 252, 248, 0.45) 28%, rgba(255, 247, 237, 0.82) 55%, rgba(250, 248, 245, 0.96) 100%)",
+      "linear-gradient(180deg, rgba(7, 5, 4, 0.35) 0%, rgba(12, 8, 6, 0.75) 42%, rgba(10, 6, 4, 0.92) 100%)",
     "landing-title-glow":
-      "radial-gradient(ellipse 90% 120% at 50% 45%, rgba(251, 191, 36, 0.42) 0%, rgba(249, 115, 22, 0.18) 42%, rgba(234, 88, 12, 0.06) 58%, transparent 75%)",
+      "radial-gradient(ellipse 90% 120% at 50% 45%, rgba(251, 191, 36, 0.38) 0%, rgba(249, 115, 22, 0.15) 42%, rgba(234, 88, 12, 0.06) 58%, transparent 75%)",
     "landing-vignette":
-      "radial-gradient(ellipse 100% 72% at 50% -10%, rgba(255, 255, 255, 0.55) 0%, transparent 44%), radial-gradient(ellipse 92% 58% at 50% 102%, transparent 38%, rgba(120, 53, 15, 0.045) 100%), radial-gradient(ellipse 50% 35% at 85% 50%, transparent 40%, rgba(185, 28, 28, 0.025) 100%)",
-    "landing-noise-opacity": "0.038",
-    "landing-hero-pill-bg": "rgba(255, 255, 255, 0.52)",
-    "landing-hero-pill-border": "rgba(251, 191, 36, 0.35)",
+      "radial-gradient(ellipse 85% 75% at 50% 45%, transparent 0%, rgba(7, 5, 4, 0.45) 100%)",
+    "landing-noise-opacity": "0.048",
+    "landing-hero-pill-bg": "rgba(20, 12, 8, 0.55)",
+    "landing-hero-pill-border": "rgba(251, 146, 60, 0.28)",
     "landing-hero-pill-shadow":
-      "0 8px 32px -6px rgba(251, 146, 60, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.75)",
-    "landing-text-primary": "#18181b",
-    "landing-text-secondary": "#3f3f46",
-    "landing-text-muted": "#71717a",
-    "landing-text-subtle": "#a1a1aa",
-    "landing-border": "rgba(24, 24, 27, 0.1)",
-    "landing-border-strong": "rgba(24, 24, 27, 0.14)",
+      "0 8px 32px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07)",
+    "landing-text-primary": "#fafafa",
+    "landing-text-secondary": "#f0f0ef",
+    "landing-text-muted": "#d4d4d4",
+    "landing-text-subtle": "#b0b0ae",
+    "landing-border": "rgba(255, 255, 255, 0.08)",
+    "landing-border-strong": "rgba(255, 255, 255, 0.12)",
     "landing-section-alt-bg":
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 252, 248, 0.16) 48%, rgba(255, 248, 242, 0.2) 100%)",
-    "landing-section-alt-border": "rgba(234, 88, 12, 0.09)",
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.02) 100%)",
+    "landing-section-alt-border": "rgba(251, 146, 60, 0.14)",
     "landing-card-bg":
-      "linear-gradient(168deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 253, 250, 0.28) 45%, rgba(255, 250, 245, 0.34) 100%)",
-    "landing-card-bg-solid": "#ffffff",
-    "landing-card-border": "rgba(234, 88, 12, 0.16)",
-    "landing-card-border-hover": "rgba(245, 158, 11, 0.48)",
+      "linear-gradient(165deg, rgba(39, 39, 42, 0.36) 0%, rgba(28, 28, 31, 0.3) 100%)",
+    "landing-card-bg-solid": "rgba(24, 24, 27, 0.72)",
+    "landing-card-border": "rgba(245, 158, 11, 0.22)",
+    "landing-card-border-hover": "rgba(251, 191, 36, 0.48)",
     "landing-card-inset-shine":
-      "inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 -1px 0 rgba(251, 191, 36, 0.1)",
+      "inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(245, 158, 11, 0.08)",
     "landing-card-shadow":
-      "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 44px -14px rgba(234, 88, 12, 0.14), 0 10px 22px -10px rgba(24, 24, 27, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.4) inset",
+      "0 10px 36px -10px rgba(0, 0, 0, 0.55), 0 0 40px -16px rgba(217, 119, 6, 0.14)",
     "landing-card-shadow-hover":
-      "0 28px 56px -16px rgba(217, 119, 6, 0.28), 0 14px 32px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(251, 191, 36, 0.18), 0 0 80px -24px rgba(220, 38, 38, 0.08)",
+      "0 28px 56px -14px rgba(217, 119, 6, 0.28), 0 14px 32px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(251, 191, 36, 0.15), 0 0 80px -24px rgba(220, 38, 38, 0.08)",
     "landing-card-border-gradient":
       "linear-gradient(135deg, #fde68a 0%, #f59e0b 22%, #fb923c 48%, #ea580c 72%, #fcd34d 100%)",
     "landing-card-featured-inner-bg":
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 251, 245, 0.44) 100%)",
+      "linear-gradient(180deg, rgba(39, 39, 42, 0.52) 0%, rgba(24, 24, 27, 0.44) 100%)",
     "landing-card-featured-shell-shadow":
-      "0 28px 64px -18px rgba(234, 88, 12, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.5) inset, 0 0 60px -20px rgba(245, 158, 11, 0.35)",
+      "0 28px 64px -16px rgba(234, 88, 12, 0.35), 0 0 72px -20px rgba(245, 158, 11, 0.3)",
     "landing-card-featured-glow":
-      "0 0 100px -24px rgba(245, 158, 11, 0.5), 0 0 48px -14px rgba(234, 88, 12, 0.3)",
+      "0 0 100px -24px rgba(245, 158, 11, 0.5), 0 0 48px -12px rgba(234, 88, 12, 0.35)",
     "landing-faq-item-bg":
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 252, 248, 0.32) 100%)",
-    "landing-header-bg-scrolled": "rgba(255, 252, 248, 0.78)",
-    "landing-header-border": "rgba(234, 88, 12, 0.08)",
-    "landing-header-text": "#18181b",
-    "landing-header-link": "#52525b",
-    "landing-header-link-hover-bg": "rgba(24, 24, 27, 0.05)",
-    "landing-header-link-hover-text": "#18181b",
-    "landing-logo-text": "#18181b",
-    "landing-btn-secondary-bg": "rgba(255, 255, 255, 0.42)",
-    "landing-btn-secondary-border": "rgba(234, 88, 12, 0.14)",
-    "landing-btn-secondary-text": "#27272a",
-    "landing-btn-secondary-hover-bg": "rgba(255, 255, 255, 0.62)",
-    "landing-btn-secondary-hover-border": "rgba(249, 115, 22, 0.45)",
+      "linear-gradient(180deg, rgba(39, 39, 42, 0.42) 0%, rgba(28, 28, 31, 0.36) 100%)",
+    "landing-header-bg-scrolled": "rgba(12, 10, 8, 0.78)",
+    "landing-header-border": "rgba(255, 255, 255, 0.08)",
+    "landing-header-text": "#fafafa",
+    "landing-header-link": "#e8e8e6",
+    "landing-header-link-hover-bg": "rgba(255, 255, 255, 0.08)",
+    "landing-header-link-hover-text": "#ffffff",
+    "landing-logo-text": "#fafafa",
+    "landing-btn-secondary-bg": "rgba(255, 255, 255, 0.05)",
+    "landing-btn-secondary-border": "rgba(255, 255, 255, 0.14)",
+    "landing-btn-secondary-text": "#fafaf9",
+    "landing-btn-secondary-hover-bg": "rgba(255, 255, 255, 0.1)",
+    "landing-btn-secondary-hover-border": "rgba(251, 146, 60, 0.45)",
     "landing-footer-bg":
       "linear-gradient(180deg, rgba(15, 14, 13, 0.9) 0%, rgba(8, 7, 8, 0.94) 52%, rgba(4, 4, 5, 0.96) 100%)",
     "landing-footer-atmosphere":
       "radial-gradient(ellipse 95% 55% at 50% 0%, rgba(251, 146, 60, 0.14) 0%, transparent 52%), linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%), repeating-linear-gradient(92deg, transparent 0, transparent 52px, rgba(255, 255, 255, 0.028) 52px, rgba(255, 255, 255, 0.028) 53px)",
-    "landing-footer-text": "#a1a1aa",
+    "landing-footer-text": "#c8c6c4",
     "landing-footer-heading": "#fafafa",
-    "landing-footer-border": "rgba(255, 255, 255, 0.08)",
-    "landing-faq-divider": "rgba(24, 24, 27, 0.08)",
+    "landing-footer-border": "rgba(255, 255, 255, 0.06)",
+    "landing-faq-divider": "rgba(255, 255, 255, 0.08)",
     "landing-plan-secondary-fg": "#fafaf9",
     "landing-plan-secondary-btn":
-      "linear-gradient(165deg, #57534e 0%, #292524 38%, #1c1917 100%)",
+      "linear-gradient(165deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%)",
     "landing-plan-secondary-btn-hover":
-      "linear-gradient(165deg, #78716c 0%, #44403c 42%, #292524 100%)",
+      "linear-gradient(165deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%)",
     "landing-plan-secondary-shadow":
-      "0 10px 32px -8px rgba(28, 25, 23, 0.45), 0 0 0 1px rgba(251, 191, 36, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12)",
-    "landing-reveal-from": "translateY(20px)",
+      "0 12px 36px -8px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(251, 191, 36, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+    "landing-reveal-from": "translate3d(0, 20px, 0)",
   },
   red: {
     "theme-primary": "#f43f5e",
@@ -262,7 +262,7 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "theme-price-accent": "#fda4af",
 
     "landing-shell-bg":
-      "radial-gradient(ellipse 90% 58% at 22% 18%, rgba(244, 63, 94, 0.22) 0%, transparent 50%), radial-gradient(ellipse 85% 55% at 92% 8%, rgba(190, 18, 60, 0.28) 0%, transparent 52%), radial-gradient(ellipse 100% 65% at 50% -8%, rgba(251, 113, 133, 0.22) 0%, transparent 55%), radial-gradient(ellipse 80% 50% at 100% 100%, rgba(190, 18, 60, 0.26) 0%, transparent 58%), linear-gradient(185deg, #050304 0%, #0d0709 20%, #150a0f 46%, #11080d 70%, #060405 100%)",
+      "radial-gradient(ellipse 100% 70% at 50% -15%, rgba(244, 63, 94, 0.2) 0%, transparent 58%), radial-gradient(ellipse 80% 55% at 100% 20%, rgba(190, 18, 60, 0.14) 0%, transparent 50%), radial-gradient(ellipse 55% 45% at 0% 85%, rgba(225, 29, 72, 0.12) 0%, transparent 55%), linear-gradient(180deg, #070504 0%, #120a08 42%, #0a0604 100%)",
     "landing-aurora-gradient":
       "conic-gradient(from 200deg at 50% 40%, rgba(244, 63, 94, 0.48) 0deg, transparent 70deg, rgba(136, 19, 55, 0.42) 160deg, transparent 250deg, rgba(251, 113, 133, 0.32) 320deg, transparent 360deg)",
     "landing-aurora-opacity": "0.34",
@@ -271,8 +271,8 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
       "radial-gradient(ellipse 120% 80% at 50% -22%, rgba(244, 63, 94, 0.18) 0%, transparent 50%), radial-gradient(ellipse 70% 50% at 8% 48%, rgba(190, 18, 60, 0.14) 0%, transparent 46%), radial-gradient(ellipse 75% 52% at 94% 28%, rgba(251, 113, 133, 0.12) 0%, transparent 48%), linear-gradient(175deg, rgba(255, 255, 255, 0.03) 0%, transparent 45%)",
     "landing-premium-field-opacity": "0.78",
     "landing-premium-field-blend": "screen",
-    "landing-shimmer-beams-opacity": "0.32",
-    "landing-shimmer-beams-blend": "overlay",
+    "landing-shimmer-beams-opacity": "0.44",
+    "landing-shimmer-beams-blend": "screen",
     "landing-global-readability-fade":
       "linear-gradient(180deg, transparent 0%, transparent 48%, rgba(8, 6, 6, 0.42) 90%, rgba(4, 3, 3, 0.78) 100%)",
     "landing-inset-glass-bg": "rgba(24, 24, 27, 0.42)",
@@ -301,7 +301,7 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "landing-title-glow":
       "radial-gradient(ellipse 75% 100% at 50% 40%, rgba(244, 63, 94, 0.42) 0%, rgba(190, 18, 60, 0.15) 50%, transparent 72%)",
     "landing-vignette":
-      "radial-gradient(ellipse 90% 65% at 50% -5%, rgba(251, 113, 133, 0.12) 0%, transparent 55%)",
+      "radial-gradient(ellipse 85% 75% at 50% 45%, transparent 0%, rgba(7, 5, 4, 0.52) 100%)",
     "landing-noise-opacity": "0.055",
     "landing-mesh-overlay":
       "conic-gradient(from 220deg at 50% -25%, rgba(244, 63, 94, 0.2) 0deg, transparent 55deg, rgba(136, 19, 55, 0.24) 130deg, transparent 210deg, rgba(251, 113, 133, 0.14) 290deg, transparent 360deg), radial-gradient(ellipse 85% 50% at 50% 0%, rgba(190, 18, 60, 0.34) 0%, transparent 54%)",
@@ -309,10 +309,10 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "landing-hero-pill-border": "rgba(244, 63, 94, 0.32)",
     "landing-hero-pill-shadow":
       "0 8px 32px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07)",
-    "landing-text-primary": "#fafaf9",
-    "landing-text-secondary": "#e7e5e4",
-    "landing-text-muted": "#a8a29e",
-    "landing-text-subtle": "#78716c",
+    "landing-text-primary": "#fafafa",
+    "landing-text-secondary": "#f0f0ef",
+    "landing-text-muted": "#d4d4d4",
+    "landing-text-subtle": "#b0b0ae",
     "landing-border": "rgba(255, 255, 255, 0.08)",
     "landing-border-strong": "rgba(255, 255, 255, 0.12)",
     "landing-section-alt-bg":
@@ -341,11 +341,11 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
       "linear-gradient(180deg, rgba(39, 39, 42, 0.42) 0%, rgba(28, 28, 31, 0.36) 100%)",
     "landing-header-bg-scrolled": "rgba(12, 10, 10, 0.75)",
     "landing-header-border": "rgba(255, 255, 255, 0.08)",
-    "landing-header-text": "#fafaf9",
-    "landing-header-link": "#d6d3d1",
-    "landing-header-link-hover-bg": "rgba(255, 255, 255, 0.06)",
-    "landing-header-link-hover-text": "#fafaf9",
-    "landing-logo-text": "#fafaf9",
+    "landing-header-text": "#fafafa",
+    "landing-header-link": "#e8e8e6",
+    "landing-header-link-hover-bg": "rgba(255, 255, 255, 0.08)",
+    "landing-header-link-hover-text": "#ffffff",
+    "landing-logo-text": "#fafafa",
     "landing-btn-secondary-bg": "rgba(255, 255, 255, 0.05)",
     "landing-btn-secondary-border": "rgba(255, 255, 255, 0.14)",
     "landing-btn-secondary-text": "#fafaf9",
@@ -355,8 +355,8 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
       "linear-gradient(180deg, rgba(5, 4, 3, 0.92) 0%, rgba(8, 6, 6, 0.96) 50%, rgba(0, 0, 0, 0.97) 100%)",
     "landing-footer-atmosphere":
       "radial-gradient(ellipse 95% 50% at 50% 0%, rgba(244, 63, 94, 0.12) 0%, transparent 50%), linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 40%), repeating-linear-gradient(88deg, transparent 0, transparent 48px, rgba(255, 255, 255, 0.02) 48px, rgba(255, 255, 255, 0.02) 49px)",
-    "landing-footer-text": "#a8a29e",
-    "landing-footer-heading": "#fafaf9",
+    "landing-footer-text": "#c8c6c4",
+    "landing-footer-heading": "#fafafa",
     "landing-footer-border": "rgba(255, 255, 255, 0.06)",
     "landing-faq-divider": "rgba(255, 255, 255, 0.08)",
     "landing-plan-secondary-fg": "#fafaf9",
@@ -366,7 +366,7 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
       "linear-gradient(165deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%)",
     "landing-plan-secondary-shadow":
       "0 12px 36px -8px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(251, 113, 133, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-    "landing-reveal-from": "translateY(24px)",
+    "landing-reveal-from": "translate3d(0, 24px, 0)",
   },
 };
 

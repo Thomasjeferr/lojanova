@@ -52,7 +52,7 @@ export function LandingPage({
       <LandingGlobalBackdrop />
       <LandingHeader userSession={userSession} branding={branding} />
       {!dbConnected && (
-        <div className="relative z-40 border-b border-amber-400/40 bg-amber-500/15 px-4 py-2.5 text-center text-sm text-amber-950 backdrop-blur-sm">
+        <div className="relative z-40 border-b border-amber-400/40 bg-amber-500/15 px-3 py-2 text-center text-sm text-amber-950 backdrop-blur-sm">
           Banco de dados não conectado. Configure <strong>DATABASE_URL</strong> e{" "}
           <strong>DIRECT_URL</strong> no arquivo{" "}
           <code className="rounded bg-amber-500/20 px-1">app/.env</code> com a connection string do

@@ -20,6 +20,8 @@
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
+    isolation: isolate;
+    transform: translateZ(0);
   }
 
   .landing-global-base {
@@ -41,6 +43,7 @@
     position: absolute;
     inset: -55%;
     pointer-events: none;
+    will-change: transform;
     background: repeating-conic-gradient(
       from 0deg at 50% 42%,
       transparent 0deg 11deg,
@@ -52,14 +55,18 @@
   }
 
   @keyframes landing-shimmer-beams-rotate {
+    from {
+      transform: rotate(0deg) translateZ(0);
+    }
     to {
-      transform: rotate(360deg);
+      transform: rotate(360deg) translateZ(0);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .landing-shimmer-beams {
       animation: none;
+      will-change: auto;
     }
   }
 
@@ -67,6 +74,72 @@
     .landing-shimmer-beams {
       opacity: calc(var(--landing-shimmer-beams-opacity, 0.55) * 0.55);
     }
+  }
+
+  /** Linhas orgânicas neon (camada smoke) — SVG absoluto em cima da base. */
+  .landing-ia-smoke-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* screen + scroll costumava causar flicker com vidro (backdrop-filter) por cima */
+    mix-blend-mode: normal;
+    opacity: 0.78;
+    pointer-events: none;
+    transform: translateZ(0);
+  }
+
+  .landing-ia-smoke-path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    animation: landing-ia-smoke-flow 22s ease-in-out infinite;
+  }
+
+  .landing-ia-smoke-path--b {
+    animation-duration: 28s;
+    animation-delay: -4s;
+  }
+  .landing-ia-smoke-path--c {
+    animation-duration: 35s;
+    animation-delay: -9s;
+  }
+  .landing-ia-smoke-path--d {
+    animation-duration: 26s;
+    animation-delay: -2s;
+  }
+  .landing-ia-smoke-path--e {
+    animation-duration: 31s;
+    animation-delay: -14s;
+  }
+
+  @keyframes landing-ia-smoke-flow {
+    0%,
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0.88;
+    }
+    50% {
+      stroke-dashoffset: -120;
+      opacity: 0.96;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-ia-smoke-path {
+      animation: none;
+    }
+  }
+
+  .landing-ia-vignette {
+    background: radial-gradient(
+      ellipse 85% 75% at 50% 45%,
+      transparent 0%,
+      rgba(7, 5, 4, 0.52) 100%
+    );
+    pointer-events: none;
   }
 
   .landing-global-grid {
@@ -283,6 +356,14 @@
   html[data-font-preset="outfit"] {
     --landing-font-family: var(--font-outfit);
   }
+  /** Arial: 400/700 nativos; demais pesos → síntese (só na landing). */
+  html[data-font-preset="arial"] {
+    --landing-font-family: Arial, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif;
+  }
+  html[data-font-preset="arial"] .landing-shell {
+    font-synthesis-weight: auto;
+    font-synthesis-style: auto;
+  }
 
   html[data-font-size="sm"] {
     --landing-size-multiplier: 0.92;
@@ -371,6 +452,7 @@
 
   .landing-reveal {
     animation: landing-fade-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+    backface-visibility: hidden;
   }
   .landing-reveal-delay-1 {
     animation-delay: 0.08s;
@@ -389,7 +471,7 @@
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translate3d(0, 0, 0);
     }
   }
 
@@ -512,15 +594,19 @@
   .landing-section-alt {
     background: var(--landing-section-alt-bg);
     border-color: var(--landing-section-alt-border);
-    backdrop-filter: blur(28px) saturate(1.18);
-    -webkit-backdrop-filter: blur(28px) saturate(1.18);
+    backdrop-filter: blur(18px) saturate(1.14);
+    -webkit-backdrop-filter: blur(18px) saturate(1.14);
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   /** Blocos internos (vídeo, chips) — vidro alinhado ao tema, deixa o neural aparecer */
   .landing-inset-glass {
     background: var(--landing-inset-glass-bg, rgba(255, 255, 255, 0.32));
-    backdrop-filter: blur(22px) saturate(1.12);
-    -webkit-backdrop-filter: blur(22px) saturate(1.12);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .landing-heading-xl {
@@ -613,8 +699,10 @@
   .landing-footer-premium {
     position: relative;
     isolation: isolate;
-    backdrop-filter: blur(40px) saturate(1.28);
-    -webkit-backdrop-filter: blur(40px) saturate(1.28);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   .landing-footer-premium::before {
     content: "";
@@ -632,18 +720,20 @@
 
   .landing-card-surface {
     background: var(--landing-card-bg);
-    backdrop-filter: blur(36px) saturate(1.25);
-    -webkit-backdrop-filter: blur(36px) saturate(1.25);
+    backdrop-filter: blur(22px) saturate(1.16);
+    -webkit-backdrop-filter: blur(22px) saturate(1.16);
     border: 1px solid var(--landing-card-border);
     box-shadow:
       var(--landing-card-shadow),
       var(--landing-card-inset-shine),
       0 0 0 1px color-mix(in srgb, var(--theme-primary) 0.1, transparent) inset;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    /* Nunca animar backdrop-filter — repinta o vidro inteiro e pisca no scroll */
     transition:
       transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.4s ease,
-      border-color 0.4s ease,
-      backdrop-filter 0.4s ease;
+      border-color 0.4s ease;
   }
   .landing-card-surface:hover {
     box-shadow: var(--landing-card-shadow-hover), var(--landing-card-inset-shine);
@@ -746,9 +836,11 @@
     flex-direction: column;
     border-radius: 1.8125rem;
     background: var(--landing-card-featured-inner-bg);
-    backdrop-filter: blur(40px) saturate(1.22);
-    -webkit-backdrop-filter: blur(40px) saturate(1.22);
+    backdrop-filter: blur(26px) saturate(1.18);
+    -webkit-backdrop-filter: blur(26px) saturate(1.18);
     overflow: hidden;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   .landing-plan-featured-inner::before {
     content: "";
@@ -768,16 +860,20 @@
 
   .landing-faq-card {
     background: var(--landing-faq-item-bg) !important;
-    backdrop-filter: blur(32px) saturate(1.2);
-    -webkit-backdrop-filter: blur(32px) saturate(1.2);
+    backdrop-filter: blur(20px) saturate(1.14);
+    -webkit-backdrop-filter: blur(20px) saturate(1.14);
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .landing-btn-secondary {
     background: var(--landing-btn-secondary-bg);
     border: 1px solid var(--landing-btn-secondary-border);
     color: var(--landing-btn-secondary-text);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transform: translateZ(0);
+    backface-visibility: hidden;
     transition:
       transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
       border-color 0.28s ease,
@@ -787,11 +883,11 @@
   .landing-btn-secondary:hover {
     background: var(--landing-btn-secondary-hover-bg);
     border-color: var(--landing-btn-secondary-hover-border);
-    transform: translateY(-2px) scale(1.02);
+    transform: translate3d(0, -2px, 0) scale(1.02);
     box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.18);
   }
   .landing-btn-secondary:active {
-    transform: translateY(0) scale(0.98);
+    transform: translate3d(0, 0, 0) scale(0.98);
   }
 
   .landing-plan-secondary-btn {

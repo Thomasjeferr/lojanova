@@ -163,6 +163,7 @@ export const siteBrandingPatchSchema = z
           "raleway",
           "sora",
           "outfit",
+          "arial",
         ]),
         fontSizePreset: z.enum(["sm", "md", "lg"]),
         textPrimaryColor: z.string().regex(/^#[A-Fa-f0-9]{6}$/),

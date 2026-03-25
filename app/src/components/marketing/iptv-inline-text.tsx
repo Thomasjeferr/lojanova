@@ -6,7 +6,7 @@ export function IptvInlineText({ text }: { text: string }) {
       {parts.map((part, i) => {
         if (part.startsWith("**") && part.endsWith("**")) {
           return (
-            <strong key={i} className="font-semibold text-zinc-900">
+            <strong key={i} className="font-semibold" style={{ color: "var(--landing-text-primary)" }}>
               {part.slice(2, -2)}
             </strong>
           );

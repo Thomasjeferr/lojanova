@@ -9,7 +9,7 @@ export function TrustSeoSection() {
   return (
     <section
       aria-labelledby="seo-trust-heading"
-      className="relative border-t border-[var(--landing-border)] px-4 py-20 sm:py-24 md:py-28"
+      className="relative border-t border-[var(--landing-border)] px-4 py-14 sm:py-16 md:py-20"
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-primary)]/20 to-transparent"
@@ -24,7 +24,7 @@ export function TrustSeoSection() {
           Entrega imediata via Pix e ativação automática no Brasil
         </h2>
         <div
-          className="mt-10 space-y-6 text-left text-[15px] leading-relaxed sm:text-base"
+          className="mt-8 space-y-5 text-left text-[15px] leading-relaxed sm:text-base"
           style={{ color: "var(--landing-text-secondary)" }}
         >
           <p>

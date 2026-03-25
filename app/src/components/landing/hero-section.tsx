@@ -5,7 +5,7 @@ import { HeroAmbientParticles } from "@/components/landing/hero-ambient-particle
 
 export function HeroSection({ copy }: { copy: LandingCopy }) {
   return (
-    <section className="relative z-10 overflow-hidden px-4 pt-32 pb-28 sm:pt-40 sm:pb-32 md:pt-48 md:pb-40 lg:pt-52 lg:pb-44">
+    <section className="relative z-10 overflow-hidden px-4 pt-24 pb-20 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 lg:pt-44 lg:pb-36">
       {/* Camadas locais: foco no título + legibilidade (fundo global já traz malha/aurora). */}
       <div className="landing-hero-rings absolute inset-0 -z-[2]" aria-hidden>
         <div className="landing-hero-ring landing-hero-ring--outer" />
@@ -20,7 +20,7 @@ export function HeroSection({ copy }: { copy: LandingCopy }) {
 
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         <p
-          className="landing-hero-pill landing-reveal mx-auto mb-8 inline-flex max-w-full flex-wrap items-center justify-center rounded-full px-4 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] sm:text-[0.72rem] sm:tracking-[0.24em]"
+          className="landing-hero-pill landing-reveal mx-auto mb-6 inline-flex max-w-full flex-wrap items-center justify-center rounded-full px-3.5 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.2em] sm:text-[0.72rem] sm:tracking-[0.24em]"
           style={{ color: "var(--landing-text-muted)" }}
         >
           {copy.heroEyebrow}
@@ -31,20 +31,20 @@ export function HeroSection({ copy }: { copy: LandingCopy }) {
           <span className="theme-text-gradient">{copy.heroTitleHighlight}</span>, {copy.heroTitleSuffix}
         </h1>
 
-        <p className="landing-reveal landing-reveal-delay-2 landing-lead mx-auto mt-7 max-w-2xl md:leading-relaxed">
+        <p className="landing-reveal landing-reveal-delay-2 landing-lead mx-auto mt-6 max-w-2xl md:leading-relaxed">
           {copy.heroSubtitle}
         </p>
 
-        <div className="landing-reveal landing-reveal-delay-3 mt-12 flex flex-col items-center justify-center gap-4 sm:mt-14 sm:flex-row sm:gap-5">
+        <div className="landing-reveal landing-reveal-delay-3 mt-10 flex flex-col items-center justify-center gap-3 sm:mt-12 sm:flex-row sm:gap-4">
           <a
             href="#planos"
-            className="theme-btn-primary-lg inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-10 py-4 text-base font-semibold sm:w-auto"
+            className="theme-btn-primary-lg inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-8 py-3.5 text-base font-semibold sm:w-auto"
           >
             {copy.heroPrimaryCta}
           </a>
           <a
             href="#planos"
-            className="landing-btn-secondary inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-10 py-4 text-base font-semibold sm:w-auto"
+            className="landing-btn-secondary inline-flex w-full min-w-[200px] items-center justify-center rounded-2xl px-8 py-3.5 text-base font-semibold sm:w-auto"
           >
             {copy.heroSecondaryCta}
           </a>

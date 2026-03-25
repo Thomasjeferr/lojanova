@@ -13,7 +13,7 @@ type DownloadApp = {
 function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
   if (imageUrl) {
     return (
-      <div className="landing-inset-glass relative mb-6 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
+      <div className="landing-inset-glass relative mb-5 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-1.5 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
         <Image
           src={imageUrl}
           alt={alt}
@@ -29,7 +29,7 @@ function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
   }
 
   return (
-    <div className="landing-inset-glass mb-6 rounded-2xl border border-[var(--landing-border)] p-4 text-sm text-[var(--landing-text-muted)]">
+    <div className="landing-inset-glass mb-5 rounded-2xl border border-[var(--landing-border)] p-3 text-sm text-[var(--landing-text-muted)]">
       Adicione no admin a imagem oficial do app para melhorar a visualização.
     </div>
   );
@@ -69,7 +69,7 @@ function MethodCard({
 }) {
   return (
     <article
-      className={`landing-card-surface landing-reveal group relative overflow-hidden rounded-3xl p-6 sm:p-8 ${
+      className={`landing-card-surface landing-reveal group relative overflow-hidden rounded-3xl p-5 sm:p-6 ${
         featured
           ? "border-[color-mix(in_srgb,var(--theme-primary)_35%,var(--landing-border))] shadow-[0_26px_70px_-34px_var(--theme-featured-shadow),0_0_60px_-28px_color-mix(in_srgb,var(--theme-primary)_42%,transparent)]"
           : "shadow-[0_24px_64px_-36px_rgba(0,0,0,0.35)]"
@@ -83,7 +83,7 @@ function MethodCard({
         }}
       />
       {featured ? (
-        <span className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-full bg-[var(--theme-primary)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
+        <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-[var(--theme-primary)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-md sm:text-[11px]">
           <BadgeCheck className="h-3.5 w-3.5" />
           Recomendado
         </span>
@@ -112,7 +112,7 @@ function DownloadCTA({
 }) {
   return (
     <article
-      className="landing-card-surface landing-reveal group relative overflow-hidden rounded-3xl p-6 shadow-[0_30px_76px_-42px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1.5 sm:p-8"
+      className="landing-card-surface landing-reveal group relative overflow-hidden rounded-3xl p-5 shadow-[0_30px_76px_-42px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1.5 sm:p-6"
       style={{ animationDelay: `${0.06 * index}s` }}
     >
       <div
@@ -128,7 +128,7 @@ function DownloadCTA({
           Instale o aplicativo oficial e entre com seus dados para liberar seu acesso com rapidez e segurança.
         </p>
         {app.imageUrl ? (
-          <div className="landing-inset-glass relative mt-5 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
+          <div className="landing-inset-glass relative mt-4 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-1.5 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
             <Image
               src={app.imageUrl}
               alt={`Imagem do app ${app.name}`}
@@ -145,7 +145,7 @@ function DownloadCTA({
           href={app.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="theme-btn-primary-lg mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-base font-semibold shadow-[0_18px_38px_-16px_var(--theme-featured-shadow)] transition-all duration-300 hover:scale-[1.02]"
+          className="theme-btn-primary-lg mt-5 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl px-5 py-3.5 text-base font-semibold shadow-[0_18px_38px_-16px_var(--theme-featured-shadow)] transition-all duration-300 hover:scale-[1.02]"
         >
           <Download className="h-4 w-4" />
           {buttonLabel || "Baixar aplicativo"}
@@ -177,7 +177,7 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
   if (!apps.length) return null;
 
   return (
-    <section className="landing-section-alt relative overflow-hidden border-t px-4 py-24 sm:py-28 md:py-32">
+    <section className="landing-section-alt relative overflow-hidden border-t px-4 py-16 sm:py-20 md:py-24">
       <div
         className="pointer-events-none absolute inset-0 opacity-70"
         style={{
@@ -199,13 +199,13 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
             <Sparkles className="h-3.5 w-3.5" />
             Guia rápido de instalação
           </p>
-          <h2 className="landing-heading-lg mt-5">
+          <h2 className="landing-heading-lg mt-4">
             Baixe o <span className="theme-text-gradient">app</span> para assistir
           </h2>
-          <p className="landing-lead mx-auto mt-5 max-w-3xl">{copy.downloadAppsSubtitle}</p>
+          <p className="landing-lead mx-auto mt-4 max-w-3xl">{copy.downloadAppsSubtitle}</p>
         </div>
 
-        <div className="mt-14 grid gap-7 lg:grid-cols-2 lg:gap-8">
+        <div className="mt-10 grid gap-5 lg:grid-cols-2 lg:gap-6">
           <MethodCard
             badge="Método 1 · Downloader"
             title="Instalação rápida na TV Box / Android TV"
@@ -236,12 +236,12 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
           />
         </div>
 
-        <div className="landing-inset-glass mt-6 flex items-center gap-2 rounded-xl border border-[var(--landing-border)] px-4 py-3 text-xs text-[var(--landing-text-muted)] sm:text-sm">
+        <div className="landing-inset-glass mt-5 flex items-center gap-2 rounded-xl border border-[var(--landing-border)] px-3 py-2.5 text-xs text-[var(--landing-text-muted)] sm:text-sm">
           <CheckCircle2 className="h-4 w-4 text-[var(--theme-primary)]" />
           Dica de segurança: utilize links oficiais e desative apps desconhecidos após instalar.
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {apps.map((app, index) => (
             <DownloadCTA key={`${app.name}-${index}`} app={app} buttonLabel={copy.downloadAppsButtonLabel || "Baixar aplicativo"} index={index} />
           ))}

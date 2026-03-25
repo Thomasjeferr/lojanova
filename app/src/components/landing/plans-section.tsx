@@ -14,18 +14,18 @@ export function PlansSection({
   copy: LandingCopy;
 }) {
   return (
-    <section id="planos" className="relative px-4 py-24 sm:py-28 md:py-32">
+    <section id="planos" className="relative px-4 py-16 sm:py-20 md:py-24">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-primary)]/25 to-transparent" />
       <div className="mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
           <h2 className="landing-heading-lg">
             {copy.plansTitle}
           </h2>
-          <p className="landing-lead mx-auto mt-6 max-w-2xl">
+          <p className="landing-lead mx-auto mt-5 max-w-2xl">
             {copy.plansSubtitle}
           </p>
         </div>
-        <div className="mt-16 grid gap-8 md:grid-cols-3 md:gap-6 lg:mt-20 lg:gap-8">
+        <div className="mt-12 grid gap-6 md:grid-cols-3 md:gap-5 lg:mt-16 lg:gap-6">
           {plans.map((plan, i) => (
             <div
               key={plan.id}

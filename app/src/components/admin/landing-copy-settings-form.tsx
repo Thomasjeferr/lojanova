@@ -18,6 +18,7 @@ const FONT_OPTIONS: Array<{ value: LandingCopy["fontPreset"]; label: string }> =
   { value: "raleway", label: "Raleway" },
   { value: "sora", label: "Sora" },
   { value: "outfit", label: "Outfit" },
+  { value: "arial", label: "Arial · 400/700 nativos; demais pesos sintetizados" },
 ];
 
 function TextAreaField({

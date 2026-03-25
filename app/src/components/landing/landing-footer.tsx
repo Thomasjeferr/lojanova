@@ -8,7 +8,7 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
   const { storeDisplayName, landingCopy } = branding;
   return (
     <footer
-      className="landing-footer-premium border-t px-4 py-16 sm:py-20"
+      className="landing-footer-premium border-t px-4 py-12 sm:py-16"
       style={{
         background: "var(--landing-footer-bg)",
         borderColor: "var(--landing-footer-border)",
@@ -16,7 +16,7 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
       }}
     >
       <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <BrandingLogo
               branding={branding}
@@ -27,7 +27,7 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
               {landingCopy.footerTagline}
             </p>
           </div>
-          <nav className="flex flex-wrap gap-8 text-sm font-medium">
+          <nav className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium sm:gap-x-8">
             <Link
               href="/planos"
               className="transition-colors hover:text-[var(--theme-ring)]"
@@ -87,7 +87,7 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
           </nav>
         </div>
         <div
-          className="mt-14 border-t pt-10 text-sm"
+          className="mt-10 border-t pt-8 text-sm"
           style={{ borderColor: "var(--landing-footer-border)", color: "var(--landing-text-subtle)" }}
         >
           © {new Date().getFullYear()} {storeDisplayName}. Todos os direitos reservados.
