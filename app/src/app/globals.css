@@ -8,9 +8,219 @@
 @layer components {
   /* ——— Landing shell ——— */
   .landing-shell {
-    background: var(--landing-shell-bg);
+    background: transparent;
     color: var(--landing-text-primary);
     font-family: var(--landing-font-family, var(--font-inter)), var(--font-geist-sans), Arial, sans-serif;
+  }
+
+  /** Fundo fixo em toda a viewport — camadas de profundidade + IA / energia (só CSS). */
+  .landing-global-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .landing-global-base {
+    background: var(--landing-shell-bg);
+  }
+
+  /** Luz ambiente + profundidade tipo “mesh” (camada abaixo da grade). */
+  .landing-premium-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--landing-premium-field-bg, transparent);
+    opacity: var(--landing-premium-field-opacity, 1);
+    mix-blend-mode: var(--landing-premium-field-blend, soft-light);
+  }
+
+  /** Feixes cônicos muito sutis — rotação lenta (estética IA / produto tech). */
+  .landing-shimmer-beams {
+    position: absolute;
+    inset: -55%;
+    pointer-events: none;
+    background: repeating-conic-gradient(
+      from 0deg at 50% 42%,
+      transparent 0deg 11deg,
+      color-mix(in srgb, var(--theme-primary) 0.045, transparent) 11deg 12deg
+    );
+    opacity: var(--landing-shimmer-beams-opacity, 0.55);
+    mix-blend-mode: var(--landing-shimmer-beams-blend, soft-light);
+    animation: landing-shimmer-beams-rotate 140s linear infinite;
+  }
+
+  @keyframes landing-shimmer-beams-rotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-shimmer-beams {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .landing-shimmer-beams {
+      opacity: calc(var(--landing-shimmer-beams-opacity, 0.55) * 0.55);
+    }
+  }
+
+  .landing-global-grid {
+    mask-image: radial-gradient(
+      ellipse 78% 70% at 50% -8%,
+      black 18%,
+      transparent 72%
+    );
+    opacity: var(--landing-grid-opacity);
+  }
+
+  /** Rede neural / grafo — SVG + traços com pulso leve (leve na GPU). */
+  .landing-neural-wrap {
+    position: absolute;
+    inset: 0;
+    opacity: var(--landing-neural-layer-opacity, 0.45);
+    mix-blend-mode: var(--landing-neural-blend, normal);
+    /* Máscara mais aberta no centro para o grafo aparecer atrás dos cards (vidro). */
+    mask-image: radial-gradient(
+      ellipse 128% 96% at 50% 44%,
+      black 0%,
+      black 62%,
+      rgba(0, 0, 0, 0.5) 80%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 128% 96% at 50% 44%,
+      black 0%,
+      black 62%,
+      rgba(0, 0, 0, 0.5) 80%,
+      transparent 100%
+    );
+  }
+
+  .landing-neural-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--theme-primary) 28%, transparent));
+  }
+
+  .landing-neural-edge {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .landing-neural-edge--pulse {
+    stroke-dasharray: 6 28;
+    animation: landing-neural-flow 18s linear infinite;
+  }
+
+  @keyframes landing-neural-flow {
+    to {
+      stroke-dashoffset: -136;
+    }
+  }
+
+  .landing-neural-node--hub {
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--theme-primary) 40%, transparent));
+  }
+
+  @media (max-width: 640px) {
+    .landing-neural-wrap {
+      opacity: calc(var(--landing-neural-layer-opacity, 0.45) * 0.88);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-neural-edge--pulse {
+      animation: none;
+      stroke-dasharray: none;
+    }
+  }
+
+  .landing-aurora-layer {
+    position: absolute;
+    inset: -42% -28%;
+    background: var(--landing-aurora-gradient);
+    opacity: var(--landing-aurora-opacity);
+    filter: blur(88px);
+    mix-blend-mode: var(--landing-aurora-blend, soft-light);
+    animation: landing-aurora-drift 100s ease-in-out infinite alternate;
+  }
+
+  .landing-global-readability-fade {
+    background: var(--landing-global-readability-fade);
+    pointer-events: none;
+  }
+
+  /** Anéis de “fluxo” discretos (não competem com o conteúdo). */
+  .landing-energy-arc {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--theme-primary) 18%, transparent);
+    opacity: 0.34;
+    filter: blur(0.35px);
+  }
+  .landing-energy-arc--a {
+    width: min(140vw, 2000px);
+    height: min(58vh, 620px);
+    left: 50%;
+    top: -6%;
+    transform: translateX(-50%) rotate(-8deg);
+    box-shadow:
+      0 0 60px -20px color-mix(in srgb, var(--theme-primary) 25%, transparent),
+      inset 0 0 40px -28px color-mix(in srgb, var(--theme-primary) 12%, transparent);
+  }
+  .landing-energy-arc--b {
+    width: min(95vw, 1200px);
+    height: min(42vh, 480px);
+    left: -18%;
+    bottom: 18%;
+    transform: rotate(18deg);
+    opacity: 0.22;
+    border-color: color-mix(in srgb, var(--theme-primary) 12%, transparent);
+  }
+
+  @keyframes landing-aurora-drift {
+    0% {
+      transform: translate(-2%, -1%) scale(1);
+    }
+    100% {
+      transform: translate(3%, 2%) scale(1.06);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-aurora-layer {
+      animation: none;
+    }
+  }
+
+  @keyframes hero-particle-pulse {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(1.35);
+    }
+  }
+
+  .hero-particle {
+    opacity: 0.35;
+    animation: hero-particle-pulse ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-particle {
+      animation: none;
+      opacity: 0.3;
+    }
   }
 
   html[data-font-preset="inter"] {
@@ -193,6 +403,22 @@
     animation: checkout-modal-backdrop-in 0.52s cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
+  /** Respiro superior/inferior + notch / home indicator (mobile). */
+  .checkout-modal-scroll-shell {
+    padding-top: max(0.875rem, env(safe-area-inset-top, 0px));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 640px) {
+    .checkout-modal-scroll-shell {
+      padding-top: max(2rem, env(safe-area-inset-top, 0px));
+      padding-bottom: max(2.25rem, env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  .checkout-modal-body {
+    scrollbar-gutter: stable;
+  }
+
   /* Painel começa um instante depois do fundo — sensação de hierarquia */
   .checkout-modal-panel {
     animation: checkout-modal-panel-in 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
@@ -256,14 +482,26 @@
   .landing-section-alt {
     background: var(--landing-section-alt-bg);
     border-color: var(--landing-section-alt-border);
+    backdrop-filter: blur(28px) saturate(1.18);
+    -webkit-backdrop-filter: blur(28px) saturate(1.18);
+  }
+
+  /** Blocos internos (vídeo, chips) — vidro alinhado ao tema, deixa o neural aparecer */
+  .landing-inset-glass {
+    background: var(--landing-inset-glass-bg, rgba(255, 255, 255, 0.32));
+    backdrop-filter: blur(22px) saturate(1.12);
+    -webkit-backdrop-filter: blur(22px) saturate(1.12);
   }
 
   .landing-heading-xl {
     font-weight: 800;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.038em;
     line-height: 1.05;
     color: var(--landing-text-primary);
     font-size: calc(2.2rem * var(--landing-size-multiplier, 1));
+    text-shadow:
+      0 1px 0 color-mix(in srgb, var(--landing-text-primary) 8%, transparent),
+      0 24px 48px color-mix(in srgb, var(--landing-text-primary) 4%, transparent);
   }
   @media (min-width: 640px) {
     .landing-heading-xl {
@@ -283,10 +521,11 @@
 
   .landing-heading-lg {
     font-weight: 800;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.032em;
     line-height: 1.1;
     color: var(--landing-text-primary);
     font-size: calc(2rem * var(--landing-size-multiplier, 1));
+    text-shadow: 0 1px 0 color-mix(in srgb, var(--landing-text-primary) 6%, transparent);
   }
   @media (min-width: 640px) {
     .landing-heading-lg {
@@ -315,16 +554,66 @@
     }
   }
 
+  /** Anéis orbitais discretos atrás do hero (profundidade “produto IA”). */
+  .landing-hero-rings {
+    pointer-events: none;
+  }
+  .landing-hero-ring {
+    position: absolute;
+    left: 50%;
+    top: clamp(3.5rem, 14vh, 9rem);
+    width: min(92vw, 520px);
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--theme-primary) 26%, transparent);
+    opacity: 0.44;
+    box-shadow: 0 0 48px -16px color-mix(in srgb, var(--theme-primary) 22%, transparent);
+    mask-image: radial-gradient(closest-side, transparent 64%, black 90%);
+    -webkit-mask-image: radial-gradient(closest-side, transparent 64%, black 90%);
+  }
+  .landing-hero-ring--outer {
+    width: min(118vw, 780px);
+    top: clamp(2rem, 10vh, 7rem);
+    opacity: 0.28;
+    border-color: color-mix(in srgb, var(--theme-primary) 14%, transparent);
+    box-shadow: 0 0 64px -20px color-mix(in srgb, var(--theme-primary) 14%, transparent);
+  }
+
+  .landing-footer-premium {
+    position: relative;
+    isolation: isolate;
+    backdrop-filter: blur(40px) saturate(1.28);
+    -webkit-backdrop-filter: blur(40px) saturate(1.28);
+  }
+  .landing-footer-premium::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.85;
+    background: var(--landing-footer-atmosphere, transparent);
+  }
+  .landing-footer-premium > * {
+    position: relative;
+    z-index: 1;
+  }
+
   .landing-card-surface {
     background: var(--landing-card-bg);
-    backdrop-filter: blur(24px) saturate(1.15);
-    -webkit-backdrop-filter: blur(24px) saturate(1.15);
+    backdrop-filter: blur(36px) saturate(1.25);
+    -webkit-backdrop-filter: blur(36px) saturate(1.25);
     border: 1px solid var(--landing-card-border);
-    box-shadow: var(--landing-card-shadow), var(--landing-card-inset-shine);
+    box-shadow:
+      var(--landing-card-shadow),
+      var(--landing-card-inset-shine),
+      0 0 0 1px color-mix(in srgb, var(--theme-primary) 0.1, transparent) inset;
     transition:
-      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 0.35s ease,
-      border-color 0.35s ease;
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.4s ease,
+      border-color 0.4s ease,
+      backdrop-filter 0.4s ease;
   }
   .landing-card-surface:hover {
     box-shadow: var(--landing-card-shadow-hover), var(--landing-card-inset-shine);
@@ -345,7 +634,7 @@
     pointer-events: none;
     background: linear-gradient(
       170deg,
-      rgba(255, 255, 255, 0.26) 0%,
+      rgba(255, 255, 255, 0.1) 0%,
       transparent 42%,
       transparent 60%,
       color-mix(in srgb, var(--theme-primary) 10%, transparent) 100%
@@ -427,8 +716,8 @@
     flex-direction: column;
     border-radius: 1.8125rem;
     background: var(--landing-card-featured-inner-bg);
-    backdrop-filter: blur(28px) saturate(1.2);
-    -webkit-backdrop-filter: blur(28px) saturate(1.2);
+    backdrop-filter: blur(40px) saturate(1.22);
+    -webkit-backdrop-filter: blur(40px) saturate(1.22);
     overflow: hidden;
   }
   .landing-plan-featured-inner::before {
@@ -439,7 +728,7 @@
     border-radius: inherit;
     background: linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.42) 0%,
+      rgba(255, 255, 255, 0.18) 0%,
       transparent 44%,
       transparent 56%,
       color-mix(in srgb, var(--theme-primary) 12%, transparent) 100%
@@ -449,6 +738,8 @@
 
   .landing-faq-card {
     background: var(--landing-faq-item-bg) !important;
+    backdrop-filter: blur(32px) saturate(1.2);
+    -webkit-backdrop-filter: blur(32px) saturate(1.2);
   }
 
   .landing-btn-secondary {
@@ -530,18 +821,20 @@
 
   .theme-text-gradient {
     background: linear-gradient(
-      118deg,
+      122deg,
       var(--theme-gradient-from) 0%,
-      var(--theme-gradient-via) 38%,
-      var(--theme-gradient-to) 68%,
+      var(--theme-gradient-via) 32%,
+      var(--theme-gradient-to) 58%,
+      color-mix(in srgb, var(--theme-gradient-to) 55%, var(--theme-text-gradient-end)) 82%,
       var(--theme-text-gradient-end) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     filter:
-      drop-shadow(0 0 28px color-mix(in srgb, var(--theme-gradient-to) 45%, transparent))
-      drop-shadow(0 2px 12px color-mix(in srgb, var(--theme-primary) 25%, transparent));
+      drop-shadow(0 0 32px color-mix(in srgb, var(--theme-gradient-to) 38%, transparent))
+      drop-shadow(0 0 18px color-mix(in srgb, var(--theme-text-gradient-end) 22%, transparent))
+      drop-shadow(0 2px 14px color-mix(in srgb, var(--theme-primary) 22%, transparent));
   }
 
   .theme-btn-primary-lg {
@@ -570,7 +863,9 @@
         transparent 65%
       ),
       var(--theme-btn-gradient-hover);
-    box-shadow: var(--theme-btn-shadow-hover);
+    box-shadow:
+      var(--theme-btn-shadow-hover),
+      0 0 48px -8px color-mix(in srgb, var(--theme-primary) 45%, transparent);
     transform: translateY(-2px) scale(1.015);
     filter: brightness(1.04) saturate(1.05);
   }
@@ -606,7 +901,9 @@
         transparent 66%
       ),
       var(--theme-btn-gradient-hover);
-    box-shadow: var(--theme-btn-shadow-hover);
+    box-shadow:
+      var(--theme-btn-shadow-hover),
+      0 0 40px -10px color-mix(in srgb, var(--theme-primary) 40%, transparent);
     transform: translateY(-1px);
     filter: brightness(1.04) saturate(1.04);
   }

@@ -661,34 +661,48 @@ export function CheckoutModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto overscroll-y-contain"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="checkout-modal-title"
+    >
       <div
-        className="checkout-modal-backdrop absolute inset-0 bg-black/50 backdrop-blur-md supports-[backdrop-filter]:bg-black/40"
+        className="checkout-modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-md supports-[backdrop-filter]:bg-black/40"
         aria-hidden
       />
-      <Card className="checkout-modal-panel relative z-10 w-full max-w-2xl rounded-2xl border-zinc-200/70 bg-white/95 p-7 shadow-[0_25px_80px_-24px_rgba(0,0,0,0.3)] sm:p-8">
-        <div className="mb-5 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="text-2xl font-bold tracking-tight text-zinc-900">
-              {step === 1 ? "Resumo do seu plano" : title}
-            </h3>
-            <p className="mt-1 text-sm text-zinc-500">
-              {step === 1 ? "Confira os detalhes antes de continuar" : "Fluxo de checkout seguro"}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-all duration-200 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 active:scale-95"
-            onClick={onClose}
-            aria-label="Fechar modal"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <Stepper step={step} onNavigate={navigateStepper} />
-
-        <div key={step} className="checkout-modal-step">
-        {step === 1 && (
+      <div className="checkout-modal-scroll-shell relative z-10 flex min-h-[100svh] w-full flex-col justify-start px-3 sm:min-h-full sm:justify-center sm:px-6">
+        <Card className="checkout-modal-panel relative mx-auto my-3 flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border-zinc-200/70 bg-white/95 shadow-[0_25px_80px_-24px_rgba(0,0,0,0.3)] sm:my-0 sm:max-h-[min(92dvh,calc(100dvh-5rem))]">
+          <div className="flex min-h-0 max-h-[min(90dvh,calc(100svh-2.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)))] flex-col sm:max-h-[min(92dvh,calc(100dvh-5rem))]">
+            <div className="shrink-0 border-b border-zinc-100/90 bg-white/90 px-5 pb-4 pt-5 backdrop-blur-sm sm:px-7 sm:pb-5 sm:pt-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3
+                    id="checkout-modal-title"
+                    className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl"
+                  >
+                    {step === 1 ? "Resumo do seu plano" : title}
+                  </h3>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {step === 1 ? "Confira os detalhes antes de continuar" : "Fluxo de checkout seguro"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-all duration-200 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 active:scale-95"
+                  onClick={onClose}
+                  aria-label="Fechar modal"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="shrink-0 px-5 pb-1 pt-4 sm:px-7 sm:pb-2 sm:pt-5">
+              <Stepper step={step} onNavigate={navigateStepper} />
+            </div>
+            <div className="checkout-modal-body min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-6 [-webkit-overflow-scrolling:touch] sm:px-7 sm:pb-8">
+              <div key={step} className="checkout-modal-step">
+                {step === 1 && (
           <div className="space-y-5">
             {stockLoading && (
               <div className="flex flex-col items-center gap-3 py-8 text-sm text-zinc-600">
@@ -1064,12 +1078,15 @@ export function CheckoutModal({
         )}
         </div>
 
-        {error && (
-          <p className="checkout-modal-error mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </p>
-        )}
-      </Card>
+              {error && (
+                <p className="checkout-modal-error mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

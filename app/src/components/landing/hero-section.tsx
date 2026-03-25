@@ -1,31 +1,22 @@
 "use client";
 
 import type { LandingCopy } from "@/lib/site-branding";
+import { HeroAmbientParticles } from "@/components/landing/hero-ambient-particles";
 
 export function HeroSection({ copy }: { copy: LandingCopy }) {
   return (
-    <section className="relative overflow-hidden px-4 pt-32 pb-28 sm:pt-40 sm:pb-32 md:pt-48 md:pb-40 lg:pt-52 lg:pb-44">
-      {/* Camadas de profundidade */}
-      <div className="landing-grid-bg absolute inset-0 -z-30" aria-hidden />
+    <section className="relative z-10 overflow-hidden px-4 pt-32 pb-28 sm:pt-40 sm:pb-32 md:pt-48 md:pb-40 lg:pt-52 lg:pb-44">
+      {/* Camadas locais: foco no título + legibilidade (fundo global já traz malha/aurora). */}
+      <div className="landing-hero-rings absolute inset-0 -z-[2]" aria-hidden>
+        <div className="landing-hero-ring landing-hero-ring--outer" />
+        <div className="landing-hero-ring" />
+      </div>
+      <HeroAmbientParticles />
       <div
-        className="landing-mesh-overlay absolute inset-0 -z-[25]"
+        className="landing-title-glow pointer-events-none absolute left-1/2 top-[20%] -z-[2] h-48 w-[min(100%,760px)] -translate-x-1/2 rounded-full opacity-100 md:top-[24%] md:h-56"
         aria-hidden
       />
-      <div className="landing-blob landing-blob-a -z-20" aria-hidden />
-      <div className="landing-blob landing-blob-b -z-20" aria-hidden />
-      <div className="landing-blob landing-blob-c -z-20" aria-hidden />
-      <div className="theme-hero-radial-a absolute inset-0 -z-20 opacity-80" aria-hidden />
-      <div className="theme-hero-radial-b absolute inset-0 -z-20 opacity-70" aria-hidden />
-      <div className="theme-hero-ambient absolute inset-0 -z-20 opacity-60" aria-hidden />
-      <div className="landing-vignette absolute inset-0 -z-10" aria-hidden />
-      <div className="landing-noise absolute inset-0 -z-10 mix-blend-overlay" aria-hidden />
-      <div className="theme-hero-fade absolute inset-0 -z-10" aria-hidden />
-
-      {/* Glow atrás do título */}
-      <div
-        className="landing-title-glow pointer-events-none absolute left-1/2 top-[22%] -z-10 h-44 w-[min(100%,720px)] -translate-x-1/2 rounded-full opacity-100 md:top-[26%] md:h-52"
-        aria-hidden
-      />
+      <div className="theme-hero-fade absolute inset-0 -z-[3] opacity-90" aria-hidden />
 
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         <p
@@ -36,8 +27,8 @@ export function HeroSection({ copy }: { copy: LandingCopy }) {
         </p>
 
         <h1 className="landing-reveal landing-reveal-delay-1 landing-heading-xl">
-          {copy.heroTitlePrefix} <span className="theme-text-gradient">{copy.heroTitleHighlight}</span>,{" "}
-          {copy.heroTitleSuffix}
+          {copy.heroTitlePrefix}{" "}
+          <span className="theme-text-gradient">{copy.heroTitleHighlight}</span>, {copy.heroTitleSuffix}
         </h1>
 
         <p className="landing-reveal landing-reveal-delay-2 landing-lead mx-auto mt-7 max-w-2xl md:leading-relaxed">

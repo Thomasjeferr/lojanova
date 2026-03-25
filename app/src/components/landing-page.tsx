@@ -13,6 +13,7 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { TrustSeoSection } from "@/components/landing/trust-seo-section";
 import { LandingInnerHero } from "@/components/landing/landing-inner-hero";
 import { FloatingWhatsAppButton } from "@/components/floating-whatsapp-button";
+import { LandingGlobalBackdrop } from "@/components/landing/landing-global-backdrop";
 import type { Plan } from "@/components/landing/plan-card";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
 import type { ContactSettingsPublic } from "@/lib/contact-settings";
@@ -48,6 +49,7 @@ export function LandingPage({
         } as CSSProperties
       }
     >
+      <LandingGlobalBackdrop />
       <LandingHeader userSession={userSession} branding={branding} />
       {!dbConnected && (
         <div className="relative z-40 border-b border-amber-400/40 bg-amber-500/15 px-4 py-2.5 text-center text-sm text-amber-950 backdrop-blur-sm">
@@ -59,18 +61,20 @@ export function LandingPage({
           <code className="rounded bg-amber-500/20 px-1">npm run prisma:seed</code>.
         </div>
       )}
-      {landingMode === "home" ? (
-        <HeroSection copy={branding.landingCopy} />
-      ) : (
-        <LandingInnerHero mode={landingMode === "planos" ? "planos" : "comprar"} branding={branding} />
-      )}
-      <PlansSection plans={plans} onSelectPlan={setSelectedPlan} copy={branding.landingCopy} />
-      <BenefitsSection />
-      <TrustSeoSection />
-      <HowItWorksSection />
-      <AppDownloadSection copy={branding.landingCopy} />
-      <FAQSection copy={branding.landingCopy} />
-      <LandingFooter branding={branding} />
+      <div className="relative z-10">
+        {landingMode === "home" ? (
+          <HeroSection copy={branding.landingCopy} />
+        ) : (
+          <LandingInnerHero mode={landingMode === "planos" ? "planos" : "comprar"} branding={branding} />
+        )}
+        <PlansSection plans={plans} onSelectPlan={setSelectedPlan} copy={branding.landingCopy} />
+        <BenefitsSection />
+        <TrustSeoSection />
+        <HowItWorksSection />
+        <AppDownloadSection copy={branding.landingCopy} />
+        <FAQSection copy={branding.landingCopy} />
+        <LandingFooter branding={branding} />
+      </div>
       <FloatingWhatsAppButton settings={contactSettings} />
       <CheckoutModal
         plan={selectedPlan}

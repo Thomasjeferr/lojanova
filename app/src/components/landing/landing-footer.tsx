@@ -8,7 +8,7 @@ export function LandingFooter({ branding }: { branding: SiteBrandingPublic }) {
   const { storeDisplayName, landingCopy } = branding;
   return (
     <footer
-      className="border-t px-4 py-16 sm:py-20"
+      className="landing-footer-premium border-t px-4 py-16 sm:py-20"
       style={{
         background: "var(--landing-footer-bg)",
         borderColor: "var(--landing-footer-border)",

@@ -1,7 +1,7 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingGlobalBackdrop } from "@/components/landing/landing-global-backdrop";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
 import type { LandingUserSession } from "@/lib/landing-user-session";
 import { IptvInlineText } from "@/components/marketing/iptv-inline-text";
@@ -18,7 +18,7 @@ export function IptvGuideShell({
 }) {
   return (
     <div
-      className="min-h-screen bg-zinc-100"
+      className="landing-shell relative min-h-screen overflow-x-hidden"
       style={
         {
           "--landing-text-primary": branding.landingCopy.textPrimaryColor,
@@ -27,13 +27,16 @@ export function IptvGuideShell({
         } as React.CSSProperties
       }
     >
+      <LandingGlobalBackdrop />
       <LandingHeader
         branding={branding}
         userSession={userSession}
         primaryCtaHref="/planos#planos"
       />
-      {children}
-      <LandingFooter branding={branding} />
+      <div className="relative z-10">{children}</div>
+      <div className="relative z-10">
+        <LandingFooter branding={branding} />
+      </div>
     </div>
   );
 }

@@ -14,9 +14,15 @@ export function LandingInnerHero({
   const isPlanos = mode === "planos";
 
   return (
-    <section className="relative overflow-hidden px-4 pt-28 pb-14 sm:pt-36 sm:pb-16 md:pt-40 md:pb-20">
-      <div className="landing-grid-bg absolute inset-0 -z-30 opacity-70" aria-hidden />
-      <div className="landing-vignette absolute inset-0 -z-10 opacity-90" aria-hidden />
+    <section className="relative z-10 overflow-hidden px-4 pt-28 pb-14 sm:pt-36 sm:pb-16 md:pt-40 md:pb-20">
+      <div
+        className="pointer-events-none absolute inset-0 -z-[1] opacity-70"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 55% at 50% 0%, color-mix(in srgb, var(--theme-primary) 12%, transparent) 0%, transparent 65%)",
+        }}
+        aria-hidden
+      />
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <p

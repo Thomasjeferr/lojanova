@@ -13,7 +13,7 @@ type DownloadApp = {
 function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
   if (imageUrl) {
     return (
-      <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-white/65 p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
+      <div className="landing-inset-glass relative mb-6 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
         <Image
           src={imageUrl}
           alt={alt}
@@ -29,7 +29,7 @@ function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-[var(--landing-border)] bg-white/65 p-4 text-sm text-[var(--landing-text-muted)]">
+    <div className="landing-inset-glass mb-6 rounded-2xl border border-[var(--landing-border)] p-4 text-sm text-[var(--landing-text-muted)]">
       Adicione no admin a imagem oficial do app para melhorar a visualização.
     </div>
   );
@@ -91,7 +91,7 @@ function MethodCard({
 
       <AppVisual imageUrl={imageUrl} alt={imageAlt} />
 
-      <p className="inline-flex rounded-full border border-[var(--landing-border)] bg-white/75 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--theme-primary-strong)]">
+      <p className="landing-inset-glass inline-flex rounded-full border border-[var(--landing-border)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--theme-primary-strong)]">
         {badge}
       </p>
       <h3 className="mt-4 text-2xl font-black tracking-tight text-[var(--landing-text-primary)]">{title}</h3>
@@ -128,7 +128,7 @@ function DownloadCTA({
           Instale o aplicativo oficial e entre com seus dados para liberar seu acesso com rapidez e segurança.
         </p>
         {app.imageUrl ? (
-          <div className="relative mt-5 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-white/70 p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
+          <div className="landing-inset-glass relative mt-5 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-2 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
             <Image
               src={app.imageUrl}
               alt={`Imagem do app ${app.name}`}
@@ -195,7 +195,7 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
 
       <div className="relative mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
-          <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--landing-border)] bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--theme-primary-strong)]">
+          <p className="landing-inset-glass mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--landing-border)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--theme-primary-strong)]">
             <Sparkles className="h-3.5 w-3.5" />
             Guia rápido de instalação
           </p>
@@ -236,7 +236,7 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
           />
         </div>
 
-        <div className="mt-6 flex items-center gap-2 rounded-xl border border-[var(--landing-border)] bg-white/65 px-4 py-3 text-xs text-[var(--landing-text-muted)] sm:text-sm">
+        <div className="landing-inset-glass mt-6 flex items-center gap-2 rounded-xl border border-[var(--landing-border)] px-4 py-3 text-xs text-[var(--landing-text-muted)] sm:text-sm">
           <CheckCircle2 className="h-4 w-4 text-[var(--theme-primary)]" />
           Dica de segurança: utilize links oficiais e desative apps desconhecidos após instalar.
         </div>
