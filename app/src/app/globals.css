@@ -84,6 +84,7 @@
     inset: 0;
     opacity: var(--landing-neural-layer-opacity, 0.45);
     mix-blend-mode: var(--landing-neural-blend, normal);
+    filter: saturate(var(--landing-neural-neon-boost, 1.08));
     /* Máscara mais aberta no centro para o grafo aparecer atrás dos cards (vidro). */
     mask-image: radial-gradient(
       ellipse 128% 96% at 50% 44%,
@@ -105,16 +106,24 @@
     display: block;
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--theme-primary) 28%, transparent));
+    filter:
+      drop-shadow(0 0 2px color-mix(in srgb, var(--theme-primary) 34%, transparent))
+      drop-shadow(0 0 14px color-mix(in srgb, var(--theme-primary) 16%, transparent));
   }
 
   .landing-neural-edge {
     vector-effect: non-scaling-stroke;
   }
 
+  .landing-neural-edges--halo {
+    opacity: var(--landing-neural-halo-opacity, 0.5);
+    mix-blend-mode: screen;
+    filter: blur(1.2px);
+  }
+
   .landing-neural-edge--pulse {
-    stroke-dasharray: 6 28;
-    animation: landing-neural-flow 18s linear infinite;
+    stroke-dasharray: 6 26;
+    animation: landing-neural-flow 14s linear infinite;
   }
 
   @keyframes landing-neural-flow {
@@ -123,8 +132,28 @@
     }
   }
 
+  .landing-neural-node {
+    opacity: 0.9;
+  }
+
   .landing-neural-node--hub {
-    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--theme-primary) 40%, transparent));
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--theme-primary) 52%, transparent));
+  }
+
+  .landing-neural-node--active {
+    animation: landing-neural-node-pulse 4.8s ease-in-out infinite;
+  }
+
+  @keyframes landing-neural-node-pulse {
+    0%,
+    100% {
+      opacity: 0.75;
+      filter: drop-shadow(0 0 0 color-mix(in srgb, var(--theme-primary) 0%, transparent));
+    }
+    50% {
+      opacity: 1;
+      filter: drop-shadow(0 0 9px color-mix(in srgb, var(--theme-primary) 52%, transparent));
+    }
   }
 
   @media (max-width: 640px) {
@@ -134,7 +163,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .landing-neural-edge--pulse {
+    .landing-neural-edge--pulse,
+    .landing-neural-node--active {
       animation: none;
       stroke-dasharray: none;
     }

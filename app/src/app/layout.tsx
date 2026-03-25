@@ -73,14 +73,14 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `${b.storeDisplayName} · Pix e código na hora`,
       description,
     },
-    ...(b.faviconDataUrl
-      ? {
-          icons: {
-            icon: [{ url: b.faviconDataUrl }],
-            apple: [{ url: b.faviconDataUrl }],
-          },
-        }
-      : {}),
+    /**
+     * URLs reais (resolvida com metadataBase) — Google não usa bem favicon em data:.
+     * O handler /icon devolve o arquivo do admin ou um fallback; /favicon.ico reescreve para /icon.
+     */
+    icons: {
+      icon: [{ url: "/icon" }],
+      apple: [{ url: "/icon" }],
+    },
   };
 }
 

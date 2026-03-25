@@ -116,8 +116,10 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "landing-global-readability-fade":
       "linear-gradient(180deg, transparent 0%, transparent 58%, rgba(255, 250, 245, 0.36) 86%, rgba(250, 245, 240, 0.55) 100%)",
     "landing-inset-glass-bg": "rgba(255, 255, 255, 0.34)",
-    "landing-neural-layer-opacity": "0.64",
+    "landing-neural-layer-opacity": "0.72",
     "landing-neural-blend": "normal",
+    "landing-neural-halo-opacity": "0.58",
+    "landing-neural-neon-boost": "1.2",
     "landing-neural-grad-a": "rgba(217, 119, 6, 0.72)",
     "landing-neural-grad-b": "rgba(251, 146, 60, 0.4)",
     "landing-neural-grad-c": "rgba(185, 28, 28, 0.58)",
@@ -274,8 +276,10 @@ export const THEME_CSS_VARS: Record<ThemeId, Record<string, string>> = {
     "landing-global-readability-fade":
       "linear-gradient(180deg, transparent 0%, transparent 48%, rgba(8, 6, 6, 0.42) 90%, rgba(4, 3, 3, 0.78) 100%)",
     "landing-inset-glass-bg": "rgba(24, 24, 27, 0.42)",
-    "landing-neural-layer-opacity": "0.68",
+    "landing-neural-layer-opacity": "0.76",
     "landing-neural-blend": "screen",
+    "landing-neural-halo-opacity": "0.64",
+    "landing-neural-neon-boost": "1.24",
     "landing-neural-grad-a": "rgba(251, 113, 133, 0.55)",
     "landing-neural-grad-b": "rgba(244, 63, 94, 0.28)",
     "landing-neural-grad-c": "rgba(253, 164, 175, 0.45)",

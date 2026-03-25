@@ -247,7 +247,7 @@ export function BrandingSettingsForm({
             <div>
               <h3 className="text-lg font-semibold text-zinc-900">Favicon</h3>
               <p className="mt-1 text-sm text-zinc-500">
-                Ícone da aba do navegador. Use imagem quadrada (ex.: 32×32 ou 64×64 px).
+                Ícone da aba e nos resultados do Google. Prefira <strong>PNG quadrada de 48×48 px ou maior</strong> (múltiplos de 48). O site publica em <code className="text-xs">/icon</code> para o Google conseguir baixar o arquivo (URLs em Base64 no HTML não bastam).
               </p>
             </div>
             <ImageIcon className="h-8 w-8 shrink-0 text-zinc-300" />

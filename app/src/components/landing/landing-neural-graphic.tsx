@@ -155,6 +155,10 @@ function isPulseEdge(idx: number): boolean {
   return idx % 11 === 3 || idx % 17 === 5;
 }
 
+function isActiveNode(idx: number): boolean {
+  return idx % 9 === 0 || idx % 13 === 4;
+}
+
 export function LandingNeuralGraphic() {
   return (
     <div className="landing-neural-wrap" aria-hidden>
@@ -176,6 +180,24 @@ export function LandingNeuralGraphic() {
             <stop offset="100%" stopColor="var(--landing-neural-pulse-b)" />
           </linearGradient>
         </defs>
+
+        <g
+          className="landing-neural-edges landing-neural-edges--halo"
+          fill="none"
+          stroke="url(#landing-neural-stroke)"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {EDGES.map(([i, j], idx) => (
+            <path
+              key={`h-${i}-${j}-${idx}`}
+              d={curvedEdge(NODES[i]!, NODES[j]!)}
+              className={isPulseEdge(idx) ? "landing-neural-edge landing-neural-edge--pulse" : "landing-neural-edge"}
+              strokeWidth={isPulseEdge(idx) ? 2.6 : 1.55}
+              opacity={isPulseEdge(idx) ? 0.66 : 0.42}
+            />
+          ))}
+        </g>
 
         <g className="landing-neural-edges" fill="none" strokeLinecap="round" strokeLinejoin="round">
           {EDGES.map(([i, j], idx) => {
@@ -203,7 +225,7 @@ export function LandingNeuralGraphic() {
               cx={cx}
               cy={cy}
               r={i % 7 === 0 ? 3.2 : 1.85}
-              className={i % 7 === 0 ? "landing-neural-node landing-neural-node--hub" : "landing-neural-node"}
+              className={`${i % 7 === 0 ? "landing-neural-node landing-neural-node--hub" : "landing-neural-node"} ${isActiveNode(i) ? "landing-neural-node--active" : ""}`}
               fill={i % 7 === 0 ? "var(--landing-neural-hub-fill)" : "var(--landing-neural-node-fill)"}
             />
           ))}
