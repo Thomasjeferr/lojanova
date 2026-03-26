@@ -361,6 +361,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
               <AdminTableHeaderCell>Valor</AdminTableHeaderCell>
               <AdminTableHeaderCell>Status</AdminTableHeaderCell>
               <AdminTableHeaderCell>Data</AdminTableHeaderCell>
+              <AdminTableHeaderCell>Origem</AdminTableHeaderCell>
               <AdminTableHeaderCell>Código</AdminTableHeaderCell>
               <AdminTableHeaderCell className="min-w-[9.5rem]">Ações</AdminTableHeaderCell>
             </AdminTableHead>
@@ -411,6 +412,9 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                   </AdminTableCell>
                   <AdminTableCell className="text-zinc-500">
                     {formatDateTimePtBr(row.createdAt)}
+                  </AdminTableCell>
+                  <AdminTableCell className="text-xs text-zinc-600">
+                    {row.attributionSourceLabel ?? "direto"}
                   </AdminTableCell>
                   <AdminTableCell className="font-mono text-xs text-zinc-600">
                     {row.code

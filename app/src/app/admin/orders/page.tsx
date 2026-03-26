@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import { SectionCard } from "@/components/admin/section-card";
 import { AdminOrdersTable } from "@/components/admin/admin-orders-table";
 import { renderCredentialLine } from "@/lib/activation-credentials";
+import { buildSourceLabel } from "@/lib/attribution";
 
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
@@ -46,6 +47,10 @@ export default async function AdminOrdersPage() {
                   password: o.activationCode.password,
                 })
               : undefined,
+            attributionSourceLabel: buildSourceLabel(o.attributionSource, o.attributionMedium),
+            attributionCampaign: o.attributionCampaign,
+            attributionReferrer: o.attributionReferrer,
+            attributionLandingPath: o.attributionLandingPath,
             hasDelivery: Boolean(o.delivery),
           }))}
         />

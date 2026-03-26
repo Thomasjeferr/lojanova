@@ -18,6 +18,10 @@ export type OrderRow = {
   createdAt: string;
   paidAt?: string;
   code?: string;
+  attributionSourceLabel?: string;
+  attributionCampaign?: string | null;
+  attributionReferrer?: string | null;
+  attributionLandingPath?: string | null;
   /** Já existe registro de entrega (permite reenviar e-mail/SMS) */
   hasDelivery?: boolean;
 };
@@ -41,14 +45,14 @@ export function OrderDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 backdrop-blur-sm sm:flex sm:items-center sm:justify-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white shadow-xl"
+        className="mx-auto w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white shadow-xl sm:my-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-4 sm:px-6 sm:py-5">
           <h3 className="text-lg font-semibold tracking-tight text-zinc-900">
             Detalhes do pedido
           </h3>
@@ -61,7 +65,7 @@ export function OrderDetailModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="space-y-5 px-6 py-5">
+        <div className="max-h-[calc(100dvh-10rem)] space-y-5 overflow-y-auto px-4 py-4 sm:max-h-[70dvh] sm:px-6 sm:py-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Nº do pedido (cliente)
@@ -109,6 +113,23 @@ export function OrderDetailModal({
               Plano
             </p>
             <p className="mt-1 text-zinc-900">{order.planTitle}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              Origem da compra
+            </p>
+            <p className="mt-1 text-zinc-900">{order.attributionSourceLabel ?? "direto"}</p>
+            {order.attributionCampaign ? (
+              <p className="mt-1 text-xs text-zinc-600">Campanha: {order.attributionCampaign}</p>
+            ) : null}
+            {order.attributionReferrer ? (
+              <p className="mt-1 text-xs text-zinc-600">Referrer: {order.attributionReferrer}</p>
+            ) : null}
+            {order.attributionLandingPath ? (
+              <p className="mt-1 text-xs break-all text-zinc-500">
+                Landing: {order.attributionLandingPath}
+              </p>
+            ) : null}
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
@@ -164,7 +185,7 @@ export function OrderDetailModal({
           )}
         </div>
         {order.status !== "cancelled" ? (
-          <div className="flex flex-wrap gap-2 border-t border-zinc-100 px-6 py-4">
+          <div className="flex flex-wrap gap-2 border-t border-zinc-100 px-4 py-3 sm:px-6 sm:py-4">
             <button
               type="button"
               disabled={approvingId === order.id}

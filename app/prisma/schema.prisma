@@ -135,6 +135,13 @@ model Order {
   amountCents     Int
   wooviChargeId   String?     @unique
   wooviTxid       String?     @unique
+  /// Snapshot de origem da compra (UTM/referrer/landing) no momento da criação.
+  attribution     Json?
+  attributionSource String?
+  attributionMedium String?
+  attributionCampaign String?
+  attributionReferrer String?
+  attributionLandingPath String?
   paidAt          DateTime?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -146,6 +153,9 @@ model Order {
 
   @@index([userId, createdAt])
   @@index([status])
+  @@index([attributionSource])
+  @@index([attributionMedium])
+  @@index([attributionCampaign])
 }
 
 /// Eventos de uso para mapa de atividade (admin). IP apenas como hash (detecção / agregação).

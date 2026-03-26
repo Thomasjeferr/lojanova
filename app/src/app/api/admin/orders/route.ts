@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { forbidden, ok } from "@/lib/http";
 import { requireAdmin } from "@/lib/auth";
 import { renderCredentialLine } from "@/lib/activation-credentials";
+import { buildSourceLabel } from "@/lib/attribution";
 
 export async function GET() {
   try {
@@ -29,6 +30,10 @@ export async function GET() {
               }),
             }
           : null,
+        attributionSourceLabel: buildSourceLabel(o.attributionSource, o.attributionMedium),
+        attributionCampaign: o.attributionCampaign,
+        attributionReferrer: o.attributionReferrer,
+        attributionLandingPath: o.attributionLandingPath,
       })),
     });
   } catch {

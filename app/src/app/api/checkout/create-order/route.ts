@@ -3,6 +3,13 @@ import { badRequest, ok, unauthorized } from "@/lib/http";
 import { createOrderSchema } from "@/lib/validators";
 import { requireUser } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
+import {
+  buildSourceLabel,
+  decodeTouchCookie,
+  firstTouchCookieName,
+  lastTouchCookieName,
+  readCookieValue,
+} from "@/lib/attribution";
 
 export async function POST(request: Request) {
   try {
@@ -25,12 +32,33 @@ export async function POST(request: Request) {
       return badRequest("Plano indisponível");
     }
 
+    const cookieHeader = request.headers.get("cookie");
+    const firstTouch = decodeTouchCookie(readCookieValue(cookieHeader, firstTouchCookieName()));
+    const lastTouch = decodeTouchCookie(readCookieValue(cookieHeader, lastTouchCookieName()));
+
+    const snapshot = {
+      firstTouch,
+      lastTouch,
+      capturedAtOrder: new Date().toISOString(),
+    };
+    const source = firstTouch?.source ?? null;
+    const medium = firstTouch?.medium ?? null;
+    const campaign = firstTouch?.campaign ?? null;
+    const referrer = firstTouch?.referrer ?? null;
+    const landingPath = firstTouch?.landingPath ?? null;
+
     const order = await prisma.order.create({
       data: {
         userId: auth.userId,
         planId: plan.id,
         amountCents: plan.priceCents,
         status: "pending",
+        attribution: snapshot,
+        attributionSource: source,
+        attributionMedium: medium,
+        attributionCampaign: campaign,
+        attributionReferrer: referrer,
+        attributionLandingPath: landingPath,
       },
     });
 
@@ -38,6 +66,7 @@ export async function POST(request: Request) {
       orderId: order.id,
       orderNumber: order.orderNumber,
       status: order.status,
+      attributionSourceLabel: buildSourceLabel(source, medium),
     });
   } catch (e) {
     if (e instanceof Error && e.message === "Não autenticado") {

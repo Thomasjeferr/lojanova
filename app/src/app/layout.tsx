@@ -21,6 +21,7 @@ import {
   KEYWORDS_JOINED,
   seoMetadataBase,
 } from "@/lib/seo/metadata-builders";
+import { TrackingCapture } from "@/components/tracking-capture";
 import "./globals.css";
 
 /** Tema vem da BD; o layout raiz não pode ficar em cache estático senão data-theme fica desatualizado. */
@@ -99,7 +100,10 @@ export default async function RootLayout({
       style={themeStyleForHtml(branding.activeTheme)}
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${montserrat.variable} ${roboto.variable} ${lato.variable} ${nunito.variable} ${openSans.variable} ${raleway.variable} ${sora.variable} ${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TrackingCapture />
+        {children}
+      </body>
     </html>
   );
 }
