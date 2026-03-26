@@ -19,6 +19,7 @@ import { CopyButton } from "@/components/account/copy-button";
 import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
 import { formatDateTimePtBr } from "@/lib/brazil-time";
 import { OrderDetailModal, type OrderRow } from "./order-detail-modal";
+import { toAdminPath } from "@/lib/admin-path";
 
 export type { OrderRow };
 
@@ -266,7 +267,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
           </select>
         </label>
         <Link
-          href="/admin/customers"
+          href={toAdminPath("customers")}
           className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
         >
           Ver clientes

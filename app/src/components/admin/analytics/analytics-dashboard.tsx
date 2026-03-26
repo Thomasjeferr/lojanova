@@ -18,6 +18,7 @@ import { KPIGrid } from "./kpi-grid";
 import { ActivityFeed } from "./activity-feed";
 import { ChartsSection } from "./charts-section";
 import { cn } from "@/lib/utils";
+import { toAdminPath } from "@/lib/admin-path";
 
 async function readJson<T>(res: Response): Promise<T | null> {
   try {
@@ -234,7 +235,7 @@ export function AnalyticsDashboard({
 
       {showBackLink ? (
         <Link
-          href="/admin"
+          href={toAdminPath()}
           className="inline-flex items-center gap-2 text-sm font-semibold text-violet-400 transition hover:text-violet-300"
         >
           <ArrowLeft className="h-4 w-4" />

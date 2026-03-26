@@ -18,6 +18,7 @@ import {
   CustomerDetailModal,
   type CustomerOrderRow,
 } from "./customer-detail-modal";
+import { toAdminPath } from "@/lib/admin-path";
 
 export type AdminCustomerOrderRow = CustomerOrderRow;
 
@@ -198,7 +199,7 @@ export function AdminCustomersTable({
           </select>
         </label>
         <Link
-          href="/admin/orders"
+          href={toAdminPath("orders")}
           className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
         >
           Ver pedidos

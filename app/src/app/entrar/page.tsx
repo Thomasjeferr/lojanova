@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import { getSiteBranding } from "@/lib/site-branding";
 import { LoginForm } from "@/components/login-form";
+import { toAdminPath } from "@/lib/admin-path";
 
 export async function generateMetadata(): Promise<Metadata> {
   const b = await getSiteBranding();
@@ -21,7 +22,7 @@ export default async function EntrarPage({
   const auth = await getAuthUser();
   const { redirectTo } = await searchParams;
   if (auth) {
-    if (auth.isAdmin) redirect("/admin");
+    if (auth.isAdmin) redirect(toAdminPath());
     redirect("/account");
   }
 

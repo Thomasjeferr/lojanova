@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BarChart3, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toAdminPath } from "@/lib/admin-path";
 
 export function DashboardPageHeader({ className }: { className?: string }) {
   const router = useRouter();
@@ -39,7 +40,7 @@ export function DashboardPageHeader({ className }: { className?: string }) {
           Atualizar
         </Button>
         <Link
-          href="/admin/orders"
+          href={toAdminPath("orders")}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm shadow-blue-600/25 transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30"
         >
           <BarChart3 className="h-4 w-4 opacity-90" aria-hidden />

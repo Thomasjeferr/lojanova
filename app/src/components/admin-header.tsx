@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toAdminPath } from "@/lib/admin-path";
 
 export function AdminHeader() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export function AdminHeader() {
   return (
     <header className="border-b bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/admin" className="font-semibold text-zinc-800">
+        <Link href={toAdminPath()} className="font-semibold text-zinc-800">
           Painel admin
         </Link>
         <div className="flex items-center gap-4">

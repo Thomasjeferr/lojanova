@@ -4,6 +4,7 @@ import { cn, currencyBRL } from "@/lib/utils";
 import { displayOrderNumber } from "@/lib/order-ref";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
+import { toAdminPath } from "@/lib/admin-path";
 
 export type DashboardOrderRow = {
   id: string;
@@ -36,7 +37,7 @@ export function DashboardOrdersCard({ orders }: DashboardOrdersCardProps) {
           </p>
         </div>
         <Link
-          href="/admin/orders"
+          href={toAdminPath("orders")}
           className="group inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
         >
           Ver todos

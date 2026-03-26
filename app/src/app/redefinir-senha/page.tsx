@@ -4,6 +4,7 @@ import { getAuthUser } from "@/lib/auth";
 import { getSiteBranding } from "@/lib/site-branding";
 import { BrandingLogo } from "@/components/branding-logo";
 import { PasswordResetFlow } from "@/components/auth/password-reset-flow";
+import { toAdminPath } from "@/lib/admin-path";
 
 export async function generateMetadata(): Promise<Metadata> {
   const b = await getSiteBranding();
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RedefinirSenhaPage() {
   const auth = await getAuthUser();
   if (auth) {
-    if (auth.isAdmin) redirect("/admin");
+    if (auth.isAdmin) redirect(toAdminPath());
     redirect("/account");
   }
 

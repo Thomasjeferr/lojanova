@@ -9,6 +9,7 @@ import { ActivityWorldMap } from "./activity-world-map";
 import { ActivityRecentFeed } from "./activity-recent-feed";
 import { ActivityStatsRow } from "./activity-stats-row";
 import { cn } from "@/lib/utils";
+import { toAdminPath } from "@/lib/admin-path";
 
 type ActivityGlobalSectionProps = {
   points: ActivityMapPointDTO[];
@@ -49,7 +50,7 @@ export function ActivityGlobalSection({
             </p>
           </div>
           <Link
-            href="/admin/atividade"
+            href={toAdminPath("atividade")}
             className={cn(
               "inline-flex shrink-0 items-center justify-center gap-1.5 self-start rounded-xl px-4 py-2.5 text-sm font-semibold text-white",
               "bg-zinc-900 shadow-lg shadow-zinc-900/20 transition-all duration-200",

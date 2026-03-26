@@ -27,6 +27,7 @@ import {
   getActivityRecent,
 } from "@/lib/activity-admin";
 import { ActivityGlobalSection } from "@/components/admin/activity/activity-global-section";
+import { toAdminPath } from "@/lib/admin-path";
 
 export default async function AdminDashboardPage() {
   const [
@@ -198,7 +199,7 @@ export default async function AdminDashboardPage() {
                 description="Importe códigos na área de Códigos para ver o resumo por status."
                 action={
                   <Link
-                    href="/admin/codes"
+                    href={toAdminPath("codes")}
                     className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
                   >
                     Ir para códigos

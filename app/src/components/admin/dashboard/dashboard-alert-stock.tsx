@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowRight } from "lucide-react";
+import { toAdminPath } from "@/lib/admin-path";
 
 type DashboardAlertStockProps = {
   planTitles: string[];
@@ -24,7 +25,7 @@ export function DashboardAlertStock({ planTitles }: DashboardAlertStockProps) {
             Importe códigos para continuar vendendo sem interrupção.
           </p>
           <Link
-            href="/admin/codes"
+            href={toAdminPath("codes")}
             className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-800 transition hover:text-amber-950"
           >
             Ir para códigos

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { BrandingLogo } from "@/components/branding-logo";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import { toAdminPath } from "@/lib/admin-path";
 
 export function LoginForm({
   redirectTo,
@@ -41,7 +42,7 @@ export function LoginForm({
         return;
       }
       if (data.user?.isAdmin && (redirectTo === "admin" || !redirectTo)) {
-        router.push("/admin");
+        router.push(toAdminPath());
       } else if (redirectTo === "account") {
         router.push("/account");
       } else {

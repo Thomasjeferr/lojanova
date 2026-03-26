@@ -18,20 +18,21 @@ import {
 import { useAdminLayout } from "./admin-layout-context";
 import { BrandingLogo } from "@/components/branding-logo";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import { normalizeAdminPathname, toAdminPath } from "@/lib/admin-path";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/atividade", label: "Atividade global", icon: Globe2 },
-  { href: "/admin/plans", label: "Planos", icon: Package },
-  { href: "/admin/codes", label: "Códigos", icon: Key },
-  { href: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
-  { href: "/admin/customers", label: "Clientes", icon: Users },
-  { href: "/admin/emails", label: "E-mails", icon: Mail },
-  { href: "/admin/settings", label: "Configurações", icon: Settings },
+  { href: toAdminPath(), internalPath: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: toAdminPath("atividade"), internalPath: "/admin/atividade", label: "Atividade global", icon: Globe2 },
+  { href: toAdminPath("plans"), internalPath: "/admin/plans", label: "Planos", icon: Package },
+  { href: toAdminPath("codes"), internalPath: "/admin/codes", label: "Códigos", icon: Key },
+  { href: toAdminPath("orders"), internalPath: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
+  { href: toAdminPath("customers"), internalPath: "/admin/customers", label: "Clientes", icon: Users },
+  { href: toAdminPath("emails"), internalPath: "/admin/emails", label: "E-mails", icon: Mail },
+  { href: toAdminPath("settings"), internalPath: "/admin/settings", label: "Configurações", icon: Settings },
 ];
 
 export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
-  const pathname = usePathname();
+  const pathname = normalizeAdminPathname(usePathname() ?? "");
   const {
     sidebarCollapsed: collapsed,
     setSidebarCollapsed: setCollapsed,
@@ -66,7 +67,7 @@ export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
             )}
           >
             {collapsed && branding.logoDataUrl ? (
-              <Link href="/admin" className="block py-1">
+              <Link href={toAdminPath()} className="block py-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={branding.logoDataUrl}
@@ -79,7 +80,7 @@ export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
             ) : (
               <BrandingLogo
                 branding={branding}
-                href="/admin"
+                href={toAdminPath()}
                 textClassName="text-lg font-semibold"
                 imgClassName="h-8 max-h-9"
               />
@@ -101,9 +102,9 @@ export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
           {navItems.map((item) => {
             const isActive =
-              item.href === "/admin"
+              item.internalPath === "/admin"
                 ? pathname === "/admin"
-                : pathname.startsWith(item.href);
+                : pathname.startsWith(item.internalPath);
             const Icon = item.icon;
             return (
               <Link

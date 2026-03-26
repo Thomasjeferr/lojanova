@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Package, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/admin/empty-state";
 import { cn } from "@/lib/utils";
+import { toAdminPath } from "@/lib/admin-path";
 
 export type DashboardPlanStockRow = {
   id: string;
@@ -32,7 +33,7 @@ export function DashboardStockCard({ plans }: DashboardStockCardProps) {
           </p>
         </div>
         <Link
-          href="/admin/codes"
+          href={toAdminPath("codes")}
           className="group inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
         >
           Gerenciar
@@ -48,7 +49,7 @@ export function DashboardStockCard({ plans }: DashboardStockCardProps) {
             description="Crie planos em Planos para depois importar códigos."
             action={
               <Link
-                href="/admin/plans"
+                href={toAdminPath("plans")}
                 className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
               >
                 Criar plano

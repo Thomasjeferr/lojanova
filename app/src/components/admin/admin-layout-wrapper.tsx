@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { AdminShell } from "./admin-shell";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import { normalizeAdminPathname } from "@/lib/admin-path";
 
 const routeTitles: Record<string, { title: string; subtitle?: string }> = {
   "/admin": { title: "Dashboard", subtitle: "Visão geral do negócio" },
@@ -37,8 +38,8 @@ export function AdminLayoutWrapper({
   userEmail,
   branding,
 }: AdminLayoutWrapperProps) {
-  const pathname = usePathname();
-  const { title, subtitle } = getTitleForPath(pathname ?? "");
+  const pathname = normalizeAdminPathname(usePathname() ?? "");
+  const { title, subtitle } = getTitleForPath(pathname);
   return (
     <AdminShell
       title={title}
