@@ -9,7 +9,9 @@ export default async function AdminOrdersPage() {
     include: {
       user: { select: { name: true, email: true } },
       plan: true,
-      activationCode: { select: { code: true, credentialType: true, username: true, password: true } },
+      activationCode: {
+        select: { code: true, status: true, credentialType: true, username: true, password: true },
+      },
       delivery: { select: { id: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -36,7 +38,7 @@ export default async function AdminOrdersPage() {
             status: o.status,
             createdAt: o.createdAt.toISOString(),
             paidAt: o.paidAt?.toISOString(),
-            code: o.activationCode
+            code: o.status === "paid" && o.activationCode?.status === "sold"
               ? renderCredentialLine({
                   credentialType: o.activationCode.credentialType,
                   code: o.activationCode.code,

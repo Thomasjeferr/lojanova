@@ -17,7 +17,9 @@ export async function GET(request: Request) {
     let order = await prisma.order.findFirst({
       where: { id: orderId, userId: auth.userId },
       include: {
-        activationCode: { select: { code: true, credentialType: true, username: true, password: true } },
+        activationCode: {
+          select: { code: true, status: true, credentialType: true, username: true, password: true },
+        },
       },
     });
     if (!order) return badRequest("Pedido não encontrado");
@@ -37,7 +39,7 @@ export async function GET(request: Request) {
                 where: { id: orderId, userId: auth.userId },
                 include: {
                   activationCode: {
-                    select: { code: true, credentialType: true, username: true, password: true },
+                    select: { code: true, status: true, credentialType: true, username: true, password: true },
                   },
                 },
               });
@@ -69,7 +71,7 @@ export async function GET(request: Request) {
                 where: { id: orderId, userId: auth.userId },
                 include: {
                   activationCode: {
-                    select: { code: true, credentialType: true, username: true, password: true },
+                    select: { code: true, status: true, credentialType: true, username: true, password: true },
                   },
                 },
               });
@@ -83,7 +85,8 @@ export async function GET(request: Request) {
     }
 
     const ac = order.activationCode;
-    const codeLine = ac
+    const canRevealCredential = order.status === "paid" && ac?.status === "sold";
+    const codeLine = canRevealCredential && ac
       ? renderCredentialLine({
           credentialType: ac.credentialType,
           code: ac.code,
@@ -96,7 +99,7 @@ export async function GET(request: Request) {
       status: order.status,
       code: codeLine,
       paidAt: order.paidAt,
-      credential: ac
+      credential: canRevealCredential && ac
         ? {
             type: ac.credentialType,
             kindLabel: credentialKindLabel(ac.credentialType),

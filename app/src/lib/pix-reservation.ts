@@ -14,8 +14,8 @@ type Tx = Prisma.TransactionClient;
  * Libera reservas de Pix expiradas (código volta a `available`, some da “reserva” do pedido).
  * Deve rodar no início de fluxos que contam estoque ou entregam pedidos.
  */
-export async function releaseExpiredPixReservationsTx(tx: Tx): Promise<void> {
-  await tx.activationCode.updateMany({
+export async function releaseExpiredPixReservationsTx(tx: Tx): Promise<number> {
+  const result = await tx.activationCode.updateMany({
     where: {
       status: "reserved",
       reservedUntil: { lt: new Date() },
@@ -26,11 +26,12 @@ export async function releaseExpiredPixReservationsTx(tx: Tx): Promise<void> {
       reservedUntil: null,
     },
   });
+  return result.count;
 }
 
-export async function releaseExpiredPixReservations(): Promise<void> {
-  await prisma.$transaction(async (tx) => {
-    await releaseExpiredPixReservationsTx(tx);
+export async function releaseExpiredPixReservations(): Promise<number> {
+  return prisma.$transaction(async (tx) => {
+    return releaseExpiredPixReservationsTx(tx);
   });
 }
 
@@ -64,6 +65,9 @@ export async function ensurePixReservationForOrder(
   });
   if (!fresh) {
     throw new Error("Pedido não encontrado");
+  }
+  if (fresh.status !== "pending") {
+    throw new Error("Este pedido não está pendente para geração de Pix.");
   }
 
   const now = new Date();

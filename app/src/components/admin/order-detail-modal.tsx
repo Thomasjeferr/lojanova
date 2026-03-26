@@ -27,11 +27,15 @@ export function OrderDetailModal({
   onClose,
   approvingId,
   onApprove,
+  cancellingId,
+  onCancel,
 }: {
   order: OrderRow | null;
   onClose: () => void;
   approvingId: string | null;
   onApprove: (row: OrderRow) => void | Promise<void>;
+  cancellingId: string | null;
+  onCancel: (row: OrderRow) => void | Promise<void>;
 }) {
   if (!order) return null;
 
@@ -178,6 +182,21 @@ export function OrderDetailModal({
                 ? "Reenvia as mesmas credenciais já vinculadas ao pedido."
                 : "Confirme o pagamento fora do sistema: vincula um código disponível, marca como pago e dispara e-mail e SMS."}
             </p>
+            {order.status !== "paid" ? (
+              <>
+                <button
+                  type="button"
+                  disabled={cancellingId === order.id}
+                  onClick={() => void onCancel(order)}
+                  className="inline-flex flex-1 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
+                >
+                  {cancellingId === order.id ? "Cancelando…" : "Cancelar pedido"}
+                </button>
+                <p className="w-full text-xs text-zinc-500">
+                  Cancela o pedido e, se houver código reservado, ele volta para o estoque.
+                </p>
+              </>
+            ) : null}
           </div>
         ) : null}
       </div>

@@ -21,7 +21,7 @@ export default async function OrdersPage() {
     amountCents: o.amountCents,
     status: o.status,
     createdAt: o.createdAt.toISOString(),
-    code: o.activationCode
+    code: o.status === "paid" && o.activationCode?.status === "sold"
       ? renderCredentialLine({
           credentialType: o.activationCode.credentialType,
           code: o.activationCode.code,

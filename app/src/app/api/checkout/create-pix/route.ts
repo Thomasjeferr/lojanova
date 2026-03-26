@@ -27,8 +27,27 @@ export async function POST(request: Request) {
     if (order.status === "paid") {
       return badRequest("Pedido já está pago");
     }
+    if (order.status === "cancelled") {
+      return badRequest("Pedido cancelado. Crie um novo pedido para pagar.");
+    }
+    if (order.status === "failed") {
+      return badRequest("Pedido indisponível para pagamento. Crie um novo pedido.");
+    }
+    if (order.status !== "pending") {
+      return badRequest("Este pedido não está pendente para geração de Pix.");
+    }
 
     await prisma.$transaction(async (tx) => {
+      const fresh = await tx.order.findUnique({
+        where: { id: order.id },
+        select: { status: true, planId: true },
+      });
+      if (!fresh) {
+        throw new Error("Pedido não encontrado");
+      }
+      if (fresh.status !== "pending") {
+        throw new Error("Este pedido não está mais pendente para pagamento.");
+      }
       await ensurePixReservationForOrder(tx, { id: order.id, planId: order.planId });
     });
 

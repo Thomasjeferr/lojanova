@@ -45,6 +45,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
   const [pageSize, setPageSize] = useState<number>(25);
   const [selectedOrder, setSelectedOrder] = useState<OrderRow | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [actionBanner, setActionBanner] = useState<{
     type: "ok" | "err";
     text: string;
@@ -53,6 +54,16 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
   useEffect(() => {
     setOrders(initialOrders);
   }, [initialOrders]);
+
+  useEffect(() => {
+    // Mantém admin próximo de tempo real sem interação manual.
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        router.refresh();
+      }
+    }, 10000);
+    return () => clearInterval(id);
+  }, [router]);
 
   async function handleApprove(row: OrderRow) {
     const isResend = row.hasDelivery === true;
@@ -113,6 +124,70 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
       setActionBanner({ type: "err", text: "Erro de rede." });
     } finally {
       setApprovingId(null);
+    }
+  }
+
+  async function handleCancel(row: OrderRow) {
+    if (row.status === "paid") {
+      setActionBanner({
+        type: "err",
+        text: "Pedido pago não pode ser cancelado por esta ação.",
+      });
+      return;
+    }
+    if (
+      !window.confirm(
+        `Cancelar o pedido ${displayOrderNumber(row.orderNumber)}? Se houver código reservado, ele voltará ao estoque.`,
+      )
+    ) {
+      return;
+    }
+    setCancellingId(row.id);
+    setActionBanner(null);
+    try {
+      const res = await fetch(`/api/admin/orders/${encodeURIComponent(row.id)}/cancel`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        message?: string;
+        order?: { status: string; paidAt: string | null; code?: string | null };
+      };
+      if (!res.ok) {
+        setActionBanner({ type: "err", text: data.error || "Falha ao cancelar pedido" });
+        return;
+      }
+      setActionBanner({ type: "ok", text: data.message || "Pedido cancelado." });
+      if (data.order) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === row.id
+              ? {
+                  ...o,
+                  status: data.order!.status,
+                  paidAt: data.order!.paidAt ?? o.paidAt,
+                  code: undefined,
+                }
+              : o,
+          ),
+        );
+        setSelectedOrder((prev) =>
+          prev && prev.id === row.id
+            ? {
+                ...prev,
+                status: data.order!.status,
+                paidAt: data.order!.paidAt ?? prev.paidAt,
+                code: undefined,
+              }
+            : prev,
+        );
+      }
+      router.refresh();
+    } catch {
+      setActionBanner({ type: "err", text: "Erro de rede." });
+    } finally {
+      setCancellingId(null);
     }
   }
 
@@ -361,6 +436,16 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                               : "Aprovar"}
                         </button>
                       ) : null}
+                      {row.status !== "cancelled" && row.status !== "paid" ? (
+                        <button
+                          type="button"
+                          disabled={cancellingId === row.id}
+                          onClick={() => void handleCancel(row)}
+                          className="text-left text-sm font-semibold text-red-700 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {cancellingId === row.id ? "Cancelando…" : "Cancelar"}
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         className="text-left text-sm font-medium text-blue-600 hover:text-blue-700"
@@ -380,6 +465,8 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
             onClose={() => setSelectedOrder(null)}
             approvingId={approvingId}
             onApprove={handleApprove}
+            cancellingId={cancellingId}
+            onCancel={handleCancel}
           />
         </>
       )}

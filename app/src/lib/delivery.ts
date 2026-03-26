@@ -25,6 +25,26 @@ export async function deliverActivationCode(
     }
 
     if (order.delivery) {
+      // Autocura de inconsistência histórica:
+      // se já existe entrega registrada, o pedido deve estar pago e o código vendido.
+      if (order.status !== "paid") {
+        await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: "paid",
+            paidAt: order.paidAt ?? new Date(),
+          },
+        });
+      }
+      if (order.activationCode?.status === "reserved") {
+        await tx.activationCode.update({
+          where: { id: order.activationCode.id },
+          data: {
+            status: "sold",
+            reservedUntil: null,
+          },
+        });
+      }
       return {
         notifyChannels: false as const,
         deliveredCode: order.activationCode
@@ -228,6 +248,24 @@ export async function adminFulfillOrResendOrder(
   };
 
   if (order.delivery && order.activationCode) {
+    if (order.status !== "paid") {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: "paid",
+          paidAt: order.paidAt ?? new Date(),
+        },
+      });
+    }
+    if (order.activationCode.status === "reserved") {
+      await prisma.activationCode.update({
+        where: { id: order.activationCode.id },
+        data: {
+          status: "sold",
+          reservedUntil: null,
+        },
+      });
+    }
     const codeLine = renderCredentialLine({
       credentialType: order.activationCode.credentialType,
       code: order.activationCode.code,

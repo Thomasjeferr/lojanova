@@ -11,7 +11,7 @@ export async function GET() {
         user: { select: { name: true, email: true } },
         plan: true,
         activationCode: {
-          select: { code: true, credentialType: true, username: true, password: true },
+          select: { code: true, status: true, credentialType: true, username: true, password: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -19,7 +19,7 @@ export async function GET() {
     return ok({
       orders: orders.map((o) => ({
         ...o,
-        activationCode: o.activationCode
+        activationCode: o.status === "paid" && o.activationCode?.status === "sold"
           ? {
               code: renderCredentialLine({
                 credentialType: o.activationCode.credentialType,

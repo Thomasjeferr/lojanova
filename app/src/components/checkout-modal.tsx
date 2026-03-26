@@ -368,7 +368,7 @@ export function CheckoutModal({
     }
 
     let cancelled = false;
-    const intervalMs = 3500;
+    const intervalMs = 2000;
     const maxPolls = 200;
 
     async function tick() {
@@ -1069,12 +1069,23 @@ export function CheckoutModal({
         )}
 
         {step === 4 && (
-          <CredentialSuccessPanel
-            copyAllText={deliveryCode}
-            credential={credentialDetail}
-            releasing={!deliveryCode.trim()}
-            orderNumber={orderNumber ?? undefined}
-          />
+          <div className="space-y-3">
+            <CredentialSuccessPanel
+              copyAllText={deliveryCode}
+              credential={credentialDetail}
+              releasing={!deliveryCode.trim()}
+              orderNumber={orderNumber ?? undefined}
+            />
+            {!deliveryCode.trim() ? (
+              <div
+                className="rounded-xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-center text-sm text-amber-900"
+                role="status"
+                aria-live="polite"
+              >
+                Pagamento confirmado. Estamos sincronizando seu acesso agora...
+              </div>
+            ) : null}
+          </div>
         )}
         </div>
 

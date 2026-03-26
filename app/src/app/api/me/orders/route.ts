@@ -17,7 +17,8 @@ export async function GET() {
     return ok({
       orders: orders.map((o) => ({
         ...o,
-        activationCode: o.activationCode
+        activationCode:
+          o.status === "paid" && o.activationCode?.status === "sold"
           ? {
               ...o.activationCode,
               code: renderCredentialLine({

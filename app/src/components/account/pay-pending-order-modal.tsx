@@ -81,7 +81,7 @@ export function PayPendingOrderModal({
     }
 
     let cancelled = false;
-    const intervalMs = 3500;
+    const intervalMs = 2000;
     const maxPolls = 200;
 
     async function tick() {
@@ -100,6 +100,19 @@ export function PayPendingOrderModal({
             setCredentialDetail(mapStatusCredential(data.credential));
           }
           router.refresh();
+          return;
+        }
+        if (data.status === "cancelled") {
+          setError("Este pedido foi cancelado. Gere um novo pedido para pagar.");
+          setQrCode("");
+          setPixCode("");
+          return;
+        }
+        if (data.status === "failed") {
+          setError("Este pedido não está mais disponível para pagamento. Gere um novo pedido.");
+          setQrCode("");
+          setPixCode("");
+          return;
         }
       } catch {
         /* poll silencioso */
@@ -191,6 +204,15 @@ export function PayPendingOrderModal({
               credential={credentialDetail}
               releasing={!deliveryLine.trim()}
             />
+            {!deliveryLine.trim() ? (
+              <div
+                className="rounded-xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-center text-sm text-amber-900"
+                role="status"
+                aria-live="polite"
+              >
+                Pagamento confirmado. Estamos sincronizando seu acesso agora...
+              </div>
+            ) : null}
             <Button variant="theme" className="w-full rounded-xl py-3" onClick={handleClose}>
               Fechar
             </Button>
