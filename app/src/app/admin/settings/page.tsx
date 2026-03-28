@@ -103,6 +103,8 @@ export default async function AdminSettingsPage() {
             whatsappNumber: contactRow?.whatsappNumber || "",
             whatsappMessage: contactRow?.whatsappMessage || CONTACT_FALLBACK.whatsappMessage,
             whatsappLabel: contactRow?.whatsappLabel || CONTACT_FALLBACK.whatsappLabel,
+            whatsappDeliveryEnabled: contactRow?.whatsappDeliveryEnabled ?? false,
+            whatsappDeliveryTemplate: contactRow?.whatsappDeliveryTemplate || "",
           }}
         />
       </SectionCard>

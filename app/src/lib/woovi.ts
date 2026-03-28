@@ -7,12 +7,35 @@ type PixChargeResponse = {
   qrCodeImage: string;
 };
 
+function asChargeRecord(v: unknown): Record<string, unknown> | undefined {
+  if (v && typeof v === "object" && !Array.isArray(v)) {
+    return v as Record<string, unknown>;
+  }
+  return undefined;
+}
+
+function strVal(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+function pickFirstString(obj: Record<string, unknown> | undefined, keys: string[]): string {
+  if (!obj) return "";
+  for (const k of keys) {
+    const v = obj[k];
+    const s = strVal(v);
+    if (s) return s;
+  }
+  return "";
+}
+
 export async function createWooviPixCharge({
   amountCents,
   payerName,
+  correlationID,
 }: {
   amountCents: number;
   payerName: string;
+  correlationID: string;
 }): Promise<PixChargeResponse> {
   const settings = await getWooviSettings();
   const apiKey = settings.wooviApiKey || process.env.WOOVI_API_KEY || "";
@@ -34,6 +57,7 @@ export async function createWooviPixCharge({
       Authorization: apiKey,
     },
     body: JSON.stringify({
+      correlationID,
       value: amountCents,
       comment: "Compra de plano digital",
       customer: {
@@ -46,24 +70,34 @@ export async function createWooviPixCharge({
     throw new Error("Falha ao gerar cobrança Pix");
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as Record<string, unknown>;
+  const charge = asChargeRecord(data.charge) ?? asChargeRecord(data);
+  const pm = charge ? asChargeRecord(charge.paymentMethods) : undefined;
+  const pmPix = pm ? asChargeRecord(pm.pix) : undefined;
+
+  const chargeId =
+    pickFirstString(charge, ["_id", "id"]) || pickFirstString(data, ["id", "_id"]);
+  const txid =
+    pickFirstString(charge, ["txid", "txId", "transactionID", "transactionId"]) ||
+    pickFirstString(pmPix, ["txId", "txid", "transactionID", "transactionId"]) ||
+    pickFirstString(data, ["txid", "txId"]);
+
+  const brCode =
+    pickFirstString(charge, ["brCode", "brcode"]) ||
+    pickFirstString(pmPix, ["brCode", "brcode"]) ||
+    pickFirstString(data, ["brCode", "brcode"]);
+
+  const qrCodeImage =
+    pickFirstString(charge, ["pixQrCodeImage", "qrCodeImage"]) ||
+    pickFirstString(pmPix, ["qrCodeImage", "pixQrCodeImage"]) ||
+    pickFirstString(data, ["pixQrCodeImage", "qrCodeImage"]);
+
   return {
-    chargeId: data.charge?._id || data.id,
-    txid: data.charge?.txid || data.txid,
-    brCode: data.charge?.brCode || data.brCode,
-    qrCodeImage: data.charge?.pixQrCodeImage || data.pixQrCodeImage,
+    chargeId,
+    txid: txid || chargeId,
+    brCode,
+    qrCodeImage,
   };
-}
-
-function asChargeRecord(v: unknown): Record<string, unknown> | undefined {
-  if (v && typeof v === "object" && !Array.isArray(v)) {
-    return v as Record<string, unknown>;
-  }
-  return undefined;
-}
-
-function strVal(v: unknown): string {
-  return typeof v === "string" ? v.trim() : "";
 }
 
 /**
@@ -92,7 +126,15 @@ export async function fetchWooviChargeStatus(
   try {
     const data = (await res.json()) as Record<string, unknown>;
     const charge = asChargeRecord(data.charge) ?? data;
-    const status = strVal(charge.status);
+    const pm = asChargeRecord(charge.paymentMethods);
+    const pmPix = pm ? asChargeRecord(pm.pix) : undefined;
+    const pixCharge = pmPix ? asChargeRecord(pmPix.charge) : undefined;
+
+    const status =
+      pickFirstString(charge, ["status"]) ||
+      pickFirstString(asChargeRecord(charge.pix), ["status"]) ||
+      pickFirstString(pmPix, ["status"]) ||
+      pickFirstString(pixCharge, ["status"]);
     return status || null;
   } catch {
     return null;
@@ -102,5 +144,5 @@ export async function fetchWooviChargeStatus(
 /** Status retornado pela API / webhook Woovi quando o Pix foi pago. */
 export function isWooviChargePaidStatus(status: string): boolean {
   const s = status.toUpperCase();
-  return s === "COMPLETED" || s === "PAID";
+  return s === "COMPLETED" || s === "PAID" || s === "CONFIRMED";
 }

@@ -33,7 +33,13 @@ export async function GET(request: Request) {
           try {
             const remote = await fetchGgPixTransactionById(txRef, apiKey);
             const st = remote?.status?.toUpperCase() ?? "";
-            if (st === "COMPLETE" || st === "PAID") {
+            if (
+              st === "COMPLETE" ||
+              st === "COMPLETED" ||
+              st === "PAID" ||
+              st === "APPROVED" ||
+              st === "CONFIRMED"
+            ) {
               await deliverActivationCode(order.id, { request });
               const refreshed = await prisma.order.findFirst({
                 where: { id: orderId, userId: auth.userId },
@@ -52,9 +58,11 @@ export async function GET(request: Request) {
       }
       if (settings.paymentProvider === "woovi") {
         const apiKey = settings.wooviApiKey || process.env.WOOVI_API_KEY || "";
-        const tryIds = [order.wooviChargeId, order.wooviTxid].filter(
-          (v): v is string => Boolean(v?.trim()),
-        );
+        const tryIds = [
+          order.wooviChargeId,
+          order.wooviTxid,
+          order.pixCorrelationId,
+        ].filter((v): v is string => Boolean(v?.trim()));
         if (apiKey.trim() && tryIds.length > 0) {
           try {
             let paidRemote = false;

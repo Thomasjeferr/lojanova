@@ -200,6 +200,8 @@ export const contactSettingsSchema = z
     whatsappNumber: z.string().optional().or(z.literal("")),
     whatsappMessage: z.string().max(280).optional().or(z.literal("")),
     whatsappLabel: z.string().max(40).optional().or(z.literal("")),
+    whatsappDeliveryEnabled: z.boolean().optional().default(false),
+    whatsappDeliveryTemplate: z.string().max(900).optional().or(z.literal("")),
   })
   .superRefine((val, ctx) => {
     const normalized = normalizeWhatsAppNumber(val.whatsappNumber || "");

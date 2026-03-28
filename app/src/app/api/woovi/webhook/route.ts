@@ -26,20 +26,34 @@ function collectWooviTransactionRefs(payload: Record<string, unknown>): string[]
   const pixCharge = pix ? asObj(pix.charge) : undefined;
   const pm = charge ? asObj(charge.paymentMethods) : undefined;
   const pmPix = pm ? asObj(pm.pix) : undefined;
+  const payment = asObj(payload.payment);
 
   const candidates: unknown[] = [
     payload.txid,
+    payload.correlationID,
     charge?.txid,
+    charge?.txId,
     charge?.transactionID,
+    charge?.transactionId,
     charge?.identifier,
+    charge?.endToEndId,
     pmPix?.txId,
+    pmPix?.txid,
     pmPix?.transactionID,
+    pmPix?.transactionId,
     pmPix?.identifier,
+    pmPix?.endToEndId,
     pix?.transactionID,
+    pix?.transactionId,
+    pix?.endToEndId,
     pixCharge?.transactionID,
+    pixCharge?.transactionId,
     pixCharge?.identifier,
+    pixCharge?.endToEndId,
     charge?.correlationID,
     charge?.paymentLinkID,
+    payment?.transactionID,
+    payment?.txid,
     typeof charge?._id === "string" ? charge._id : undefined,
   ];
 
@@ -74,7 +88,11 @@ function isWooviWebhookPaid(
   if (str(payload.status).toUpperCase() === "PAID") return true;
   if (chargeSt === "COMPLETED" || chargeSt === "PAID") return true;
   if (pixChargeSt === "COMPLETED" || pixChargeSt === "PAID") return true;
-  if (pixSt === "CONFIRMED" || pixSt === "COMPLETED") return true;
+  if (pixSt === "CONFIRMED" || pixSt === "COMPLETED" || pixSt === "PAID") return true;
+
+  const pay = asObj(payload.payment);
+  const paySt = str(pay?.status).toUpperCase();
+  if (paySt === "COMPLETED" || paySt === "PAID" || paySt === "CONFIRMED") return true;
 
   return false;
 }
@@ -149,11 +167,16 @@ export async function POST(request: Request) {
 
   const orConditions: Prisma.OrderWhereInput[] = [];
   for (const r of refs) {
-    orConditions.push({ wooviTxid: r }, { wooviChargeId: r });
+    orConditions.push(
+      { wooviTxid: r },
+      { wooviChargeId: r },
+      { pixCorrelationId: r },
+    );
   }
 
   const order = await prisma.order.findFirst({
     where: { OR: orConditions },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!order) {

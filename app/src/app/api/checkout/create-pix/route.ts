@@ -70,7 +70,11 @@ export async function POST(request: Request) {
 
     await prisma.order.update({
       where: { id: order.id },
-      data: { wooviChargeId: pix.chargeId, wooviTxid: pix.txid },
+      data: {
+        wooviChargeId: pix.chargeId || null,
+        wooviTxid: pix.txid || null,
+        pixCorrelationId: pix.correlationID ?? null,
+      },
     });
 
     const docRaw = (parsed.data.payerDocument ?? "").trim();

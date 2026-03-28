@@ -135,6 +135,8 @@ model Order {
   amountCents     Int
   wooviChargeId   String?     @unique
   wooviTxid       String?     @unique
+  /// correlationID enviado na criação da cobrança Woovi (match no webhook quando txid/chargeId divergem).
+  pixCorrelationId String?    @unique
   /// Snapshot de origem da compra (UTM/referrer/landing) no momento da criação.
   attribution     Json?
   attributionSource String?
@@ -231,6 +233,10 @@ model AppSettings {
   whatsappNumber  String?
   whatsappMessage String?
   whatsappLabel   String?
+  /// Envia credencial de ativação via WhatsApp (Twilio) após pagamento confirmado.
+  whatsappDeliveryEnabled Boolean @default(false)
+  /// Template opcional para mensagem de entrega via WhatsApp.
+  whatsappDeliveryTemplate String? @db.Text
   paymentProvider PaymentProvider @default(woovi)
   wooviApiKey     String?  @db.Text
   wooviWebhookSecret String? @db.Text

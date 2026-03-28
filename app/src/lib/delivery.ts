@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendActivationEmail } from "@/lib/email";
 import { sendActivationSms } from "@/lib/twilio-sms";
+import { sendActivationWhatsApp } from "@/lib/twilio-whatsapp";
 import {
   credentialKindLabel,
   renderCredentialLine,
@@ -184,6 +185,13 @@ export async function deliverActivationCode(
       credentialLabel: result.credentialLabel,
       credentialValue: result.deliveredCode,
     });
+    await sendActivationWhatsApp({
+      phone: result.user.phone,
+      name: result.user.name,
+      planName: result.plan.title,
+      credentialLabel: result.credentialLabel,
+      credentialValue: result.deliveredCode,
+    });
   }
 
   if (result.notifyChannels && "order" in result && result.order) {
@@ -239,6 +247,13 @@ export async function adminFulfillOrResendOrder(
       credentialValue: codeLine,
     });
     await sendActivationSms({
+      phone: order.user.phone,
+      name: order.user.name,
+      planName: order.plan.title,
+      credentialLabel,
+      credentialValue: codeLine,
+    });
+    await sendActivationWhatsApp({
       phone: order.user.phone,
       name: order.user.name,
       planName: order.plan.title,

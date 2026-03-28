@@ -10,6 +10,88 @@ function asObject(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
+function str(v: unknown): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "number" && Number.isFinite(v)) return String(v);
+  return "";
+}
+
+/**
+ * GGPIXAPI pode variar o formato do JSON entre eventos (criação vs confirmação).
+ * Reúne todos os identificadores possíveis para casar com Order.wooviTxid / wooviChargeId / id.
+ */
+function collectGgPixTransactionRefs(payload: Record<string, unknown>): {
+  refs: string[];
+  externalIds: string[];
+} {
+  const nestedData = asObject(payload.data);
+  const nestedPix = nestedData ? asObject(nestedData.pix) : null;
+  const rootPix = asObject(payload.pix);
+  const rootTx = asObject(payload.transaction);
+  const nestedTx = nestedData ? asObject(nestedData.transaction) : null;
+  const nestedPay = nestedData ? asObject(nestedData.payment) : null;
+  const meta = asObject(payload.metadata) ?? (nestedData ? asObject(nestedData.metadata) : null);
+
+  const idCandidates: unknown[] = [
+    payload.transactionId,
+    payload.transaction_id,
+    payload.chargeId,
+    payload.charge_id,
+    nestedData?.transactionId,
+    nestedData?.transaction_id,
+    nestedData?.id,
+    nestedData?.chargeId,
+    nestedTx?.id,
+    nestedTx?.transactionId,
+    rootTx?.id,
+    rootTx?.transactionId,
+    payload.id,
+    nestedPix?.transactionId,
+    nestedPix?.id,
+    rootPix?.transactionId,
+    rootPix?.id,
+    nestedPay?.transactionId,
+    nestedPay?.id,
+  ];
+
+  const txidCandidates: unknown[] = [
+    payload.txid,
+    nestedData?.txid,
+    nestedPix?.txid,
+    rootPix?.txid,
+    nestedPay?.txid,
+  ];
+
+  const externalCandidates: unknown[] = [
+    payload.externalId,
+    payload.external_id,
+    nestedData?.externalId,
+    nestedData?.external_id,
+    meta?.externalId,
+    meta?.orderId,
+    meta?.order_id,
+    nestedPay?.externalId,
+  ];
+
+  const refs = new Set<string>();
+  const externalIds = new Set<string>();
+
+  for (const c of [...idCandidates, ...txidCandidates]) {
+    const s = str(c);
+    if (s) refs.add(s);
+  }
+  for (const c of externalCandidates) {
+    const s = str(c);
+    if (s) {
+      externalIds.add(s);
+      refs.add(s);
+    }
+  }
+
+  return { refs: [...refs], externalIds: [...externalIds] };
+}
+
 export async function POST(request: Request) {
   const rawBody = await request.text();
   const settings = await getPaymentGatewaySettings();
@@ -40,23 +122,33 @@ export async function POST(request: Request) {
 
   const nestedData = asObject(payload.data);
   const nestedPix = nestedData ? asObject(nestedData.pix) : null;
+  const nestedPay = nestedData ? asObject(nestedData.payment) : null;
 
-  const transactionId = String(
-    payload.transactionId ??
-      nestedData?.transactionId ??
-      payload.id ??
-      nestedData?.id ??
-      "",
-  ).trim();
-  const externalId = String(payload.externalId ?? nestedData?.externalId ?? "").trim();
-  const txidPix = String(payload.txid ?? nestedData?.txid ?? "").trim();
+  const { refs: refList, externalIds } = collectGgPixTransactionRefs(payload);
+  const transactionId = str(
+    payload.transactionId ?? nestedData?.transactionId ?? payload.id ?? nestedData?.id,
+  );
+  const externalId = externalIds[0] ?? "";
+  const txidPix = str(payload.txid ?? nestedData?.txid ?? nestedPix?.txid);
 
   const eventId = String(
-    payload.eventId ?? transactionId ?? txidPix ?? externalId ?? payload.id ?? "",
+    payload.eventId ??
+      transactionId ??
+      txidPix ??
+      externalId ??
+      refList[0] ??
+      payload.id ??
+      "",
   ).trim();
 
   const eventType = String(payload.type ?? payload.event ?? nestedData?.type ?? "unknown");
-  const status = String(payload.status ?? nestedData?.status ?? nestedPix?.status ?? "").toUpperCase();
+  const status = String(
+    payload.status ??
+      nestedData?.status ??
+      nestedPix?.status ??
+      nestedPay?.status ??
+      "",
+  ).toUpperCase();
   /** GGPIXAPI usa COMPLETE no webhook oficial; não confundir com COMPLETED. */
   const paid =
     status === "PAID" ||
@@ -88,23 +180,31 @@ export async function POST(request: Request) {
   }
 
   const or: Prisma.OrderWhereInput[] = [];
-  const refs = new Set<string>();
+  const refs = new Set<string>(refList);
   for (const v of [transactionId, txidPix, externalId]) {
     if (v) refs.add(v);
   }
   for (const ref of refs) {
     or.push({ wooviTxid: ref }, { wooviChargeId: ref });
   }
-  if (externalId) {
-    or.push({ id: externalId });
+  for (const ext of externalIds) {
+    or.push({ id: ext });
   }
 
   if (or.length === 0) {
     return badRequest("Payload de webhook sem transactionId, txid ou externalId");
   }
 
-  const order = await prisma.order.findFirst({ where: { OR: or } });
+  const order = await prisma.order.findFirst({
+    where: { OR: or },
+    orderBy: { createdAt: "desc" },
+  });
   if (!order) {
+    console.warn("[ggpix/webhook] pedido nao encontrado", {
+      eventType,
+      status,
+      refs: [...refs].slice(0, 12),
+    });
     return badRequest("Pedido não encontrado para esta transação (txid/charge/externalId)");
   }
 

@@ -32,7 +32,15 @@ export async function fetchGgPixTransactionById(
   if (!res.ok) return null;
   try {
     const data = (await res.json()) as Record<string, unknown>;
-    return { status: String(data.status ?? "") };
+    const inner = data.data;
+    const nested =
+      inner && typeof inner === "object" && !Array.isArray(inner)
+        ? (inner as Record<string, unknown>)
+        : null;
+    const st = String(
+      data.status ?? nested?.status ?? nested?.state ?? "",
+    ).trim();
+    return { status: st };
   } catch {
     return null;
   }
