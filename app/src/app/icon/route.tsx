@@ -5,7 +5,7 @@ import { getSiteBranding } from "@/lib/site-branding";
 export const dynamic = "force-dynamic";
 
 function parseDataUrl(dataUrl: string): { contentType: string; buffer: Buffer } | null {
-  const match = /^data:(image\/[\w.+-]+);base64,(.+)$/i.exec(dataUrl.trim());
+  const match = /^data:(image\/[^;]+);base64,(.+)$/i.exec(dataUrl.trim());
   if (!match) return null;
   try {
     return {

@@ -247,7 +247,7 @@ export function BrandingSettingsForm({
             <div>
               <h3 className="text-lg font-semibold text-zinc-900">Favicon</h3>
               <p className="mt-1 text-sm text-zinc-500">
-                Ícone da aba e nos resultados do Google. Prefira <strong>PNG quadrada de 48×48 px ou maior</strong> (múltiplos de 48). O site publica em <code className="text-xs">/icon</code> para o Google conseguir baixar o arquivo (URLs em Base64 no HTML não bastam).
+                Ícone da aba e nos resultados do Google. Use <strong>PNG ou ICO quadrados, 48×48 px ou maior</strong> (ex.: 64, 96, 192). Evite WebP no favicon se quiser máxima compatibilidade com o índice do Google. O arquivo fica em <code className="text-xs">/favicon.ico</code> e <code className="text-xs">/icon</code>.
               </p>
             </div>
             <ImageIcon className="h-8 w-8 shrink-0 text-zinc-300" />
