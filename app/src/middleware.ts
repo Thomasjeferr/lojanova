@@ -43,6 +43,14 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * Incluir /favicon.ico explicitamente: o padrão abaixo usa (?!.*\..*) e faz o matcher
+ * NÃO corresponder a caminhos com extensão — assim o rewrite para /icon nunca rodava e
+ * o Googlebot recebia 404/placeholder em vez do favicon do admin.
+ */
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|.*\\..*).*)"],
+  matcher: [
+    "/favicon.ico",
+    "/((?!_next/static|_next/image|.*\\..*).*)",
+  ],
 };

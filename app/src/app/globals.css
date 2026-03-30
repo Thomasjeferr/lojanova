@@ -1505,3 +1505,80 @@ body {
   color: #18181b;
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+/**
+ * TV Box / WebView antigo (Chrome/WebView sem suporte a color-mix, ~antes de 2023): não entende `color-mix()`.
+ * Declarações inválidas podem ser ignoradas e o layout parece “sem CSS”.
+ * Este bloco recria fundos/sombras com rgba e remove blur pesado.
+ */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .landing-shimmer-beams {
+    background: repeating-conic-gradient(
+      from 0deg at 50% 42%,
+      transparent 0deg 11deg,
+      rgba(255, 255, 255, 0.04) 11deg 12deg
+    );
+  }
+
+  .landing-card-surface {
+    background: var(--landing-card-bg-solid, rgba(24, 24, 27, 0.88));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid var(--landing-card-border);
+    box-shadow: var(--landing-card-shadow);
+  }
+
+  .landing-plan-card::after {
+    background: linear-gradient(
+      170deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 42%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
+  }
+
+  .landing-hero-ring {
+    border: 1px solid rgba(251, 146, 60, 0.35);
+    box-shadow: 0 0 40px -12px rgba(251, 146, 60, 0.22);
+  }
+
+  .landing-hero-ring--outer {
+    border-color: rgba(251, 146, 60, 0.22);
+    box-shadow: 0 0 52px -16px rgba(251, 146, 60, 0.16);
+  }
+
+  [data-theme="red"] .landing-hero-ring {
+    border-color: rgba(244, 63, 94, 0.38);
+    box-shadow: 0 0 40px -12px rgba(244, 63, 94, 0.26);
+  }
+
+  [data-theme="red"] .landing-hero-ring--outer {
+    border-color: rgba(244, 63, 94, 0.22);
+    box-shadow: 0 0 52px -16px rgba(244, 63, 94, 0.18);
+  }
+
+  .landing-footer-premium,
+  .landing-inset-glass,
+  .landing-section-alt,
+  .landing-faq-card,
+  .landing-plan-featured-inner,
+  .landing-btn-secondary {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .checkout-modal-backdrop {
+    background: rgba(0, 0, 0, 0.58);
+  }
+
+  .checkout-modal-scroll-shell {
+    min-height: 100vh;
+  }
+}
+
+@supports not (height: 100dvh) {
+  .checkout-modal-scroll-shell {
+    min-height: 100vh;
+  }
+}

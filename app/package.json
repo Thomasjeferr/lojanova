@@ -2,6 +2,11 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
+  "browserslist": [
+    "Chrome >= 83",
+    "Android >= 8",
+    "Samsung >= 12"
+  ],
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },

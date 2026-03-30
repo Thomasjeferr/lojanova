@@ -28,7 +28,8 @@ export async function GET() {
       return new NextResponse(new Uint8Array(parsed.buffer), {
         headers: {
           "Content-Type": parsed.contentType,
-          "Cache-Control": "public, max-age=3600, s-maxage=3600",
+          // Crawlers (Google) voltam pouco; cache longo reduz carga e ajuda consistência no índice.
+          "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
         },
       });
     }

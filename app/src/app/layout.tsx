@@ -78,8 +78,12 @@ export async function generateMetadata(): Promise<Metadata> {
      * URLs reais (resolvida com metadataBase) — Google não usa bem favicon em data:.
      * O handler /icon devolve o arquivo do admin ou um fallback; /favicon.ico reescreve para /icon.
      */
+    /** Google costuma pedir /favicon.ico primeiro; o middleware reescreve para /icon (mesmo binário). */
     icons: {
-      icon: [{ url: "/icon" }],
+      icon: [
+        { url: "/favicon.ico" },
+        { url: "/icon" },
+      ],
       apple: [{ url: "/icon" }],
     },
   };
