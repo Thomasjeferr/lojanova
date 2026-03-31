@@ -242,6 +242,8 @@ model AppSettings {
   wooviWebhookSecret String? @db.Text
   ggpixApiKey     String?  @db.Text
   ggpixWebhookSecret String? @db.Text
+  /// Token Bearer enviado em Authorization quando o painel GGPIX está em "Ambos" (Bearer + HMAC).
+  ggpixWebhookBearer String? @db.Text
   /// Alerta por e-mail quando estoque (cód disponíveis) de planos ativos ≤ limite
   lowStockAlertEnabled     Boolean   @default(false)
   lowStockThreshold        Int       @default(5)

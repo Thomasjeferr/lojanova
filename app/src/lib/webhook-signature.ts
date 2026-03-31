@@ -140,6 +140,8 @@ export function isValidGgPixWebhookRequestWithSecret(
   rawBody: string,
   request: Request,
   secret: string,
+  /** Bearer do painel quando autenticação = "Ambos" (valor diferente do HMAC Secret). */
+  webhookBearerToken?: string | null,
 ): boolean {
   const cleanSecret = secret.trim();
   if (!cleanSecret) return false;
@@ -156,7 +158,13 @@ export function isValidGgPixWebhookRequestWithSecret(
   if (auth?.toLowerCase().startsWith("bearer ")) {
     const token = auth.slice(7).trim();
     const bearerEnv = process.env.GGPIX_WEBHOOK_BEARER?.trim();
-    if (token && (token === cleanSecret || (bearerEnv && token === bearerEnv))) {
+    const bearerDb = (webhookBearerToken ?? "").trim();
+    if (
+      token &&
+      (token === cleanSecret ||
+        (bearerEnv && token === bearerEnv) ||
+        (bearerDb && token === bearerDb))
+    ) {
       return true;
     }
   }

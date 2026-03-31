@@ -5,6 +5,10 @@
       "schedule": "*/5 * * * *"
     },
     {
+      "path": "/api/cron/reconcile-pix-payments",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/cron/low-stock-alert",
       "schedule": "0 11 * * *"
     }

@@ -96,6 +96,7 @@ export async function POST(request: Request) {
   const rawBody = await request.text();
   const settings = await getPaymentGatewaySettings();
   const webhookSecret = settings.ggpixWebhookSecret || process.env.GGPIX_WEBHOOK_SECRET || "";
+  const webhookBearer = settings.ggpixWebhookBearer || process.env.GGPIX_WEBHOOK_BEARER || "";
 
   if (!webhookSecret.trim()) {
     return badRequest(
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isValidGgPixWebhookRequestWithSecret(rawBody, request, webhookSecret)) {
+  if (!isValidGgPixWebhookRequestWithSecret(rawBody, request, webhookSecret, webhookBearer)) {
     return badRequest("Assinatura de webhook inválida");
   }
 

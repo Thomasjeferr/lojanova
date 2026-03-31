@@ -220,6 +220,7 @@ export const wooviSettingsSchema = z.object({
   wooviWebhookSecret: z.string().max(300).optional().or(z.literal("")),
   ggpixApiKey: z.string().max(300).optional().or(z.literal("")),
   ggpixWebhookSecret: z.string().max(300).optional().or(z.literal("")),
+  ggpixWebhookBearer: z.string().max(500).optional().or(z.literal("")),
 });
 
 export const lowStockAlertSettingsSchema = z

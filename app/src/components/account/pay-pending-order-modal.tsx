@@ -81,8 +81,8 @@ export function PayPendingOrderModal({
     }
 
     let cancelled = false;
-    const intervalMs = 2000;
-    const maxPolls = 200;
+    const intervalMs = 1000;
+    const maxPolls = 300;
 
     async function tick() {
       try {

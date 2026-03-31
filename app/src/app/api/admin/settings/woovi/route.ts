@@ -16,6 +16,7 @@ export async function GET() {
         wooviWebhookSecret: true,
         ggpixApiKey: true,
         ggpixWebhookSecret: true,
+        ggpixWebhookBearer: true,
       },
     });
     return ok({
@@ -27,6 +28,8 @@ export async function GET() {
         ggpixApiKey: row?.ggpixApiKey || PAYMENT_GATEWAY_FALLBACK.ggpixApiKey,
         ggpixWebhookSecret:
           row?.ggpixWebhookSecret || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookSecret,
+        ggpixWebhookBearer:
+          row?.ggpixWebhookBearer || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookBearer,
       },
     });
   } catch (e) {
@@ -58,6 +61,7 @@ export async function PUT(request: Request) {
         wooviWebhookSecret: (body.wooviWebhookSecret || "").trim() || null,
         ggpixApiKey: (body.ggpixApiKey || "").trim() || null,
         ggpixWebhookSecret: (body.ggpixWebhookSecret || "").trim() || null,
+        ggpixWebhookBearer: (body.ggpixWebhookBearer || "").trim() || null,
       },
       update: {
         paymentProvider:
@@ -66,6 +70,7 @@ export async function PUT(request: Request) {
         wooviWebhookSecret: (body.wooviWebhookSecret || "").trim() || null,
         ggpixApiKey: (body.ggpixApiKey || "").trim() || null,
         ggpixWebhookSecret: (body.ggpixWebhookSecret || "").trim() || null,
+        ggpixWebhookBearer: (body.ggpixWebhookBearer || "").trim() || null,
       },
     });
 
@@ -77,6 +82,7 @@ export async function PUT(request: Request) {
         wooviWebhookSecret: row.wooviWebhookSecret || "",
         ggpixApiKey: row.ggpixApiKey || "",
         ggpixWebhookSecret: row.ggpixWebhookSecret || "",
+        ggpixWebhookBearer: row.ggpixWebhookBearer || "",
       },
     });
   } catch (e) {

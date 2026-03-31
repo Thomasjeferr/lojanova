@@ -158,6 +158,8 @@ export default async function AdminSettingsPage() {
             ggpixApiKey: contactRow?.ggpixApiKey || PAYMENT_GATEWAY_FALLBACK.ggpixApiKey,
             ggpixWebhookSecret:
               contactRow?.ggpixWebhookSecret || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookSecret,
+            ggpixWebhookBearer:
+              contactRow?.ggpixWebhookBearer || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookBearer,
           }}
         />
       </SectionCard>

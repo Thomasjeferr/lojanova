@@ -10,6 +10,7 @@ export type PaymentGatewaySettings = WooviSettings & {
   paymentProvider: PaymentProvider;
   ggpixApiKey: string;
   ggpixWebhookSecret: string;
+  ggpixWebhookBearer: string;
 };
 
 export const WOOVI_FALLBACK: WooviSettings = {
@@ -23,6 +24,7 @@ export const PAYMENT_GATEWAY_FALLBACK: PaymentGatewaySettings = {
   wooviWebhookSecret: WOOVI_FALLBACK.wooviWebhookSecret,
   ggpixApiKey: process.env.GGPIX_API_KEY?.trim() || "",
   ggpixWebhookSecret: process.env.GGPIX_WEBHOOK_SECRET?.trim() || "",
+  ggpixWebhookBearer: process.env.GGPIX_WEBHOOK_BEARER?.trim() || "",
 };
 
 export async function getPaymentGatewaySettings(): Promise<PaymentGatewaySettings> {
@@ -35,6 +37,7 @@ export async function getPaymentGatewaySettings(): Promise<PaymentGatewaySetting
         wooviWebhookSecret: true,
         ggpixApiKey: true,
         ggpixWebhookSecret: true,
+        ggpixWebhookBearer: true,
       },
     });
     return {
@@ -45,6 +48,8 @@ export async function getPaymentGatewaySettings(): Promise<PaymentGatewaySetting
       ggpixApiKey: row?.ggpixApiKey?.trim() || PAYMENT_GATEWAY_FALLBACK.ggpixApiKey,
       ggpixWebhookSecret:
         row?.ggpixWebhookSecret?.trim() || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookSecret,
+      ggpixWebhookBearer:
+        row?.ggpixWebhookBearer?.trim() || PAYMENT_GATEWAY_FALLBACK.ggpixWebhookBearer,
     };
   } catch {
     return PAYMENT_GATEWAY_FALLBACK;

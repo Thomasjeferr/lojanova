@@ -13,6 +13,8 @@ type WooviSettingsFormData = {
   wooviWebhookSecret: string;
   ggpixApiKey: string;
   ggpixWebhookSecret: string;
+  /** Bearer do painel GGPIX quando autenticação = "Ambos". */
+  ggpixWebhookBearer: string;
 };
 
 function normalizeBaseUrl(url: string): string {
@@ -70,6 +72,7 @@ export function WooviSettingsForm({
         wooviWebhookSecret: data.settings.wooviWebhookSecret,
         ggpixApiKey: data.settings.ggpixApiKey,
         ggpixWebhookSecret: data.settings.ggpixWebhookSecret,
+        ggpixWebhookBearer: data.settings.ggpixWebhookBearer ?? "",
       });
       setToast("ok");
       const savedLabel =
@@ -150,14 +153,14 @@ export function WooviSettingsForm({
               confirmar pagamentos e liberar o código ao cliente.
             </li>
             <li>
-              Em <strong>Autenticação</strong>, escolha <strong>HMAC Secret</strong> (assinatura no
-              header <code className="rounded bg-white px-1">X-Webhook-Signature</code>). Evite{" "}
-              <em>Sem autenticação</em> em produção.
+              Em <strong>Autenticação</strong>, se usar <strong>Ambos</strong> (Bearer + HMAC): cole
+              o <strong>HMAC Secret</strong> em <strong>Webhook Secret</strong> abaixo e o{" "}
+              <strong>Bearer Token</strong> em <strong>Bearer do webhook</strong> (são valores
+              diferentes no painel). Se usar só HMAC, deixe Bearer vazio.
             </li>
             <li>
-              Gere ou defina o segredo no painel GGPIXAPI e cole <strong>o mesmo valor</strong> no
-              campo <strong>Webhook Secret da GGPIXAPI</strong> abaixo. Depois clique em{" "}
-              <strong>Salvar</strong> no painel GGPIXAPI e use <strong>Testar</strong> se disponível.
+              Depois clique em <strong>Salvar</strong> no painel GGPIXAPI e use{" "}
+              <strong>Testar</strong> se disponível.
             </li>
             <li>
               A <strong>API Key</strong> vem das credenciais GGPIX (formato <code className="rounded bg-white px-1">gk_…</code>).
@@ -282,16 +285,32 @@ export function WooviSettingsForm({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="ggpixWebhookSecret">Webhook Secret da GGPIXAPI</Label>
+          <Label htmlFor="ggpixWebhookSecret">Webhook Secret da GGPIXAPI (HMAC)</Label>
           <Input
             id="ggpixWebhookSecret"
             value={form.ggpixWebhookSecret}
             disabled={off}
-            placeholder="seu_webhook_secret_da_ggpix"
+            placeholder="seu_hmac_secret_da_ggpix"
             onChange={(e) =>
               setForm((prev) => ({ ...prev, ggpixWebhookSecret: e.target.value }))
             }
           />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="ggpixWebhookBearer">Bearer do webhook GGPIX (opcional)</Label>
+          <Input
+            id="ggpixWebhookBearer"
+            value={form.ggpixWebhookBearer}
+            disabled={off}
+            placeholder="Obrigatório se no painel estiver Autenticação = Ambos"
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, ggpixWebhookBearer: e.target.value }))
+            }
+          />
+          <p className="text-xs text-zinc-500">
+            Mesmo valor que o painel mostra para <strong>Bearer Token</strong> quando{" "}
+            <strong>Ambos</strong> está ativo. O HMAC continua validado com o campo acima.
+          </p>
         </div>
       </div>
 
