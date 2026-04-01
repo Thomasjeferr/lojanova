@@ -17,6 +17,7 @@ import { getSiteBranding } from "@/lib/site-branding";
 import { themeStyleForHtml } from "@/lib/theme-inline-style";
 import {
   buildCanonical,
+  buildFaviconUrl,
   defaultSiteDescription,
   KEYWORDS_JOINED,
   seoMetadataBase,
@@ -75,16 +76,13 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
     },
     /**
-     * URLs reais (resolvida com metadataBase) — Google não usa bem favicon em data:.
-     * O handler /icon devolve o arquivo do admin ou um fallback; /favicon.ico reescreve para /icon.
+     * Um único rel=icon canónico: /favicon.ico (middleware → /icon). Evita dois hrefs com o mesmo
+     * recurso e confusão no índice. ?v= muda quando o favicon na BD muda (cache bust).
+     * Google ignora favicon em data: no admin; o que conta é este URL absoluto.
      */
-    /** URLs absolutas (metadataBase + path relativo às vezes sai só como /favicon.ico): o Google extrai o href do link. */
     icons: {
-      icon: [
-        { url: buildCanonical("/favicon.ico") },
-        { url: buildCanonical("/icon") },
-      ],
-      apple: [{ url: buildCanonical("/icon") }],
+      icon: [{ url: buildFaviconUrl(b.faviconDataUrl) }],
+      apple: [{ url: buildFaviconUrl(b.faviconDataUrl) }],
     },
     verification: {
       google: "cFStNsiqykp_0UbvNvIdM9HcNBMtboTIuUEqN8BXu7s",

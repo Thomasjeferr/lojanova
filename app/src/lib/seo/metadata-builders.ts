@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { Metadata } from "next";
 import { env } from "@/lib/env";
 import { SEO_KEYWORDS } from "./faq-data";
@@ -16,6 +17,18 @@ export function buildCanonical(pathname: string): string {
   const origin = env.APP_URL.replace(/\/+$/, "");
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
   return `${origin}${path === "//" ? "/" : path}`;
+}
+
+/**
+ * Um único URL canónico (/favicon.ico → /icon no middleware) com ?v= quando há favicon na BD,
+ * para crawlers e CDNs invalidarem cache quando o admin troca o ícone.
+ */
+export function buildFaviconUrl(faviconDataUrl: string | null | undefined): string {
+  const base = buildCanonical("/favicon.ico");
+  const raw = faviconDataUrl?.trim();
+  if (!raw) return base;
+  const v = createHash("sha256").update(raw).digest("hex").slice(0, 12);
+  return `${base}?v=${v}`;
 }
 
 type BuildPageMetaInput = {

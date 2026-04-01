@@ -105,38 +105,45 @@ export function CredentialSuccessPanel({
             {copyAllText}
           </div>
         ) : credential.type === "username_password" ? (
-          <div className="space-y-4">
+          <div
+            className="space-y-4"
+            data-1p-ignore
+            data-lpignore="true"
+            data-form-type="other"
+          >
             <div>
               <p className="text-xs font-semibold text-zinc-500">Usuário</p>
-              <div className="mt-1 rounded-lg border border-zinc-200/80 bg-white px-3 py-2 font-mono text-sm text-zinc-900">
-                {credential.username || "—"}
+              <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <div className="min-w-0 flex-1 select-text rounded-lg border border-zinc-200/80 bg-white px-3 py-2 font-mono text-sm text-zinc-900">
+                  {credential.username || "—"}
+                </div>
+                {credential.username ? (
+                  <CopyButton
+                    value={credential.username}
+                    label="Copiar"
+                    copiedLabel="Copiado!"
+                    variant="outline"
+                    className="w-full shrink-0 sm:w-auto"
+                  />
+                ) : null}
               </div>
-              {credential.username ? (
-                <CopyFeedbackButton
-                  text={credential.username}
-                  label="Copiar usuário"
-                  copiedLabel="Usuário copiado!"
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 rounded-lg py-2 text-xs"
-                />
-              ) : null}
             </div>
             <div>
               <p className="text-xs font-semibold text-zinc-500">Senha</p>
-              <div className="mt-1 rounded-lg border border-zinc-200/80 bg-white px-3 py-2 font-mono text-sm text-zinc-900">
-                {credential.password || "—"}
+              <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <div className="min-w-0 flex-1 select-text rounded-lg border border-zinc-200/80 bg-white px-3 py-2 font-mono text-sm text-zinc-900">
+                  {credential.password || "—"}
+                </div>
+                {credential.password ? (
+                  <CopyButton
+                    value={credential.password}
+                    label="Copiar"
+                    copiedLabel="Copiado!"
+                    variant="outline"
+                    className="w-full shrink-0 sm:w-auto"
+                  />
+                ) : null}
               </div>
-              {credential.password ? (
-                <CopyFeedbackButton
-                  text={credential.password}
-                  label="Copiar senha"
-                  copiedLabel="Senha copiada!"
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 rounded-lg py-2 text-xs"
-                />
-              ) : null}
             </div>
           </div>
         ) : (
