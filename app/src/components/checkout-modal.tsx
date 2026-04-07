@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { Plan } from "@/components/landing/plan-card";
 import { isValidPayerDocument, normalizePayerDocument } from "@/lib/payer-document";
+import { stripBrazilCountryCodeIfPresent } from "@/lib/phone-e164";
 import { displayOrderNumber } from "@/lib/order-ref";
 import {
   CredentialSuccessPanel,
@@ -490,9 +491,7 @@ export function CheckoutModal({
 
   function formatPhoneMask(raw: string) {
     let digits = normalizePhone(raw);
-    if (digits.startsWith("55")) {
-      digits = digits.slice(2);
-    }
+    digits = stripBrazilCountryCodeIfPresent(digits);
     digits = digits.slice(0, 11);
     if (digits.length <= 2) return digits;
     if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
@@ -504,12 +503,8 @@ export function CheckoutModal({
 
   function isValidBrazilPhone(raw: string) {
     const digits = normalizePhone(raw);
-    // Aceita 10/11 dígitos (DDD + número) ou 12/13 com DDI 55
-    if (digits.startsWith("55")) {
-      const local = digits.slice(2);
-      return local.length === 10 || local.length === 11;
-    }
-    return digits.length === 10 || digits.length === 11;
+    const local = stripBrazilCountryCodeIfPresent(digits);
+    return local.length === 10 || local.length === 11;
   }
 
   async function authAndContinue() {
