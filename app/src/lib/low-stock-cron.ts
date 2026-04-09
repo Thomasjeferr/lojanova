@@ -4,7 +4,6 @@ import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 import { getSiteBranding } from "@/lib/site-branding";
 import { releaseExpiredPixReservationsTx } from "@/lib/pix-reservation";
 
-const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_STORE = "Loja Digital";
 
 export type LowStockCronResult = {
@@ -12,7 +11,6 @@ export type LowStockCronResult = {
   skippedReason?:
     | "disabled"
     | "no_resend"
-    | "cooldown"
     | "no_recipient"
     | "no_low_plans"
     | "send_failed"
@@ -35,10 +33,6 @@ export async function runLowStockAlertJob(): Promise<LowStockCronResult> {
   }
 
   const threshold = settings.lowStockThreshold;
-  const lastSent = settings.lowStockAlertLastSentAt;
-  if (lastSent && Date.now() - lastSent.getTime() < COOLDOWN_MS) {
-    return { sent: false, skippedReason: "cooldown" };
-  }
 
   const notifyRaw = settings.lowStockNotifyEmail?.trim();
   const fallbackAdmin = process.env.ADMIN_EMAIL?.trim();

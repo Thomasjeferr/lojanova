@@ -153,7 +153,11 @@ export function LowStockAlertSettingsForm({
 
       <p className="text-sm text-zinc-600">
         Último envio registrado: <strong className="font-medium">{lastSentLabel}</strong>
-        <span className="text-zinc-400"> · Intervalo mínimo entre envios: 24 horas.</span>
+        <span className="text-zinc-400">
+          {" "}
+          · O job na Vercel roda a cada 15 minutos; enquanto houver plano abaixo do limite, pode
+          receber um novo e-mail a cada execução.
+        </span>
       </p>
 
       <Button onClick={save} disabled={off}>

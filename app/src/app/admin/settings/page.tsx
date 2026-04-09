@@ -118,9 +118,11 @@ export default async function AdminSettingsPage() {
         <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
           Receba um e-mail quando planos <strong>ativos</strong> estiverem com poucos códigos
           disponíveis. O limite é único para todos os planos. Configure{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">CRON_SECRET</code> e o cron na Vercel
-          (arquivo <code className="rounded bg-zinc-100 px-1 text-xs">vercel.json</code>) para o
-          envio automático.
+          <code className="rounded bg-zinc-100 px-1 text-xs">RESEND_API_KEY</code>,{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs">RESEND_FROM</code> (domínio
+          verificado no Resend), <code className="rounded bg-zinc-100 px-1 text-xs">CRON_SECRET</code>{" "}
+          e o cron na Vercel (<code className="rounded bg-zinc-100 px-1 text-xs">vercel.json</code>
+          — alerta a cada 15 min).
         </p>
         <LowStockAlertSettingsForm
           disabled={!contactTableOk}

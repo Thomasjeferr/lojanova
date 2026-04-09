@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/low-stock-alert",
-      "schedule": "0 11 * * *"
+      "schedule": "*/15 * * * *"
     }
   ]
 }
