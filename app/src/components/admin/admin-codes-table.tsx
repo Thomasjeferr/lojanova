@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { StatusBadge } from "./status-badge";
 import { EmptyState } from "./empty-state";
 import {
@@ -12,8 +12,9 @@ import {
   AdminTableCell,
 } from "./admin-table";
 import { AdminCodeEditModal, type EditableCodeRow } from "./admin-code-edit-modal";
-import { Key, Pencil, Trash2 } from "lucide-react";
+import { Key, Loader2, Pencil, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { formatDateShortPtBr } from "@/lib/brazil-time";
 
 export type AdminPlanOption = { id: string; title: string; durationDays: number };
@@ -88,23 +89,47 @@ export function AdminCodesTable({
   const [filterStatus, setFilterStatus] = useState<string>("");
   /** Filtro por id do plano (evita ambiguidade quando vários planos têm o mesmo título). */
   const [filterPlanId, setFilterPlanId] = useState<string>("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQ, setSearchQ] = useState("");
+  const [listLoading, setListLoading] = useState(false);
   const [editing, setEditing] = useState<EditableCodeRow | null>(null);
   const [deleting, setDeleting] = useState<CodeRow | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
-    function refresh() {
-      fetch("/api/admin/codes", { credentials: "include" })
-        .then((r) => r.json())
-        .then((d) => {
-          if (!d.codes) return;
-          setCodes(d.codes.map(mapApiToRow));
-        });
+    const t = window.setTimeout(() => setSearchQ(searchInput.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [searchInput]);
+
+  const loadCodes = useCallback(async () => {
+    setListLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.set("status", filterStatus);
+      if (filterPlanId) params.set("planId", filterPlanId);
+      if (searchQ) params.set("q", searchQ);
+      const r = await fetch(`/api/admin/codes?${params.toString()}`, { credentials: "include" });
+      const d = (await r.json()) as { codes?: unknown[] };
+      if (d.codes) {
+        setCodes(
+          d.codes.map((c) => mapApiToRow(c as Parameters<typeof mapApiToRow>[0])),
+        );
+      }
+    } finally {
+      setListLoading(false);
     }
-    window.addEventListener("admin-codes-refresh", refresh);
-    return () => window.removeEventListener("admin-codes-refresh", refresh);
-  }, []);
+  }, [filterStatus, filterPlanId, searchQ]);
+
+  useEffect(() => {
+    void loadCodes();
+  }, [loadCodes]);
+
+  useEffect(() => {
+    const onRefresh = () => void loadCodes();
+    window.addEventListener("admin-codes-refresh", onRefresh);
+    return () => window.removeEventListener("admin-codes-refresh", onRefresh);
+  }, [loadCodes]);
 
   const plansSorted = plans.length
     ? [...plans].sort((a, b) => a.durationDays - b.durationDays || a.title.localeCompare(b.title, "pt-BR"))
@@ -113,12 +138,6 @@ export function AdminCodesTable({
         title: c.planTitle,
         durationDays: c.planDurationDays,
       }));
-
-  const filtered = codes.filter((c) => {
-    if (filterStatus && c.status !== filterStatus) return false;
-    if (filterPlanId && c.planId !== filterPlanId) return false;
-    return true;
-  });
 
   function dispatchListRefresh() {
     window.dispatchEvent(new CustomEvent("admin-codes-refresh"));
@@ -200,47 +219,82 @@ export function AdminCodesTable({
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="sr-only" htmlFor="filter-status">
-          Filtrar por status
-        </label>
-        <select
-          id="filter-status"
-          className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="">Todos os status</option>
-          <option value="available">Disponível</option>
-          <option value="reserved">Reservado (Pix)</option>
-          <option value="sold">Vendido</option>
-          <option value="blocked">Bloqueado</option>
-        </select>
-        <label className="sr-only" htmlFor="filter-plan">
-          Filtrar por plano
-        </label>
-        <select
-          id="filter-plan"
-          className="min-w-[min(100%,280px)] rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          value={filterPlanId}
-          onChange={(e) => setFilterPlanId(e.target.value)}
-        >
-          <option value="">Todos os planos</option>
-          {plansSorted.map((p) => (
-            <option key={p.id} value={p.id}>
-              {planLabel(p)}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative min-w-[min(100%,320px)] flex-1 sm:max-w-md">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+            aria-hidden
+          />
+          <Input
+            id="codes-search"
+            type="search"
+            autoComplete="off"
+            placeholder="Buscar por usuário, código ou e-mail do cliente…"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="rounded-xl border-zinc-200 py-2.5 pl-10 pr-10 text-sm"
+            aria-busy={listLoading}
+          />
+          {listLoading ? (
+            <Loader2
+              className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-zinc-400"
+              aria-hidden
+            />
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="sr-only" htmlFor="filter-status">
+            Filtrar por status
+          </label>
+          <select
+            id="filter-status"
+            disabled={listLoading}
+            className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="">Todos os status</option>
+            <option value="available">Disponível</option>
+            <option value="reserved">Reservado (Pix)</option>
+            <option value="sold">Vendido</option>
+            <option value="blocked">Bloqueado</option>
+          </select>
+          <label className="sr-only" htmlFor="filter-plan">
+            Filtrar por plano
+          </label>
+          <select
+            id="filter-plan"
+            disabled={listLoading}
+            className="min-w-[min(100%,280px)] rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+            value={filterPlanId}
+            onChange={(e) => setFilterPlanId(e.target.value)}
+          >
+            <option value="">Todos os planos</option>
+            {plansSorted.map((p) => (
+              <option key={p.id} value={p.id}>
+                {planLabel(p)}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {codes.length === 0 && listLoading ? (
+        <p className="flex items-center justify-center gap-2 py-12 text-sm text-zinc-500">
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+          Carregando lista…
+        </p>
+      ) : codes.length === 0 && !listLoading ? (
         <EmptyState
           icon={Key}
           title="Nenhum código encontrado"
-          description="Importe códigos acima ou ajuste os filtros."
+          description={
+            searchQ
+              ? "Nada corresponde à busca. Tente outro trecho de usuário, código ou e-mail."
+              : "Importe códigos acima ou ajuste os filtros."
+          }
         />
-      ) : (
+      ) : codes.length > 0 ? (
         <AdminTable>
           <AdminTableHead>
             <AdminTableHeaderCell>Credencial</AdminTableHeaderCell>
@@ -254,7 +308,7 @@ export function AdminCodesTable({
             </AdminTableHeaderCell>
           </AdminTableHead>
           <AdminTableBody>
-            {filtered.map((row) => (
+            {codes.map((row) => (
               <AdminTableRow key={row.id}>
                 <AdminTableCell className="font-mono text-zinc-800">
                   {row.credentialType === "username_password"
@@ -322,7 +376,7 @@ export function AdminCodesTable({
             ))}
           </AdminTableBody>
         </AdminTable>
-      )}
+      ) : null}
     </div>
   );
 }

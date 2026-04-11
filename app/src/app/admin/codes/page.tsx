@@ -33,7 +33,7 @@ export default async function AdminCodesPage() {
       </SectionCard>
       <SectionCard
         title="Lista de códigos"
-        subtitle="Últimos 100. A duração (30, 90 dias…) vem do plano cadastrado — mesmo título em planos diferentes fica distinguível."
+        subtitle="Use a busca por usuário, código ou e-mail; combine com status e plano. A lista é carregada do servidor (não só os 100 primeiros do carregamento inicial)."
       >
         <AdminCodesTable
           plans={plans.map((p) => ({ id: p.id, title: p.title, durationDays: p.durationDays }))}
