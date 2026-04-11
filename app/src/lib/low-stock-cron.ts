@@ -47,6 +47,9 @@ export async function runLowStockAlertJob(): Promise<LowStockCronResult> {
       where: { isActive: true },
       select: {
         title: true,
+        slug: true,
+        durationDays: true,
+        priceCents: true,
         _count: {
           select: { codes: { where: { status: "available" } } },
         },
@@ -56,7 +59,13 @@ export async function runLowStockAlertJob(): Promise<LowStockCronResult> {
 
   const items = plans
     .filter((p) => p._count.codes <= threshold)
-    .map((p) => ({ planTitle: p.title, available: p._count.codes }))
+    .map((p) => ({
+      planTitle: p.title,
+      planSlug: p.slug,
+      durationDays: p.durationDays,
+      priceCents: p.priceCents,
+      available: p._count.codes,
+    }))
     .sort((a, b) => a.available - b.available);
 
   if (items.length === 0) {

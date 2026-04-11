@@ -155,7 +155,13 @@ export async function sendLowStockAlertEmail({
   storeName: string;
   threshold: number;
   adminCodesUrl: string;
-  items: Array<{ planTitle: string; available: number }>;
+  items: Array<{
+    planTitle: string;
+    planSlug: string;
+    durationDays: number;
+    priceCents: number;
+    available: number;
+  }>;
 }): Promise<boolean> {
   const resend = getResendClient();
   if (!resend) return false;

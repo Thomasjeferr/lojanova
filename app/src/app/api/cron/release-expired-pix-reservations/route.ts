@@ -16,6 +16,9 @@ export async function GET(request: Request) {
     return unauthorized("Token de cron inválido.");
   }
 
-  const released = await releaseExpiredPixReservations();
-  return ok({ released });
+  const result = await releaseExpiredPixReservations();
+  return ok({
+    released: result.codesReleased,
+    ordersCancelled: result.ordersCancelled,
+  });
 }

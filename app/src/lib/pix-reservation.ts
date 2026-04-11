@@ -10,15 +10,36 @@ export function nextReservationDeadline(from: Date = new Date()): Date {
 
 type Tx = Prisma.TransactionClient;
 
+export type ReleaseExpiredPixReservationsResult = {
+  codesReleased: number;
+  ordersCancelled: number;
+};
+
 /**
- * Libera reservas de Pix expiradas (código volta a `available`, some da “reserva” do pedido).
- * Deve rodar no início de fluxos que contam estoque ou entregam pedidos.
+ * Libera reservas de Pix expiradas (código volta a `available`) e cancela pedidos `pending`
+ * ligados a essas reservas. Pagamento confirmado depois disso ainda pode ser processado pelo
+ * webhook (`deliverActivationCode` associa outro código disponível).
  */
-export async function releaseExpiredPixReservationsTx(tx: Tx): Promise<number> {
-  const result = await tx.activationCode.updateMany({
+export async function releaseExpiredPixReservationsTx(
+  tx: Tx,
+): Promise<ReleaseExpiredPixReservationsResult> {
+  const now = new Date();
+  const expired = await tx.activationCode.findMany({
     where: {
       status: "reserved",
-      reservedUntil: { lt: new Date() },
+      reservedUntil: { lt: now },
+    },
+    select: { orderId: true },
+  });
+
+  const orderIds = [
+    ...new Set(expired.map((c) => c.orderId).filter((id): id is string => id != null)),
+  ];
+
+  const codes = await tx.activationCode.updateMany({
+    where: {
+      status: "reserved",
+      reservedUntil: { lt: now },
     },
     data: {
       status: "available",
@@ -26,10 +47,23 @@ export async function releaseExpiredPixReservationsTx(tx: Tx): Promise<number> {
       reservedUntil: null,
     },
   });
-  return result.count;
+
+  let ordersCancelled = 0;
+  if (orderIds.length > 0) {
+    const o = await tx.order.updateMany({
+      where: {
+        id: { in: orderIds },
+        status: "pending",
+      },
+      data: { status: "cancelled" },
+    });
+    ordersCancelled = o.count;
+  }
+
+  return { codesReleased: codes.count, ordersCancelled };
 }
 
-export async function releaseExpiredPixReservations(): Promise<number> {
+export async function releaseExpiredPixReservations(): Promise<ReleaseExpiredPixReservationsResult> {
   return prisma.$transaction(async (tx) => {
     return releaseExpiredPixReservationsTx(tx);
   });

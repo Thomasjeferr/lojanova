@@ -1,4 +1,5 @@
 import { formatDateTimePtBr } from "@/lib/brazil-time";
+import { currencyBRL } from "@/lib/utils";
 
 type TemplateInputBase = {
   storeName: string;
@@ -39,11 +40,27 @@ export type PasswordResetRequestedInput = TemplateInputBase & {
   expiresInMinutes: number;
 };
 
+export type LowStockAdminItem = {
+  planTitle: string;
+  planSlug: string;
+  durationDays: number;
+  priceCents: number;
+  available: number;
+};
+
 export type LowStockAdminInput = TemplateInputBase & {
   threshold: number;
   adminCodesUrl: string;
-  items: Array<{ planTitle: string; available: number }>;
+  items: LowStockAdminItem[];
 };
+
+function htmlEsc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function layout(content: string, storeName: string) {
   return `
@@ -172,25 +189,36 @@ export function passwordResetRequestedTemplate(
 }
 
 export function lowStockAdminTemplate(input: LowStockAdminInput): RenderedTemplate {
-  const subject = `[Estoque] Atenção: códigos abaixo do limite - ${input.storeName}`;
+  const titles = input.items.map((i) => i.planTitle);
+  const subject =
+    input.items.length === 1
+      ? `[Estoque] "${titles[0]}" — ${input.items[0]!.available} código(s) disponível(is) (limite ≤ ${input.threshold})`
+      : `[Estoque] ${input.items.length} planos abaixo do limite (≤ ${input.threshold}) — ${input.storeName}`;
   const rows = input.items
-    .map(
-      (row) =>
-        `<tr><td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:14px">${row.planTitle}</td><td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:14px;text-align:center;font-weight:600">${row.available}</td></tr>`,
-    )
+    .map((row) => {
+      const title = htmlEsc(row.planTitle);
+      const slug = htmlEsc(row.planSlug);
+      const detail = `${slug} · ${row.durationDays} dias · ${currencyBRL(row.priceCents)}`;
+      return `<tr>
+        <td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:14px;font-weight:600">${title}</td>
+        <td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:13px;color:#3f3f46">${detail}</td>
+        <td style="padding:10px 12px;border:1px solid #e4e4e7;font-size:14px;text-align:center;font-weight:700">${row.available}</td>
+      </tr>`;
+    })
     .join("");
   const html = layout(
     `
     <p style="margin:0 0 12px;font-size:15px">Olá,</p>
     <p style="margin:0 0 12px;font-size:15px">
-      Alguns <strong>planos ativos</strong> estão com quantidade de códigos <strong>disponíveis</strong> menor ou igual a
-      <strong>${input.threshold}</strong> (limite configurado no admin).
+      Os <strong>planos listados abaixo</strong> estão com códigos <strong>disponíveis</strong> em quantidade menor ou igual a
+      <strong>${input.threshold}</strong> (limite no admin). Cada linha identifica o produto pelo nome, <em>slug</em> (URL), duração e preço.
     </p>
-    <table style="width:100%;border-collapse:collapse;margin:0 0 18px">
+    <table style="width:100%;border-collapse:collapse;margin:0 0 18px;table-layout:fixed">
       <thead>
         <tr>
-          <th style="text-align:left;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px">Plano</th>
-          <th style="text-align:center;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px">Disponíveis</th>
+          <th style="text-align:left;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px;width:28%">Nome do plano</th>
+          <th style="text-align:left;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px">Identificação (slug · duração · preço)</th>
+          <th style="text-align:center;padding:10px 12px;border:1px solid #e4e4e7;background:#f4f4f5;font-size:13px;width:22%">Disponíveis</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
