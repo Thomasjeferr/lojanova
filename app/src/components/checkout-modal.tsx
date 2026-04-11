@@ -468,9 +468,15 @@ export function CheckoutModal({
   /** Até carregar hints, assume CPF obrigatório (compatível com GGPIX). */
   const requiresPayerCpf = checkoutHints === null ? true : checkoutHints.requiresPayerCpf;
   const payerDocDigitsLen = normalizePayerDocument(payerDocument).length;
+  /** 11 dígitos mas dígitos verificadores inválidos (ou sequência rejeitada). */
+  const payerDocCompleteButInvalid = payerDocDigitsLen === 11 && !payerDocOk;
 
   function triggerCpfAttention() {
-    setError("Informe o CPF do titular com 11 dígitos para gerar o Pix.");
+    if (payerDocCompleteButInvalid) {
+      setError("CPF inválido. Confira os números — um dígito errado ou sequência inválida.");
+    } else {
+      setError("Informe o CPF do titular com 11 dígitos para gerar o Pix.");
+    }
     setCpfWiggle(true);
     window.setTimeout(() => setCpfWiggle(false), 480);
     cpfInputRef.current?.focus();
@@ -537,7 +543,6 @@ export function CheckoutModal({
     if (requiresPayerCpf) {
       const docDigits = normalizePayerDocument(payerDocument);
       if (!isValidPayerDocument(docDigits)) {
-        setError("Informe um CPF válido do titular do pagamento.");
         triggerCpfAttention();
         return;
       }
@@ -595,7 +600,6 @@ export function CheckoutModal({
     if (!plan) return false;
     const docDigits = normalizePayerDocument(payerDocument);
     if (requiresPayerCpf && !isValidPayerDocument(docDigits)) {
-      setError("Informe um CPF válido do titular do pagamento.");
       triggerCpfAttention();
       return false;
     }
@@ -799,7 +803,9 @@ export function CheckoutModal({
                         } ${
                           payerDocOk
                             ? "border-emerald-200/90 shadow-sm shadow-emerald-500/5"
-                            : "border-amber-200/90 shadow-sm shadow-amber-500/10"
+                            : payerDocCompleteButInvalid
+                              ? "border-red-200/90 shadow-sm shadow-red-500/10"
+                              : "border-amber-200/90 shadow-sm shadow-amber-500/10"
                         }`}
                       >
                         <Label
@@ -829,7 +835,12 @@ export function CheckoutModal({
                           className="rounded-xl border-zinc-300 text-base text-zinc-900 placeholder:text-zinc-400"
                         />
                         <p id="checkout-payer-cpf-hint" className="text-xs leading-relaxed text-zinc-600">
-                          {payerDocDigitsLen > 0 && payerDocDigitsLen < 11 ? (
+                          {payerDocCompleteButInvalid ? (
+                            <span className="font-medium text-red-700">
+                              Este CPF não é válido (dígitos verificadores incorretos ou sequência não
+                              permitida). Confira cada número.
+                            </span>
+                          ) : payerDocDigitsLen > 0 && payerDocDigitsLen < 11 ? (
                             <span className="font-medium text-amber-800">
                               Faltam {11 - payerDocDigitsLen} dígito(s). Complete o CPF para habilitar o
                               pagamento.
@@ -874,8 +885,14 @@ export function CheckoutModal({
                       Pagar com Pix
                     </PaymentButton>
                     {requiresPayerCpf && !payerDocOk && canProceedStep1 ? (
-                      <p className="text-center text-xs font-medium text-amber-800">
-                        Preencha o CPF acima para continuar.
+                      <p
+                        className={`text-center text-xs font-medium ${
+                          payerDocCompleteButInvalid ? "text-red-700" : "text-amber-800"
+                        }`}
+                      >
+                        {payerDocCompleteButInvalid
+                          ? "Corrija o CPF acima para gerar o Pix."
+                          : "Preencha o CPF acima para continuar."}
                       </p>
                     ) : null}
                   </div>
@@ -927,17 +944,30 @@ export function CheckoutModal({
                   id="checkout-payer-cpf-step2"
                   placeholder="Somente números (11 dígitos)"
                   value={payerDocument}
-                  onChange={(e) => setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11))}
+                  onChange={(e) => {
+                    setPayerDocument(e.target.value.replace(/[^\d]/g, "").slice(0, 11));
+                    setError("");
+                  }}
                   inputMode="numeric"
                   autoComplete="off"
-                  className={`rounded-xl ${cpfWiggle ? "checkout-cpf-wiggle" : ""}`}
+                  className={`rounded-xl ${cpfWiggle ? "checkout-cpf-wiggle" : ""} ${
+                    payerDocCompleteButInvalid ? "border-red-300 ring-1 ring-red-200" : ""
+                  }`}
                   aria-invalid={!payerDocOk && payerDocDigitsLen > 0}
+                  aria-describedby="checkout-payer-cpf-step2-hint"
                 />
-                {payerDocDigitsLen > 0 && payerDocDigitsLen < 11 ? (
-                  <p className="text-xs font-medium text-amber-800">
-                    Faltam {11 - payerDocDigitsLen} dígito(s).
-                  </p>
-                ) : null}
+                <div id="checkout-payer-cpf-step2-hint" className="space-y-1">
+                  {payerDocCompleteButInvalid ? (
+                    <p className="text-xs font-medium text-red-700">
+                      CPF inválido. Verifique os números — um dígito errado já invalida o documento.
+                    </p>
+                  ) : null}
+                  {payerDocDigitsLen > 0 && payerDocDigitsLen < 11 ? (
+                    <p className="text-xs font-medium text-amber-800">
+                      Faltam {11 - payerDocDigitsLen} dígito(s).
+                    </p>
+                  ) : null}
+                </div>
               </div>
             ) : null}
             <div className="relative">

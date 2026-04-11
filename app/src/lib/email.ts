@@ -166,12 +166,20 @@ export async function sendLowStockAlertEmail({
     items,
   });
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: process.env.RESEND_FROM || DEFAULT_FROM,
       to,
       subject: tpl.subject,
       html: tpl.html,
     });
+    if (result.error) {
+      console.error(
+        `[email] low_stock Resend:`,
+        result.error.message || result.error.name,
+        result.error,
+      );
+      return false;
+    }
     return true;
   } catch (error) {
     console.error(`[email] Falha ao enviar template ${tpl.id}:`, error);

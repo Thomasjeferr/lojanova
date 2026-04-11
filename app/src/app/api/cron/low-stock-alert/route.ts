@@ -16,5 +16,12 @@ export async function GET(request: Request) {
   }
 
   const result = await runLowStockAlertJob();
+  if (result.sent) {
+    console.info("[low-stock-alert] cron ok", { planCount: result.planCount });
+  } else {
+    console.warn("[low-stock-alert] cron skipped", {
+      skippedReason: result.skippedReason ?? "unknown",
+    });
+  }
   return ok(result);
 }

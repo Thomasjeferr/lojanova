@@ -26,6 +26,7 @@ export function LowStockAlertSettingsForm({
 }) {
   const [form, setForm] = useState<LowStockAlertSettingsFormState>(initial);
   const [loading, setLoading] = useState(false);
+  const [runLoading, setRunLoading] = useState(false);
   const [toast, setToast] = useState<"ok" | "err" | null>(null);
   const [toastMsg, setToastMsg] = useState("");
 
@@ -71,6 +72,58 @@ export function LowStockAlertSettingsForm({
         setToast(null);
         setToastMsg("");
       }, 4200);
+    }
+  }
+
+  async function runJobNow() {
+    if (disabled) return;
+    setRunLoading(true);
+    setToast(null);
+    let dismissMs = 6000;
+    try {
+      const res = await fetch("/api/admin/settings/low-stock-alert/run", { method: "POST" });
+      const data = (await res.json()) as {
+        sent?: boolean;
+        skippedReason?: string;
+        planCount?: number;
+        hint?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setToast("err");
+        setToastMsg(data.error || "Não foi possível executar o job.");
+        dismissMs = 6000;
+        return;
+      }
+      if (data.sent) {
+        setForm((prev) => ({
+          ...prev,
+          lowStockAlertLastSentAt: new Date().toISOString(),
+        }));
+        setToast("ok");
+        setToastMsg(
+          `E-mail enviado (${data.planCount ?? "?"} plano(s) no alerta). Confira a caixa de entrada e o spam.`,
+        );
+        dismissMs = 5200;
+      } else {
+        setToast("err");
+        const parts = [
+          `Não enviado (${data.skippedReason ?? "?"}).`,
+          data.hint ? ` ${data.hint}` : "",
+        ];
+        setToastMsg(parts.join(""));
+        dismissMs = 10000;
+      }
+    } catch {
+      setToast("err");
+      setToastMsg("Erro de conexão.");
+      dismissMs = 6000;
+    } finally {
+      setRunLoading(false);
+      setTimeout(() => {
+        setToast(null);
+        setToastMsg("");
+      }, dismissMs);
     }
   }
 
@@ -160,9 +213,24 @@ export function LowStockAlertSettingsForm({
         </span>
       </p>
 
-      <Button onClick={save} disabled={off}>
-        {loading ? "Salvando..." : "Salvar alerta de estoque"}
-      </Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button onClick={save} disabled={off}>
+          {loading ? "Salvando..." : "Salvar alerta de estoque"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void runJobNow()}
+          disabled={disabled || runLoading}
+          className="border-zinc-300"
+        >
+          {runLoading ? "Executando…" : "Testar envio agora"}
+        </Button>
+      </div>
+      <p className="text-xs text-zinc-500">
+        &quot;Testar envio agora&quot; roda a mesma verificação do cron e mostra o motivo se não enviar
+        (ex.: sem estoque baixo, Resend ou e-mail).
+      </p>
 
       {toast && (
         <div

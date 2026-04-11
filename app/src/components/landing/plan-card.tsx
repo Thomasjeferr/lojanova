@@ -49,10 +49,10 @@ function PlanCardBody({
         <div className="mt-6 flex items-baseline gap-1">
           <span
             className={cn(
-              "text-4xl font-extrabold tracking-tight tabular-nums sm:text-5xl",
-              isFeatured ? "text-[var(--theme-price-accent)]" : "",
+              "text-4xl font-extrabold tracking-tight tabular-nums sm:text-5xl text-[var(--landing-text-primary)]",
+              // Card em destaque: fundo laranja — sombra leve ajuda a ler sobre o gradiente.
+              isFeatured && "[text-shadow:0_1px_3px_rgb(0_0_0_/_35%)]",
             )}
-            style={!isFeatured ? { color: "var(--landing-text-primary)" } : undefined}
           >
             {currencyBRL(plan.priceCents)}
           </span>
