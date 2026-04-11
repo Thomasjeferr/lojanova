@@ -10,9 +10,10 @@ async function loadEditableCode(id: string) {
   });
 }
 
+/** Edição: só estoque livre ou bloqueado (sem vínculo de venda). */
 function assertCanMutate(code: NonNullable<Awaited<ReturnType<typeof loadEditableCode>>>) {
   if (code.status === "sold" || code.orderId !== null || code._count.deliveries > 0) {
-    return "Códigos vendidos ou já vinculados a um pedido não podem ser alterados ou excluídos.";
+    return "Códigos vendidos ou já vinculados a um pedido não podem ser editados.";
   }
   return null;
 }
@@ -118,17 +119,27 @@ export async function DELETE(_request: Request, ctx: RouteCtx) {
     const { id } = await ctx.params;
     const code = await loadEditableCode(id);
     if (!code) return badRequest("Código não encontrado.");
-    const block = assertCanMutate(code);
-    if (block) return badRequest(block);
 
-    await prisma.activationCode.delete({ where: { id } });
+    const hadDeliveries = code._count.deliveries > 0;
+    const hadOrder = code.orderId !== null;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.delivery.deleteMany({ where: { activationCodeId: id } });
+      await tx.activationCode.delete({ where: { id } });
+    });
 
     await prisma.adminAuditLog.create({
       data: {
         adminUserId: admin.userId,
         action: "delete_activation_code",
         resource: id,
-        metadata: { planId: code.planId, credentialType: code.credentialType },
+        metadata: {
+          planId: code.planId,
+          credentialType: code.credentialType,
+          status: code.status,
+          hadDeliveries,
+          hadOrder,
+        },
       },
     });
 

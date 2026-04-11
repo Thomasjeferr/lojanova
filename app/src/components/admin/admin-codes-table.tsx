@@ -143,7 +143,7 @@ export function AdminCodesTable({
     window.dispatchEvent(new CustomEvent("admin-codes-refresh"));
   }
 
-  const canMutate = (row: CodeRow) =>
+  const canEdit = (row: CodeRow) =>
     row.status === "available" || row.status === "blocked";
 
   async function confirmDelete() {
@@ -189,9 +189,16 @@ export function AdminCodesTable({
           >
             <h3 className="text-lg font-semibold text-zinc-900">Excluir código?</h3>
             <p className="mt-2 text-sm text-zinc-600">
-              Esta ação não pode ser desfeita. Apenas códigos disponíveis ou bloqueados sem venda
-              podem ser removidos.
+              Esta ação não pode ser desfeita. O registro sai do estoque e você pode importar o mesmo
+              código de novo.
             </p>
+            {(deleting.status === "sold" || deleting.status === "reserved") && (
+              <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                Este código está vinculado a pedido. Ao excluir, removemos também a entrega no
+                banco; o pedido pode continuar pago, mas o cliente deixa de ver essa credencial na
+                conta.
+              </p>
+            )}
             {deleteError && (
               <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
                 {deleteError}
@@ -336,8 +343,8 @@ export function AdminCodesTable({
                   {formatDateShortPtBr(row.createdAt)}
                 </AdminTableCell>
                 <AdminTableCell className="text-right">
-                  {canMutate(row) ? (
-                    <div className="flex justify-end gap-1">
+                  <div className="flex justify-end gap-1">
+                    {canEdit(row) ? (
                       <button
                         type="button"
                         title="Editar"
@@ -356,21 +363,19 @@ export function AdminCodesTable({
                       >
                         <Pencil className="h-4 w-4" aria-hidden />
                       </button>
-                      <button
-                        type="button"
-                        title="Excluir"
-                        className="rounded-lg p-2 text-zinc-500 hover:bg-red-50 hover:text-red-600"
-                        onClick={() => {
-                          setDeleteError(null);
-                          setDeleting(row);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden />
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-zinc-400">—</span>
-                  )}
+                    ) : null}
+                    <button
+                      type="button"
+                      title="Excluir"
+                      className="rounded-lg p-2 text-zinc-500 hover:bg-red-50 hover:text-red-600"
+                      onClick={() => {
+                        setDeleteError(null);
+                        setDeleting(row);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
                 </AdminTableCell>
               </AdminTableRow>
             ))}
