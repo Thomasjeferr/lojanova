@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { StatusBadge } from "./status-badge";
 import { EmptyState } from "./empty-state";
 import {
@@ -78,14 +78,21 @@ function planLabel(p: { title: string; durationDays: number }) {
   return `${p.title} · ${p.durationDays} dias`;
 }
 
+const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
+
 export function AdminCodesTable({
   initialCodes,
+  initialTotal,
   plans,
 }: {
   initialCodes: CodeRow[];
+  initialTotal: number;
   plans: AdminPlanOption[];
 }) {
   const [codes, setCodes] = useState<CodeRow[]>(initialCodes);
+  const [total, setTotal] = useState<number>(initialTotal);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(50);
   const [filterStatus, setFilterStatus] = useState<string>("");
   /** Filtro por id do plano (evita ambiguidade quando vários planos têm o mesmo título). */
   const [filterPlanId, setFilterPlanId] = useState<string>("");
@@ -96,30 +103,60 @@ export function AdminCodesTable({
   const [deleting, setDeleting] = useState<CodeRow | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const lastDebouncedSearch = useRef("");
 
   useEffect(() => {
-    const t = window.setTimeout(() => setSearchQ(searchInput.trim()), 320);
+    const t = window.setTimeout(() => {
+      const q = searchInput.trim();
+      if (lastDebouncedSearch.current !== q) {
+        lastDebouncedSearch.current = q;
+        setSearchQ(q);
+        setPage(1);
+      }
+    }, 320);
     return () => window.clearTimeout(t);
   }, [searchInput]);
+
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
+  useEffect(() => {
+    setPage((p) => Math.min(Math.max(1, p), pageCount));
+  }, [pageCount]);
+
+  const rangeLabel =
+    total === 0
+      ? { from: 0, to: 0 }
+      : {
+          from: (page - 1) * pageSize + 1,
+          to: Math.min(page * pageSize, total),
+        };
 
   const loadCodes = useCallback(async () => {
     setListLoading(true);
     try {
       const params = new URLSearchParams();
+      params.set("page", String(page));
+      params.set("limit", String(pageSize));
       if (filterStatus) params.set("status", filterStatus);
       if (filterPlanId) params.set("planId", filterPlanId);
       if (searchQ) params.set("q", searchQ);
       const r = await fetch(`/api/admin/codes?${params.toString()}`, { credentials: "include" });
-      const d = (await r.json()) as { codes?: unknown[] };
+      const d = (await r.json()) as {
+        codes?: unknown[];
+        total?: number;
+      };
       if (d.codes) {
         setCodes(
           d.codes.map((c) => mapApiToRow(c as Parameters<typeof mapApiToRow>[0])),
         );
       }
+      if (typeof d.total === "number") {
+        setTotal(d.total);
+      }
     } finally {
       setListLoading(false);
     }
-  }, [filterStatus, filterPlanId, searchQ]);
+  }, [filterStatus, filterPlanId, searchQ, page, pageSize]);
 
   useEffect(() => {
     void loadCodes();
@@ -258,7 +295,10 @@ export function AdminCodesTable({
             disabled={listLoading}
             className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setPage(1);
+            }}
           >
             <option value="">Todos os status</option>
             <option value="available">Disponível</option>
@@ -274,7 +314,10 @@ export function AdminCodesTable({
             disabled={listLoading}
             className="min-w-[min(100%,280px)] rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
             value={filterPlanId}
-            onChange={(e) => setFilterPlanId(e.target.value)}
+            onChange={(e) => {
+              setFilterPlanId(e.target.value);
+              setPage(1);
+            }}
           >
             <option value="">Todos os planos</option>
             {plansSorted.map((p) => (
@@ -283,6 +326,25 @@ export function AdminCodesTable({
               </option>
             ))}
           </select>
+          <label className="flex items-center gap-2 text-sm text-zinc-600">
+            <span className="whitespace-nowrap">Por página</span>
+            <select
+              className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-zinc-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+              value={pageSize}
+              disabled={listLoading}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              aria-label="Códigos por página"
+            >
+              {PAGE_SIZE_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
 
@@ -291,7 +353,7 @@ export function AdminCodesTable({
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
           Carregando lista…
         </p>
-      ) : codes.length === 0 && !listLoading ? (
+      ) : total === 0 && !listLoading ? (
         <EmptyState
           icon={Key}
           title="Nenhum código encontrado"
@@ -301,8 +363,46 @@ export function AdminCodesTable({
               : "Importe códigos acima ou ajuste os filtros."
           }
         />
-      ) : codes.length > 0 ? (
-        <AdminTable>
+      ) : codes.length > 0 || listLoading ? (
+        <>
+          <div className="flex flex-col gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <p className="text-zinc-600">
+              Mostrando{" "}
+              <span className="font-semibold tabular-nums text-zinc-900">
+                {listLoading && codes.length === 0 ? "—" : `${rangeLabel.from}–${rangeLabel.to}`}
+              </span>{" "}
+              de{" "}
+              <span className="font-semibold tabular-nums text-zinc-900">
+                {listLoading && total === 0 ? "—" : total}
+              </span>{" "}
+              {total === 1 ? "código" : "códigos"}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={page <= 1 || listLoading}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Anterior
+              </button>
+              <span className="tabular-nums text-zinc-600">
+                Página{" "}
+                <span className="font-semibold text-zinc-900">{page}</span> de{" "}
+                <span className="font-semibold text-zinc-900">{pageCount}</span>
+              </span>
+              <button
+                type="button"
+                disabled={page >= pageCount || listLoading}
+                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Próxima
+              </button>
+            </div>
+          </div>
+
+          <AdminTable>
           <AdminTableHead>
             <AdminTableHeaderCell>Credencial</AdminTableHeaderCell>
             <AdminTableHeaderCell>Tipo</AdminTableHeaderCell>
@@ -381,6 +481,7 @@ export function AdminCodesTable({
             ))}
           </AdminTableBody>
         </AdminTable>
+        </>
       ) : null}
     </div>
   );

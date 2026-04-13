@@ -4,16 +4,21 @@ import { SectionCard } from "@/components/admin/section-card";
 import { AdminCodesImportCard } from "@/components/admin/admin-codes-import-card";
 import { AdminCodesTable } from "@/components/admin/admin-codes-table";
 
+/** Alinhado ao default da API GET /api/admin/codes (limit). */
+const CODES_LIST_PAGE_SIZE = 50;
+
 export default async function AdminCodesPage() {
-  const [plans, codes] = await Promise.all([
+  const [plans, codesTotal, codes] = await Promise.all([
     prisma.plan.findMany({ orderBy: { durationDays: "asc" } }),
+    prisma.activationCode.count(),
     prisma.activationCode.findMany({
       include: {
         plan: true,
         order: { include: { user: { select: { email: true } } } },
       },
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take: CODES_LIST_PAGE_SIZE,
+      skip: 0,
     }),
   ]);
 
@@ -33,10 +38,11 @@ export default async function AdminCodesPage() {
       </SectionCard>
       <SectionCard
         title="Lista de códigos"
-        subtitle="Use a busca por usuário, código ou e-mail; combine com status e plano. A lista é carregada do servidor (não só os 100 primeiros do carregamento inicial)."
+        subtitle="Use a busca por usuário, código ou e-mail; combine com status, plano e paginação (25, 50 ou 100 itens por página)."
       >
         <AdminCodesTable
           plans={plans.map((p) => ({ id: p.id, title: p.title, durationDays: p.durationDays }))}
+          initialTotal={codesTotal}
           initialCodes={codes.map((c) => ({
             id: c.id,
             code: c.code,
