@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendActivationEmail } from "@/lib/email";
 import { sendActivationSms } from "@/lib/twilio-sms";
-import { sendActivationWhatsApp } from "@/lib/twilio-whatsapp";
+import { sendActivationWhatsApp } from "@/lib/whatsapp-access-delivery";
 import {
   credentialKindLabel,
   renderCredentialLine,

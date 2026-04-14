@@ -10,6 +10,7 @@ import { LandingCopySettingsForm } from "@/components/admin/landing-copy-setting
 import { WhatsAppSettingsForm } from "@/components/admin/whatsapp-settings-form";
 import { LowStockAlertSettingsForm } from "@/components/admin/low-stock-alert-settings-form";
 import { WooviSettingsForm } from "@/components/admin/woovi-settings-form";
+import { EvolutionWhatsAppSettings } from "@/components/admin/evolution-whatsapp-settings";
 import { CONTACT_FALLBACK } from "@/lib/contact-settings";
 import { env } from "@/lib/env";
 import { resolvePublicSiteUrlForAdminDocs } from "@/lib/public-site-url";
@@ -85,7 +86,7 @@ export default async function AdminSettingsPage() {
         </p>
         <LandingCopySettingsForm initial={initial.landingCopy} disabled={!brandingTableOk} />
       </SectionCard>
-      <SectionCard title="Contato / WhatsApp">
+      <SectionCard title="Contato, WhatsApp e SMS">
         {!contactTableOk && (
           <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
@@ -93,8 +94,8 @@ export default async function AdminSettingsPage() {
           </div>
         )}
         <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
-          Configure número, mensagem padrão e exibição do botão flutuante de WhatsApp no frontend
-          público.
+          Botão de WhatsApp no site (link) e envio da credencial por SMS (Twilio). A entrega da
+          credencial pelo WhatsApp da loja usa Evolution na seção abaixo.
         </p>
         <WhatsAppSettingsForm
           disabled={!contactTableOk}
@@ -103,8 +104,31 @@ export default async function AdminSettingsPage() {
             whatsappNumber: contactRow?.whatsappNumber || "",
             whatsappMessage: contactRow?.whatsappMessage || CONTACT_FALLBACK.whatsappMessage,
             whatsappLabel: contactRow?.whatsappLabel || CONTACT_FALLBACK.whatsappLabel,
-            whatsappDeliveryEnabled: contactRow?.whatsappDeliveryEnabled ?? false,
-            whatsappDeliveryTemplate: contactRow?.whatsappDeliveryTemplate || "",
+            smsDeliveryEnabled: contactRow?.smsDeliveryEnabled ?? true,
+          }}
+        />
+      </SectionCard>
+      <SectionCard title="WhatsApp Evolution (acesso e recuperação)">
+        {!contactTableOk && (
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
+            <code> app/</code> e reinicie o servidor.
+          </div>
+        )}
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+          Conecte o número da loja via QR, ative o envio automático da credencial após o Pix e,
+          opcionalmente, lembretes para pedidos ainda pendentes. Depende de{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs">EVOLUTION_API_URL</code> e{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs">EVOLUTION_API_KEY</code> na Vercel.
+        </p>
+        <EvolutionWhatsAppSettings
+          disabled={!contactTableOk}
+          initial={{
+            evolutionDeliveryEnabled: contactRow?.evolutionDeliveryEnabled ?? false,
+            evolutionDeliveryTemplate: contactRow?.evolutionDeliveryTemplate || "",
+            evolutionRecoveryEnabled: contactRow?.evolutionRecoveryEnabled ?? false,
+            evolutionRecoveryTemplate: contactRow?.evolutionRecoveryTemplate || "",
+            evolutionRecoveryAfterMinutes: contactRow?.evolutionRecoveryAfterMinutes ?? 60,
           }}
         />
       </SectionCard>

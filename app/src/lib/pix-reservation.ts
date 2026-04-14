@@ -13,17 +13,35 @@ type Tx = Prisma.TransactionClient;
 export type ReleaseExpiredPixReservationsResult = {
   codesReleased: number;
   ordersCancelled: number;
+  /** Pedidos pendentes órfãos (sem reserva ativa / sem Pix) cancelados no mesmo ciclo. */
+  stalePendingCancelled: number;
 };
+
+function orderHasPixRefs(o: {
+  wooviChargeId: string | null;
+  wooviTxid: string | null;
+  pixCorrelationId: string | null;
+}): boolean {
+  return Boolean(
+    o.wooviChargeId?.trim() || o.wooviTxid?.trim() || o.pixCorrelationId?.trim(),
+  );
+}
 
 /**
  * Libera reservas de Pix expiradas (código volta a `available`) e cancela pedidos `pending`
  * ligados a essas reservas. Pagamento confirmado depois disso ainda pode ser processado pelo
  * webhook (`deliverActivationCode` associa outro código disponível).
+ *
+ * Em seguida cancela pedidos `pending` fora da janela: sem cobrança Pix persistida há mais de
+ * {@link PIX_RESERVATION_MS}, ou com Pix mas sem reserva ativa há mais de {@link PIX_RESERVATION_MS}
+ * desde a última atualização relevante do pedido.
  */
 export async function releaseExpiredPixReservationsTx(
   tx: Tx,
 ): Promise<ReleaseExpiredPixReservationsResult> {
   const now = new Date();
+  const cutoff = new Date(now.getTime() - PIX_RESERVATION_MS);
+
   const expired = await tx.activationCode.findMany({
     where: {
       status: "reserved",
@@ -60,7 +78,61 @@ export async function releaseExpiredPixReservationsTx(
     ordersCancelled = o.count;
   }
 
-  return { codesReleased: codes.count, ordersCancelled };
+  const staleCandidates = await tx.order.findMany({
+    where: {
+      status: "pending",
+      OR: [{ createdAt: { lt: cutoff } }, { updatedAt: { lt: cutoff } }],
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      wooviChargeId: true,
+      wooviTxid: true,
+      pixCorrelationId: true,
+      activationCode: { select: { status: true, reservedUntil: true } },
+    },
+    take: 500,
+    orderBy: { createdAt: "asc" },
+  });
+
+  const idsToCancel = new Set<string>();
+  for (const o of staleCandidates) {
+    const ac = o.activationCode;
+    const activeReservation =
+      ac?.status === "reserved" &&
+      ac.reservedUntil != null &&
+      ac.reservedUntil.getTime() > now.getTime();
+    if (activeReservation) continue;
+
+    const hasPix = orderHasPixRefs(o);
+    if (!hasPix) {
+      if (o.createdAt.getTime() < cutoff.getTime()) {
+        idsToCancel.add(o.id);
+      }
+      continue;
+    }
+
+    const refTime = o.updatedAt > o.createdAt ? o.updatedAt : o.createdAt;
+    if (refTime.getTime() + PIX_RESERVATION_MS < now.getTime()) {
+      idsToCancel.add(o.id);
+    }
+  }
+
+  let stalePendingCancelled = 0;
+  if (idsToCancel.size > 0) {
+    const u = await tx.order.updateMany({
+      where: { id: { in: [...idsToCancel] }, status: "pending" },
+      data: { status: "cancelled" },
+    });
+    stalePendingCancelled = u.count;
+  }
+
+  return {
+    codesReleased: codes.count,
+    ordersCancelled,
+    stalePendingCancelled,
+  };
 }
 
 export async function releaseExpiredPixReservations(): Promise<ReleaseExpiredPixReservationsResult> {

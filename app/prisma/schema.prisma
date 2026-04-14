@@ -145,6 +145,8 @@ model Order {
   attributionReferrer String?
   attributionLandingPath String?
   paidAt          DateTime?
+  /// Evita reenvio do lembrete Evolution para o mesmo pedido.
+  evolutionRecoverySentAt DateTime?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -154,6 +156,7 @@ model Order {
   activityLogs    ActivityLog[]
 
   @@index([userId, createdAt])
+  @@index([status, evolutionRecoverySentAt, createdAt])
   @@index([status])
   @@index([attributionSource])
   @@index([attributionMedium])
@@ -233,10 +236,20 @@ model AppSettings {
   whatsappNumber  String?
   whatsappMessage String?
   whatsappLabel   String?
-  /// Envia credencial de ativação via WhatsApp (Twilio) após pagamento confirmado.
-  whatsappDeliveryEnabled Boolean @default(false)
-  /// Template opcional para mensagem de entrega via WhatsApp.
-  whatsappDeliveryTemplate String? @db.Text
+  /// Envia credencial de ativação via SMS (Twilio) após pagamento confirmado.
+  smsDeliveryEnabled Boolean @default(true)
+  /// Nome da instância na Evolution API (criada pelo admin ao parear).
+  evolutionInstanceName       String?
+  /// Último estado conhecido da conexão (ex.: open, close) — informativo no admin.
+  evolutionConnectionState    String?
+  /// Envia credencial por WhatsApp via Evolution após pagamento.
+  evolutionDeliveryEnabled    Boolean  @default(false)
+  evolutionDeliveryTemplate   String?  @db.Text
+  /// Lembrete automático por WhatsApp (Evolution) para pedido pendente.
+  evolutionRecoveryEnabled    Boolean  @default(false)
+  evolutionRecoveryTemplate     String?  @db.Text
+  /// Minutos após criação do pedido para enviar recuperação (mín. após esse tempo).
+  evolutionRecoveryAfterMinutes Int      @default(60)
   paymentProvider PaymentProvider @default(woovi)
   wooviApiKey     String?  @db.Text
   wooviWebhookSecret String? @db.Text

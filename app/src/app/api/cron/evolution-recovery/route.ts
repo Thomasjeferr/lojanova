@@ -1,7 +1,7 @@
 import { ok, unauthorized } from "@/lib/http";
-import { releaseExpiredPixReservations } from "@/lib/pix-reservation";
+import { runEvolutionRecoveryJob } from "@/lib/evolution-recovery-cron";
 
-/** Cron protegido por CRON_SECRET: libera reservas Pix expiradas e devolve códigos ao estoque. */
+/** Lembrete WhatsApp (Evolution) para pedidos pendentes — protegido por CRON_SECRET. */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim();
   if (!secret) {
@@ -16,10 +16,9 @@ export async function GET(request: Request) {
     return unauthorized("Token de cron inválido.");
   }
 
-  const result = await releaseExpiredPixReservations();
+  const result = await runEvolutionRecoveryJob();
   return ok({
-    released: result.codesReleased,
-    ordersCancelled: result.ordersCancelled,
-    stalePendingCancelled: result.stalePendingCancelled,
+    checked: result.checked,
+    sent: result.sent,
   });
 }

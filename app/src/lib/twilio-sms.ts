@@ -1,6 +1,7 @@
 import twlib from "twilio";
 import { brazilPhoneToE164 } from "@/lib/phone-e164";
 import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
+import { prisma } from "@/lib/prisma";
 
 const DEFAULT_STORE = "Loja Digital";
 
@@ -34,6 +35,14 @@ export async function sendActivationSms(input: {
   credentialLabel: string;
   credentialValue: string;
 }): Promise<void> {
+  const settings = await prisma.appSettings.findUnique({
+    where: { id: "default" },
+    select: { smsDeliveryEnabled: true },
+  });
+  if (settings && settings.smsDeliveryEnabled === false) {
+    return;
+  }
+
   const { accountSid, authToken, messagingServiceSid, from } = twilioEnv();
   if (!accountSid || !authToken || (!messagingServiceSid && !from)) {
     return;

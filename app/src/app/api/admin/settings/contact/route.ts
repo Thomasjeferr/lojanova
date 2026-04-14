@@ -19,14 +19,12 @@ export async function GET() {
             whatsappNumber: row.whatsappNumber || "",
             whatsappMessage: row.whatsappMessage || CONTACT_FALLBACK.whatsappMessage,
             whatsappLabel: row.whatsappLabel || CONTACT_FALLBACK.whatsappLabel,
-            whatsappDeliveryEnabled: row.whatsappDeliveryEnabled ?? false,
-            whatsappDeliveryTemplate: row.whatsappDeliveryTemplate || "",
+            smsDeliveryEnabled: row.smsDeliveryEnabled ?? true,
             previewLink: toPublicContactSettings(row).whatsappLink,
           }
         : {
             ...CONTACT_FALLBACK,
-            whatsappDeliveryEnabled: false,
-            whatsappDeliveryTemplate: "",
+            smsDeliveryEnabled: true,
             previewLink: "",
           },
     });
@@ -61,16 +59,14 @@ export async function PUT(request: Request) {
         whatsappNumber: normalizedNumber || null,
         whatsappMessage: (body.whatsappMessage || CONTACT_FALLBACK.whatsappMessage).trim(),
         whatsappLabel: (body.whatsappLabel || CONTACT_FALLBACK.whatsappLabel).trim(),
-        whatsappDeliveryEnabled: body.whatsappDeliveryEnabled ?? false,
-        whatsappDeliveryTemplate: (body.whatsappDeliveryTemplate || "").trim() || null,
+        smsDeliveryEnabled: body.smsDeliveryEnabled ?? true,
       },
       update: {
         whatsappEnabled: body.whatsappEnabled,
         whatsappNumber: normalizedNumber || null,
         whatsappMessage: (body.whatsappMessage || CONTACT_FALLBACK.whatsappMessage).trim(),
         whatsappLabel: (body.whatsappLabel || CONTACT_FALLBACK.whatsappLabel).trim(),
-        whatsappDeliveryEnabled: body.whatsappDeliveryEnabled ?? false,
-        whatsappDeliveryTemplate: (body.whatsappDeliveryTemplate || "").trim() || null,
+        smsDeliveryEnabled: body.smsDeliveryEnabled ?? true,
       },
     });
 
@@ -81,8 +77,7 @@ export async function PUT(request: Request) {
         whatsappNumber: row.whatsappNumber || "",
         whatsappMessage: row.whatsappMessage || CONTACT_FALLBACK.whatsappMessage,
         whatsappLabel: row.whatsappLabel || CONTACT_FALLBACK.whatsappLabel,
-        whatsappDeliveryEnabled: row.whatsappDeliveryEnabled ?? false,
-        whatsappDeliveryTemplate: row.whatsappDeliveryTemplate || "",
+        smsDeliveryEnabled: row.smsDeliveryEnabled ?? true,
         previewLink: toPublicContactSettings(row).whatsappLink,
       },
     });

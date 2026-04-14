@@ -175,16 +175,68 @@ function SecurityInfo() {
   );
 }
 
+function credentialChannelsSummary(smsEnabled: boolean, whatsappEnabled: boolean): string {
+  const parts = ["site", "e-mail"];
+  if (smsEnabled) parts.push("SMS");
+  if (whatsappEnabled) parts.push("WhatsApp");
+  return parts.join(", ");
+}
+
+function CredentialDeliveryBullet({
+  smsEnabled,
+  whatsappEnabled,
+}: {
+  smsEnabled: boolean;
+  whatsappEnabled: boolean;
+}) {
+  if (!smsEnabled && !whatsappEnabled) {
+    return (
+      <>
+        Enviamos a confirmação também para o{" "}
+        <strong className="text-zinc-900">e-mail do cadastro</strong>.
+      </>
+    );
+  }
+  if (smsEnabled && whatsappEnabled) {
+    return (
+      <>
+        Enviamos também para o <strong className="text-zinc-900">e-mail do cadastro</strong>, por{" "}
+        <strong className="text-zinc-900">SMS</strong> e por{" "}
+        <strong className="text-zinc-900">WhatsApp</strong> no número informado.
+      </>
+    );
+  }
+  if (smsEnabled) {
+    return (
+      <>
+        Enviamos também para o <strong className="text-zinc-900">e-mail do cadastro</strong> e por{" "}
+        <strong className="text-zinc-900">SMS</strong> no número informado.
+      </>
+    );
+  }
+  return (
+    <>
+      Enviamos também para o <strong className="text-zinc-900">e-mail do cadastro</strong> e por{" "}
+      <strong className="text-zinc-900">WhatsApp</strong> no número informado.
+    </>
+  );
+}
+
 /** Opção 5 — obrigatório antes de gerar/pagar Pix (logado ou convidado no passo do Pix). */
 function PrePayDeliveryNotice({
   onConfirm,
   whatsappLink,
+  smsEnabled,
+  whatsappEnabled,
 }: {
   onConfirm: () => void;
   whatsappLink?: string | null;
+  smsEnabled: boolean;
+  whatsappEnabled: boolean;
 }) {
   const [readChecked, setReadChecked] = useState(false);
   const wa = typeof whatsappLink === "string" ? whatsappLink.trim() : "";
+  const summary = credentialChannelsSummary(smsEnabled, whatsappEnabled);
   return (
     <div className="space-y-4 rounded-2xl border border-zinc-200/90 bg-gradient-to-b from-zinc-50/95 to-white p-4 shadow-sm sm:p-5">
       <p className="text-base font-bold tracking-tight text-zinc-900">Antes de pagar, saiba:</p>
@@ -193,8 +245,7 @@ function PrePayDeliveryNotice({
           Com o Pix confirmado, o acesso aparece <strong className="text-zinc-900">aqui no site</strong>.
         </li>
         <li>
-          Enviamos também para o <strong className="text-zinc-900">e-mail do cadastro</strong> e por{" "}
-          <strong className="text-zinc-900">SMS</strong>.
+          <CredentialDeliveryBullet smsEnabled={smsEnabled} whatsappEnabled={whatsappEnabled} />
         </li>
         <li>
           Não encontrou? Fale no{" "}
@@ -228,7 +279,7 @@ function PrePayDeliveryNotice({
           aria-describedby="prepay-checkbox-hint"
         />
         <span className="font-medium">
-          Li e entendi onde vou receber o acesso (site, e-mail e SMS) e que posso falar no WhatsApp se
+          Li e entendi onde vou receber o acesso ({summary}) e que posso falar no WhatsApp da loja se
           precisar.
         </span>
       </label>
@@ -290,8 +341,12 @@ export function CheckoutModal({
   const [deliveryCode, setDeliveryCode] = useState("");
   const [credentialDetail, setCredentialDetail] = useState<CheckoutCredentialDetail | null>(null);
   const [payerDocument, setPayerDocument] = useState("");
-  /** null = carregando hints; GGPIX exige CPF na API, Woovi não. */
-  const [checkoutHints, setCheckoutHints] = useState<{ requiresPayerCpf: boolean } | null>(null);
+  /** null = carregando hints; GGPIX exige CPF; canais SMS/WhatsApp vêm do admin. */
+  const [checkoutHints, setCheckoutHints] = useState<{
+    requiresPayerCpf: boolean;
+    credentialSmsEnabled: boolean;
+    credentialWhatsAppEnabled: boolean;
+  } | null>(null);
   const [cpfWiggle, setCpfWiggle] = useState(false);
   const pollCountRef = useRef(0);
   const cpfInputRef = useRef<HTMLInputElement>(null);
@@ -341,13 +396,27 @@ export function CheckoutModal({
     let cancelled = false;
     fetch("/api/public/checkout-hints")
       .then(async (res) => {
-        const data = (await res.json().catch(() => ({}))) as { requiresPayerCpf?: boolean };
+        const data = (await res.json().catch(() => ({}))) as {
+          requiresPayerCpf?: boolean;
+          credentialSmsEnabled?: boolean;
+          credentialWhatsAppEnabled?: boolean;
+        };
         if (!cancelled) {
-          setCheckoutHints({ requiresPayerCpf: data.requiresPayerCpf !== false });
+          setCheckoutHints({
+            requiresPayerCpf: data.requiresPayerCpf !== false,
+            credentialSmsEnabled: data.credentialSmsEnabled !== false,
+            credentialWhatsAppEnabled: data.credentialWhatsAppEnabled === true,
+          });
         }
       })
       .catch(() => {
-        if (!cancelled) setCheckoutHints({ requiresPayerCpf: true });
+        if (!cancelled) {
+          setCheckoutHints({
+            requiresPayerCpf: true,
+            credentialSmsEnabled: true,
+            credentialWhatsAppEnabled: false,
+          });
+        }
       });
     return () => {
       cancelled = true;
@@ -467,6 +536,11 @@ export function CheckoutModal({
   const payerDocOk = isValidPayerDocument(normalizePayerDocument(payerDocument));
   /** Até carregar hints, assume CPF obrigatório (compatível com GGPIX). */
   const requiresPayerCpf = checkoutHints === null ? true : checkoutHints.requiresPayerCpf;
+  /** Até carregar hints, mantém texto antigo (SMS sim, WhatsApp não). */
+  const credentialSmsEnabled =
+    checkoutHints === null ? true : checkoutHints.credentialSmsEnabled !== false;
+  const credentialWhatsappEnabled =
+    checkoutHints === null ? false : checkoutHints.credentialWhatsAppEnabled === true;
   const payerDocDigitsLen = normalizePayerDocument(payerDocument).length;
   /** 11 dígitos mas dígitos verificadores inválidos (ou sequência rejeitada). */
   const payerDocCompleteButInvalid = payerDocDigitsLen === 11 && !payerDocOk;
@@ -775,6 +849,8 @@ export function CheckoutModal({
                   !prePayNoticeAcknowledged ? (
                     <PrePayDeliveryNotice
                       whatsappLink={whatsappLink}
+                      smsEnabled={credentialSmsEnabled}
+                      whatsappEnabled={credentialWhatsappEnabled}
                       onConfirm={() => setPrePayNoticeAcknowledged(true)}
                     />
                   ) : (
@@ -933,6 +1009,16 @@ export function CheckoutModal({
               inputMode="numeric"
               maxLength={16}
             />
+            {checkoutHints !== null &&
+            (credentialSmsEnabled || credentialWhatsappEnabled) ? (
+              <p className="text-xs leading-relaxed text-zinc-600">
+                {credentialSmsEnabled && credentialWhatsappEnabled
+                  ? "Usamos este celular para enviar a credencial por SMS e por WhatsApp após o pagamento confirmado."
+                  : credentialSmsEnabled
+                    ? "Usamos este celular para enviar a credencial por SMS após o pagamento confirmado."
+                    : "Usamos este celular para enviar a credencial por WhatsApp após o pagamento confirmado."}
+              </p>
+            ) : null}
             {requiresPayerCpf ? (
               <div className="space-y-1.5">
                 <Label htmlFor="checkout-payer-cpf-step2" className="text-zinc-900">
@@ -1021,6 +1107,8 @@ export function CheckoutModal({
               !prePayNoticeAcknowledged ? (
                 <PrePayDeliveryNotice
                   whatsappLink={whatsappLink}
+                  smsEnabled={credentialSmsEnabled}
+                  whatsappEnabled={credentialWhatsappEnabled}
                   onConfirm={() => setPrePayNoticeAcknowledged(true)}
                 />
               ) : (

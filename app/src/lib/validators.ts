@@ -200,8 +200,7 @@ export const contactSettingsSchema = z
     whatsappNumber: z.string().optional().or(z.literal("")),
     whatsappMessage: z.string().max(280).optional().or(z.literal("")),
     whatsappLabel: z.string().max(40).optional().or(z.literal("")),
-    whatsappDeliveryEnabled: z.boolean().optional().default(false),
-    whatsappDeliveryTemplate: z.string().max(900).optional().or(z.literal("")),
+    smsDeliveryEnabled: z.boolean().optional().default(true),
   })
   .superRefine((val, ctx) => {
     const normalized = normalizeWhatsAppNumber(val.whatsappNumber || "");
@@ -213,6 +212,22 @@ export const contactSettingsSchema = z
       });
     }
   });
+
+export const evolutionMessagingSchema = z.object({
+  evolutionDeliveryEnabled: z.boolean().optional().default(false),
+  evolutionDeliveryTemplate: z.string().max(2000).optional().or(z.literal("")),
+  evolutionRecoveryEnabled: z.boolean().optional().default(false),
+  evolutionRecoveryTemplate: z.string().max(2000).optional().or(z.literal("")),
+  evolutionRecoveryAfterMinutes: z.coerce.number().int().min(15).max(10080).optional().default(60),
+});
+
+export const evolutionTestSendSchema = z.object({
+  phone: z.string().min(8).max(40),
+  kind: z.enum(["delivery", "recovery"]).optional().default("delivery"),
+  /** Se enviado, usa o texto do formulário (preview sem salvar). */
+  deliveryTemplate: z.string().max(2000).optional().or(z.literal("")),
+  recoveryTemplate: z.string().max(2000).optional().or(z.literal("")),
+});
 
 export const wooviSettingsSchema = z.object({
   paymentProvider: z.nativeEnum(PaymentProvider),

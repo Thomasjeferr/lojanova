@@ -12,8 +12,7 @@ type ContactSettingsForm = {
   whatsappNumber: string;
   whatsappMessage: string;
   whatsappLabel: string;
-  whatsappDeliveryEnabled: boolean;
-  whatsappDeliveryTemplate: string;
+  smsDeliveryEnabled: boolean;
 };
 
 export function WhatsAppSettingsForm({
@@ -56,8 +55,7 @@ export function WhatsAppSettingsForm({
         whatsappNumber: data.settings.whatsappNumber,
         whatsappMessage: data.settings.whatsappMessage,
         whatsappLabel: data.settings.whatsappLabel,
-        whatsappDeliveryEnabled: data.settings.whatsappDeliveryEnabled ?? false,
-        whatsappDeliveryTemplate: data.settings.whatsappDeliveryTemplate ?? "",
+        smsDeliveryEnabled: data.settings.smsDeliveryEnabled ?? true,
       });
       setToast("ok");
       setToastMsg("Configurações de WhatsApp salvas com sucesso.");
@@ -99,17 +97,19 @@ export function WhatsAppSettingsForm({
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
-            checked={form.whatsappDeliveryEnabled}
+            checked={form.smsDeliveryEnabled}
             disabled={off}
             onChange={(e) =>
-              setForm((prev) => ({ ...prev, whatsappDeliveryEnabled: e.target.checked }))
+              setForm((prev) => ({ ...prev, smsDeliveryEnabled: e.target.checked }))
             }
             className="mt-1 h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/25"
           />
           <div>
-            <p className="font-medium text-zinc-900">Entregar código via WhatsApp (Twilio)</p>
+            <p className="font-medium text-zinc-900">Entregar acesso por SMS (Twilio)</p>
             <p className="text-sm text-zinc-500">
-              Envia mensagem automática após pagamento confirmado. Pode ligar/desligar sem deploy.
+              Envia SMS com a credencial após pagamento confirmado (e na aprovação manual no admin).
+              Requer variáveis Twilio de SMS no servidor. Desligue aqui para não enviar, mesmo com
+              Twilio configurado.
             </p>
           </div>
         </label>
@@ -152,25 +152,6 @@ export function WhatsAppSettingsForm({
           placeholder="Olá! Quero saber mais sobre os planos."
           className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400"
         />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="whatsappDeliveryTemplate">Template da entrega automática</Label>
-        <textarea
-          id="whatsappDeliveryTemplate"
-          rows={4}
-          disabled={off}
-          value={form.whatsappDeliveryTemplate}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, whatsappDeliveryTemplate: e.target.value }))
-          }
-          placeholder="Olá {firstName}! Pagamento confirmado no {storeName}. Plano: {planName}. {credentialLabel}: {credentialValue}. Veja em {accountUrl}/account"
-          className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400"
-        />
-        <p className="text-xs text-zinc-500">
-          Variáveis: {"{firstName}"}, {"{storeName}"}, {"{planName}"}, {"{credentialLabel}"},{" "}
-          {"{credentialValue}"}, {"{accountUrl}"}.
-        </p>
       </div>
 
       <div className="rounded-2xl border border-zinc-200/80 bg-white p-4">
