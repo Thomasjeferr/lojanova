@@ -51,12 +51,14 @@ export async function sendActivationEmail({
   to,
   name,
   planName,
+  durationDays,
   credentialLabel,
   credentialValue,
 }: {
   to: string;
   name: string;
   planName: string;
+  durationDays: number;
   credentialLabel: string;
   credentialValue: string;
 }) {
@@ -64,6 +66,7 @@ export async function sendActivationEmail({
     storeName: process.env.EMAIL_STORE_NAME || DEFAULT_STORE,
     name,
     planName,
+    durationDays,
     credentialLabel,
     credentialValue,
   });
@@ -220,6 +223,7 @@ export async function sendTestTransactionalEmail(
         storeName,
         name: "Cliente (e-mail de teste)",
         planName: "Plano demonstração 30 dias",
+        durationDays: 30,
         credentialLabel: "Código de ativação",
         credentialValue: "AB12CD34EF56GH78",
       });

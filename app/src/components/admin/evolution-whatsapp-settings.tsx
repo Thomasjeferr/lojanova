@@ -333,8 +333,8 @@ export function EvolutionWhatsAppSettings({
           className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400"
         />
         <p className="text-xs text-zinc-500">
-          Variáveis: {"{firstName}"}, {"{storeName}"}, {"{planName}"}, {"{credentialLabel}"},{" "}
-          {"{credentialValue}"}, {"{accountUrl}"}.
+          Variáveis: {"{firstName}"}, {"{storeName}"}, {"{planName}"}, {"{validityLabel}"},{" "}
+          {"{credentialLabel}"}, {"{credentialValue}"}, {"{accountUrl}"}.
         </p>
       </div>
 

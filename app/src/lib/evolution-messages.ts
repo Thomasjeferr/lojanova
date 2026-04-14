@@ -1,8 +1,8 @@
 export const DEFAULT_EVOLUTION_DELIVERY_TEMPLATE =
-  "Olá {firstName}! Pagamento aprovado na {storeName}. Plano: {planName}. {credentialLabel}: {credentialValue}. Obrigado pela compra! Acesse: {accountUrl}/account";
+  "Olá {firstName}!\n\nSua compra na *{storeName}* foi aprovada.\n\n*Plano:* {planName}\n*Validade do acesso:* {validityLabel}\n\n*{credentialLabel}:*\n{credentialValue}\n\n*Sua conta:*\n{accountUrl}/account\n\nObrigado pela preferência!";
 
 export const DEFAULT_EVOLUTION_RECOVERY_TEMPLATE =
-  "Olá {firstName}! Notamos o pedido {orderNumber} na {storeName} (plano {planName}) ainda em aberto. Ficou com alguma dúvida? Acesse {accountUrl}/account para concluir.";
+  "Olá {firstName}!\n\nO pedido *{orderNumber}* na {storeName} (plano *{planName}*) ainda está aguardando pagamento.\n\nSe precisar de ajuda para concluir, acesse:\n{accountUrl}/account\n\nEstamos à disposição por aqui.";
 
 export function renderEvolutionTemplate(
   template: string,

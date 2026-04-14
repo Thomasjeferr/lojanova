@@ -175,6 +175,7 @@ export async function deliverActivationCode(
       to: result.user.email,
       name: result.user.name,
       planName: result.plan.title,
+      durationDays: result.plan.durationDays,
       credentialLabel: result.credentialLabel,
       credentialValue: result.deliveredCode,
     });
@@ -182,6 +183,7 @@ export async function deliverActivationCode(
       phone: result.user.phone,
       name: result.user.name,
       planName: result.plan.title,
+      durationDays: result.plan.durationDays,
       credentialLabel: result.credentialLabel,
       credentialValue: result.deliveredCode,
     });
@@ -189,6 +191,7 @@ export async function deliverActivationCode(
       phone: result.user.phone,
       name: result.user.name,
       planName: result.plan.title,
+      durationDays: result.plan.durationDays,
       credentialLabel: result.credentialLabel,
       credentialValue: result.deliveredCode,
     });
@@ -243,6 +246,7 @@ export async function adminFulfillOrResendOrder(
       to: order.user.email,
       name: order.user.name,
       planName: order.plan.title,
+      durationDays: order.plan.durationDays,
       credentialLabel,
       credentialValue: codeLine,
     });
@@ -250,6 +254,7 @@ export async function adminFulfillOrResendOrder(
       phone: order.user.phone,
       name: order.user.name,
       planName: order.plan.title,
+      durationDays: order.plan.durationDays,
       credentialLabel,
       credentialValue: codeLine,
     });
@@ -257,6 +262,7 @@ export async function adminFulfillOrResendOrder(
       phone: order.user.phone,
       name: order.user.name,
       planName: order.plan.title,
+      durationDays: order.plan.durationDays,
       credentialLabel,
       credentialValue: codeLine,
     });

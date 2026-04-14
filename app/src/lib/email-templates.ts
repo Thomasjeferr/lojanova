@@ -1,4 +1,5 @@
 import { formatDateTimePtBr } from "@/lib/brazil-time";
+import { formatPlanAccessValidityShort } from "@/lib/plan-validity";
 import { currencyBRL } from "@/lib/utils";
 
 type TemplateInputBase = {
@@ -19,6 +20,8 @@ export type EmailTemplateId =
 export type ActivationCodeDeliveredInput = TemplateInputBase & {
   name: string;
   planName: string;
+  /** Dias de acesso do plano (`Plan.durationDays`); exibe período de validade no corpo do e-mail. */
+  durationDays: number;
   credentialLabel: string;
   credentialValue: string;
 };
@@ -91,8 +94,9 @@ export const EMAIL_TEMPLATES: Record<
   { name: string; description: string }
 > = {
   [EMAIL_TEMPLATE_IDS.activationCodeDelivered]: {
-    name: "Código liberado",
-    description: "Enviado após pagamento aprovado com o código de ativação.",
+    name: "Acesso liberado",
+    description:
+      "Enviado após pagamento aprovado com a credencial (código ou usuário/senha), validade do plano e link para a conta.",
   },
   [EMAIL_TEMPLATE_IDS.welcomeAccount]: {
     name: "Boas-vindas",
@@ -115,16 +119,22 @@ export const EMAIL_TEMPLATES: Record<
 export function activationCodeDeliveredTemplate(
   input: ActivationCodeDeliveredInput,
 ): RenderedTemplate {
-  const subject = `Seu código de ativação foi liberado - ${input.storeName}`;
+  const validityShort = formatPlanAccessValidityShort(input.durationDays);
+  const subject = `Seu acesso foi liberado — ${input.storeName}`;
   const html = layout(
     `
     <p style="margin:0 0 12px;font-size:15px">Olá, <strong>${input.name}</strong>!</p>
     <p style="margin:0 0 12px;font-size:15px">
-      O pagamento do plano <strong>${input.planName}</strong> foi confirmado.
+      Confirmamos o pagamento do plano <strong>${input.planName}</strong>.
     </p>
-    <p style="margin:0 0 10px;font-size:14px;color:#52525b">Sua credencial (${input.credentialLabel}):</p>
+    <p style="margin:0 0 12px;font-size:14px;color:#52525b">
+      <strong>Validade do acesso:</strong> ${validityShort} (contados a partir da liberação da credencial abaixo).
+    </p>
+    <p style="margin:0 0 10px;font-size:14px;color:#52525b"><strong>${input.credentialLabel}</strong></p>
     <pre style="margin:0 0 16px;padding:12px 14px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:10px;font-size:18px;line-height:1.5;font-weight:700;white-space:pre-wrap">${input.credentialValue}</pre>
-    <p style="margin:0;font-size:14px;color:#52525b">Guarde esta informação em local seguro.</p>
+    <p style="margin:0 0 12px;font-size:14px;color:#52525b">
+      Guarde estes dados em local seguro. Em caso de dúvida, use o suporte pelo site ou WhatsApp da loja.
+    </p>
     `,
     input.storeName,
   );

@@ -10,6 +10,7 @@ import {
   DEFAULT_EVOLUTION_DELIVERY_TEMPLATE,
   renderEvolutionTemplate,
 } from "@/lib/evolution-messages";
+import { formatPlanAccessValidityShort } from "@/lib/plan-validity";
 
 /**
  * Entrega da credencial por WhatsApp (Evolution API na VPS).
@@ -19,6 +20,7 @@ export async function sendActivationWhatsApp(input: {
   phone: string | null | undefined;
   name: string;
   planName: string;
+  durationDays: number;
   credentialLabel: string;
   credentialValue: string;
 }): Promise<void> {
@@ -64,10 +66,12 @@ export async function sendActivationWhatsApp(input: {
     const template =
       settings.evolutionDeliveryTemplate?.trim() || DEFAULT_EVOLUTION_DELIVERY_TEMPLATE;
 
+    const validityLabel = formatPlanAccessValidityShort(input.durationDays);
     const body = renderEvolutionTemplate(template, {
       firstName,
       storeName,
       planName: input.planName,
+      validityLabel,
       credentialLabel: input.credentialLabel,
       credentialValue: input.credentialValue,
       accountUrl,

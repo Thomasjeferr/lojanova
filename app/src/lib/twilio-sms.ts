@@ -2,6 +2,7 @@ import twlib from "twilio";
 import { brazilPhoneToE164 } from "@/lib/phone-e164";
 import { getPublicSiteBaseUrl } from "@/lib/public-site-url";
 import { prisma } from "@/lib/prisma";
+import { formatPlanAccessValidityShort } from "@/lib/plan-validity";
 
 const DEFAULT_STORE = "Loja Digital";
 
@@ -17,12 +18,14 @@ function buildActivationSmsBody(input: {
   storeName: string;
   name: string;
   planName: string;
+  durationDays: number;
   credentialLabel: string;
   credentialValue: string;
   accountUrl: string;
 }): string {
   const first = input.name.trim().split(/\s+/)[0] || "Cliente";
-  return `${input.storeName}: Ola ${first}! Pagamento confirmado. Plano: ${input.planName}. ${input.credentialLabel}: ${input.credentialValue}. Detalhes: ${input.accountUrl}/account`;
+  const validity = formatPlanAccessValidityShort(input.durationDays);
+  return `${input.storeName}: Ola, ${first}! Pagamento ok. Plano ${input.planName}. Validade: ${validity}. ${input.credentialLabel}: ${input.credentialValue}. Conta: ${input.accountUrl}/account`;
 }
 
 /**
@@ -32,6 +35,7 @@ export async function sendActivationSms(input: {
   phone: string | null | undefined;
   name: string;
   planName: string;
+  durationDays: number;
   credentialLabel: string;
   credentialValue: string;
 }): Promise<void> {
@@ -60,6 +64,7 @@ export async function sendActivationSms(input: {
     storeName,
     name: input.name,
     planName: input.planName,
+    durationDays: input.durationDays,
     credentialLabel: input.credentialLabel,
     credentialValue: input.credentialValue,
     accountUrl: appUrl,
