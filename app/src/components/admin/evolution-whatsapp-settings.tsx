@@ -230,36 +230,42 @@ export function EvolutionWhatsAppSettings({
       <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5 dark:border-zinc-700/50 dark:bg-zinc-800/30">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <Smartphone className="mt-0.5 h-5 w-5 text-zinc-500" aria-hidden />
+            <Smartphone className="mt-0.5 h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
             <div>
-              <p className="font-medium text-zinc-900">Conexão Evolution (VPS)</p>
-              <p className="text-sm text-zinc-500">
+              <p className="font-medium text-zinc-900 dark:text-zinc-100">Conexão Evolution (VPS)</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Variáveis na Vercel:{" "}
-                <code className="rounded bg-zinc-100 px-1 text-xs">EVOLUTION_API_URL</code> e{" "}
-                <code className="rounded bg-zinc-100 px-1 text-xs">EVOLUTION_API_KEY</code>.
+                <code className="rounded bg-zinc-100 px-1 text-xs text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+                  EVOLUTION_API_URL
+                </code>{" "}
+                e{" "}
+                <code className="rounded bg-zinc-100 px-1 text-xs text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+                  EVOLUTION_API_KEY
+                </code>
+                .
               </p>
               {statusLoading ? (
-                <p className="mt-2 flex items-center gap-2 text-sm text-zinc-500">
+                <p className="mt-2 flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                   Verificando…
                 </p>
               ) : (
-                <ul className="mt-2 space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                <ul className="mt-2 space-y-1 text-sm text-zinc-700 dark:text-zinc-300">
                   <li>
-                    Env:{" "}
-                    <span className="font-medium text-zinc-900">
+                    <span className="text-zinc-600 dark:text-zinc-400">Env:</span>{" "}
+                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
                       {status?.envConfigured ? "configurado" : "faltando URL ou chave"}
                     </span>
                   </li>
                   <li>
-                    Instância:{" "}
-                    <span className="font-mono text-xs text-zinc-900">
+                    <span className="text-zinc-600 dark:text-zinc-400">Instância:</span>{" "}
+                    <span className="font-mono text-xs text-zinc-900 dark:text-zinc-100">
                       {status?.instanceName || "—"}
                     </span>
                   </li>
                   <li>
-                    Estado:{" "}
-                    <span className="font-medium text-zinc-900">
+                    <span className="text-zinc-600 dark:text-zinc-400">Estado:</span>{" "}
+                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
                       {status?.connectionState || "—"}
                       {connected ? " (pronto para enviar)" : ""}
                     </span>
@@ -310,8 +316,10 @@ export function EvolutionWhatsAppSettings({
             className="mt-1 h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/25"
           />
           <div>
-            <p className="font-medium text-zinc-900">Enviar acesso por WhatsApp após pagamento</p>
-            <p className="text-sm text-zinc-500">
+            <p className="font-medium text-zinc-900 dark:text-zinc-100">
+              Enviar acesso por WhatsApp após pagamento
+            </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Só envia se a instância estiver conectada (estado open) e o cliente tiver telefone
               válido no cadastro.
             </p>
@@ -351,9 +359,12 @@ export function EvolutionWhatsAppSettings({
           />
           <div>
             <p className="font-medium text-zinc-900 dark:text-zinc-100">Lembrete automático (pedido em aberto)</p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Cron na Vercel a cada 10 min. Uma mensagem por pedido. Requer{" "}
-              <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">CRON_SECRET</code>.
+              <code className="rounded bg-zinc-100 px-1 text-xs text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+                CRON_SECRET
+              </code>
+              .
             </p>
           </div>
         </label>
@@ -377,7 +388,7 @@ export function EvolutionWhatsAppSettings({
             }
             className="rounded-xl border-zinc-200"
           />
-          <p className="text-xs text-zinc-500">Entre 15 min e 7 dias (10080 min).</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">Entre 15 min e 7 dias (10080 min).</p>
         </div>
       </div>
 
@@ -465,9 +476,11 @@ export function EvolutionWhatsAppSettings({
             </Button>
           </div>
           {!status?.envConfigured ? (
-            <p className="text-xs text-amber-800">Configure as variáveis Evolution no .env local ou na Vercel.</p>
+            <p className="text-xs text-amber-900 dark:text-amber-100">
+              Configure as variáveis Evolution no .env local ou na Vercel.
+            </p>
           ) : !connected ? (
-            <p className="text-xs text-amber-800">
+            <p className="text-xs text-amber-900 dark:text-amber-100">
               Pareie o WhatsApp (estado <span className="font-mono">open</span>) para habilitar os testes.
             </p>
           ) : null}
@@ -539,8 +552,8 @@ export function EvolutionWhatsAppSettings({
           role="status"
           className={
             toast === "ok"
-              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl"
-              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl"
+              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl dark:border-emerald-500/30 dark:bg-emerald-950/90 dark:text-emerald-100"
+              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl dark:border-red-500/30 dark:bg-red-950/90 dark:text-red-100"
           }
         >
           {toastMsg}
