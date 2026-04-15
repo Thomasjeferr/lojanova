@@ -34,7 +34,7 @@ function orderHasPixRefs(o: {
  *
  * Em seguida cancela pedidos `pending` fora da janela: sem cobrança Pix persistida há mais de
  * {@link PIX_RESERVATION_MS}, ou com Pix mas sem reserva ativa há mais de {@link PIX_RESERVATION_MS}
- * desde a última atualização relevante do pedido.
+ * desde a criação do pedido (reserva ativa continua a impedir cancelamento até expirar).
  */
 export async function releaseExpiredPixReservationsTx(
   tx: Tx,
@@ -86,7 +86,6 @@ export async function releaseExpiredPixReservationsTx(
     select: {
       id: true,
       createdAt: true,
-      updatedAt: true,
       wooviChargeId: true,
       wooviTxid: true,
       pixCorrelationId: true,
@@ -113,7 +112,8 @@ export async function releaseExpiredPixReservationsTx(
       continue;
     }
 
-    const refTime = o.updatedAt > o.createdAt ? o.updatedAt : o.createdAt;
+    // Não usar updatedAt: outros updates ao pedido (ex. evolutionRecoverySentAt) adiavam o cancelamento.
+    const refTime = o.createdAt;
     if (refTime.getTime() + PIX_RESERVATION_MS < now.getTime()) {
       idsToCancel.add(o.id);
     }
