@@ -62,10 +62,10 @@ export default async function AdminSettingsPage() {
       />
       {!brandingTableOk && <BrandingDbBanner />}
       <SectionCard title="Template visual da loja">
-        <p className="mb-8 max-w-3xl text-sm leading-relaxed text-zinc-600">
+        <p className="mb-8 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           Escolha entre dois temas premium para a home, checkout e áreas públicas. A alteração é
           salva no banco e aplicada automaticamente em todo o site (variáveis CSS por{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">data-theme</code>).
+          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">data-theme</code>).
         </p>
         <ThemeSwitcherSection currentTheme={initial.activeTheme} disabled={!brandingTableOk} />
       </SectionCard>
@@ -80,7 +80,7 @@ export default async function AdminSettingsPage() {
         />
       </SectionCard>
       <SectionCard title="Textos da landing">
-        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           Edite os textos principais da home pública sem mexer em código. Salve e recarregue a
           página da loja para validar o resultado.
         </p>
@@ -88,12 +88,12 @@ export default async function AdminSettingsPage() {
       </SectionCard>
       <SectionCard title="Contato, WhatsApp e SMS">
         {!contactTableOk && (
-          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
-            <code> app/</code> e reinicie o servidor.
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/35 dark:bg-amber-950/45 dark:text-amber-100">
+            Estrutura AppSettings não encontrada. Rode <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50">npx prisma db push</code> na pasta
+            <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50"> app/</code> e reinicie o servidor.
           </div>
         )}
-        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           Botão de WhatsApp no site (link) e envio da credencial por SMS (Twilio). A entrega da
           credencial pelo WhatsApp da loja usa Evolution na seção abaixo.
         </p>
@@ -110,16 +110,16 @@ export default async function AdminSettingsPage() {
       </SectionCard>
       <SectionCard title="WhatsApp Evolution (acesso e recuperação)">
         {!contactTableOk && (
-          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
-            <code> app/</code> e reinicie o servidor.
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/35 dark:bg-amber-950/45 dark:text-amber-100">
+            Estrutura AppSettings não encontrada. Rode <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50">npx prisma db push</code> na pasta
+            <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50"> app/</code> e reinicie o servidor.
           </div>
         )}
-        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           Conecte o número da loja via QR, ative o envio automático da credencial após o Pix e,
           opcionalmente, lembretes para pedidos ainda pendentes. Depende de{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">EVOLUTION_API_URL</code> e{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">EVOLUTION_API_KEY</code> na Vercel.
+          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">EVOLUTION_API_URL</code> e{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">EVOLUTION_API_KEY</code> na Vercel.
         </p>
         <EvolutionWhatsAppSettings
           disabled={!contactTableOk}
@@ -134,18 +134,18 @@ export default async function AdminSettingsPage() {
       </SectionCard>
       <SectionCard title="Alerta de estoque (admin)">
         {!contactTableOk && (
-          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
-            <code> app/</code> e reinicie o servidor.
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/35 dark:bg-amber-950/45 dark:text-amber-100">
+            Estrutura AppSettings não encontrada. Rode <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50">npx prisma db push</code> na pasta
+            <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50"> app/</code> e reinicie o servidor.
           </div>
         )}
-        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           Receba um e-mail quando planos <strong>ativos</strong> estiverem com poucos códigos
           disponíveis. O limite é único para todos os planos. Configure{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">RESEND_API_KEY</code>,{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">RESEND_FROM</code> (domínio
-          verificado no Resend), <code className="rounded bg-zinc-100 px-1 text-xs">CRON_SECRET</code>{" "}
-          e o cron na Vercel (<code className="rounded bg-zinc-100 px-1 text-xs">vercel.json</code>
+          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">RESEND_API_KEY</code>,{" "}
+          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">RESEND_FROM</code> (domínio
+          verificado no Resend), <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">CRON_SECRET</code>{" "}
+          e o cron na Vercel (<code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">vercel.json</code>
           — alerta a cada 15 min).
         </p>
         <LowStockAlertSettingsForm
@@ -162,12 +162,12 @@ export default async function AdminSettingsPage() {
       </SectionCard>
       <SectionCard title="Gateway Pix (Woovi / GGPIXAPI)">
         {!contactTableOk && (
-          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Estrutura AppSettings não encontrada. Rode <code>npx prisma db push</code> na pasta
-            <code> app/</code> e reinicie o servidor.
+          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/35 dark:bg-amber-950/45 dark:text-amber-100">
+            Estrutura AppSettings não encontrada. Rode <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50">npx prisma db push</code> na pasta
+            <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/50"> app/</code> e reinicie o servidor.
           </div>
         )}
-        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600">
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           Configure o gateway Pix ativo (Woovi ou GGPIXAPI) e suas credenciais por cliente, direto
           no admin, sem editar variáveis de ambiente.
         </p>

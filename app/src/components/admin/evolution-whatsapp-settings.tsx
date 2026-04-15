@@ -227,7 +227,7 @@ export function EvolutionWhatsAppSettings({
 
   return (
     <div className={cn("space-y-6", disabled && "opacity-60")}>
-      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5">
+      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5 dark:border-zinc-700/50 dark:bg-zinc-800/30">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <Smartphone className="mt-0.5 h-5 w-5 text-zinc-500" aria-hidden />
@@ -244,7 +244,7 @@ export function EvolutionWhatsAppSettings({
                   Verificando…
                 </p>
               ) : (
-                <ul className="mt-2 space-y-1 text-sm text-zinc-600">
+                <ul className="mt-2 space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
                   <li>
                     Env:{" "}
                     <span className="font-medium text-zinc-900">
@@ -298,7 +298,7 @@ export function EvolutionWhatsAppSettings({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5">
+      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5 dark:border-zinc-700/50 dark:bg-zinc-800/30">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
@@ -330,15 +330,15 @@ export function EvolutionWhatsAppSettings({
             setForm((p) => ({ ...p, evolutionDeliveryTemplate: e.target.value }))
           }
           placeholder={DEFAULT_EVOLUTION_DELIVERY_TEMPLATE}
-          className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400"
+          className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Variáveis: {"{firstName}"}, {"{storeName}"}, {"{planName}"}, {"{validityLabel}"},{" "}
           {"{credentialLabel}"}, {"{credentialValue}"}, {"{accountUrl}"}.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5">
+      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5 dark:border-zinc-800 dark:bg-zinc-900/40">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
@@ -350,10 +350,10 @@ export function EvolutionWhatsAppSettings({
             className="mt-1 h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/25"
           />
           <div>
-            <p className="font-medium text-zinc-900">Lembrete automático (pedido em aberto)</p>
-            <p className="text-sm text-zinc-500">
+            <p className="font-medium text-zinc-900 dark:text-zinc-100">Lembrete automático (pedido em aberto)</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Cron na Vercel a cada 10 min. Uma mensagem por pedido. Requer{" "}
-              <code className="rounded bg-zinc-100 px-1 text-xs">CRON_SECRET</code>.
+              <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">CRON_SECRET</code>.
             </p>
           </div>
         </label>
@@ -392,17 +392,17 @@ export function EvolutionWhatsAppSettings({
             setForm((p) => ({ ...p, evolutionRecoveryTemplate: e.target.value }))
           }
           placeholder={DEFAULT_EVOLUTION_RECOVERY_TEMPLATE}
-          className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400"
+          className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Variáveis: {"{firstName}"}, {"{storeName}"}, {"{orderNumber}"}, {"{planName}"},{" "}
           {"{accountUrl}"}.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-blue-200/80 bg-blue-50/50 p-5">
-        <p className="font-medium text-zinc-900">Envio de teste</p>
-        <p className="mt-1 text-sm text-zinc-600">
+      <div className="rounded-2xl border border-blue-200/80 bg-blue-50/50 p-5 dark:border-blue-500/25 dark:bg-blue-950/35">
+        <p className="font-medium text-zinc-900 dark:text-zinc-100">Envio de teste</p>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
           Usa os textos dos campos acima (mesmo sem clicar em Salvar). Não exige ativar o envio
           automático. A mensagem começa com{" "}
           <span className="font-mono text-xs">[TESTE LOJA]</span> e dados fictícios nos placeholders.
@@ -484,21 +484,21 @@ export function EvolutionWhatsAppSettings({
           onClick={() => !actionLoading && setQrOpen(false)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl dark:border-zinc-700/90 dark:bg-zinc-900 dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.75)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-zinc-900">Parear WhatsApp</h3>
-            <p className="mt-2 text-sm text-zinc-600">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Parear WhatsApp</h3>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               Abra o WhatsApp no celular → Aparelhos conectados → Conectar um aparelho → escaneie o
               QR. O código renova; esta tela atualiza sozinha.
             </p>
             {qrError && (
-              <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100">
                 {qrError}
               </p>
             )}
             {qrData?.connected ? (
-              <p className="mt-6 text-center text-sm font-medium text-emerald-700">
+              <p className="mt-6 text-center text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 Conectado ({qrData.state}). Você pode fechar esta janela.
               </p>
             ) : qrData?.base64 ? (
@@ -507,17 +507,17 @@ export function EvolutionWhatsAppSettings({
                 <img
                   src={qrData.base64.startsWith("data:") ? qrData.base64 : `data:image/png;base64,${qrData.base64}`}
                   alt="QR Code WhatsApp"
-                  className="max-w-full rounded-xl border border-zinc-200"
+                  className="max-w-full rounded-xl border border-zinc-200 dark:border-zinc-700"
                 />
               </div>
             ) : (
-              <p className="mt-6 flex justify-center gap-2 text-sm text-zinc-500">
+              <p className="mt-6 flex justify-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                 Carregando QR…
               </p>
             )}
             {qrData?.pairingCode ? (
-              <p className="mt-4 text-center text-sm text-zinc-600">
+              <p className="mt-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
                 Código de pareamento:{" "}
                 <span className="font-mono font-semibold">{qrData.pairingCode}</span>
               </p>

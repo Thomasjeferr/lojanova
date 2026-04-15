@@ -8,11 +8,13 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-white sm:text-3xl">
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-1.5 text-sm text-zinc-500 sm:mt-2">{subtitle}</p>
+          <p className="mt-1.5 text-[15px] font-medium leading-relaxed tracking-tight text-zinc-600 dark:text-zinc-400 sm:mt-2">
+            {subtitle}
+          </p>
         )}
       </div>
       {action && (

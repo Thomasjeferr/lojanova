@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { adminFieldClass } from "@/lib/admin-ui-classes";
 
 export function AdminCodesImportCard({
   plans,
@@ -69,13 +71,13 @@ export function AdminCodesImportCard({
       <div className="space-y-2">
         <label
           htmlFor="codes-plan"
-          className="block text-sm font-medium text-zinc-700"
+          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
           Plano de destino
         </label>
         <select
           id="codes-plan"
-          className="w-full max-w-sm rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "max-w-sm text-zinc-700 dark:text-zinc-200")}
           value={planId}
           onChange={(e) => setPlanId(e.target.value)}
         >
@@ -89,13 +91,13 @@ export function AdminCodesImportCard({
       <div className="space-y-2">
         <label
           htmlFor="codes-type"
-          className="block text-sm font-medium text-zinc-700"
+          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
           Tipo de credencial
         </label>
         <select
           id="codes-type"
-          className="w-full max-w-sm rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "max-w-sm text-zinc-700 dark:text-zinc-200")}
           value={credentialType}
           onChange={(e) => setCredentialType(e.target.value as "activation_code" | "username_password")}
         >
@@ -106,7 +108,7 @@ export function AdminCodesImportCard({
       <div className="space-y-2">
         <label
           htmlFor="codes-textarea"
-          className="block text-sm font-medium text-zinc-700"
+          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
           {credentialType === "activation_code"
             ? "Códigos (um por linha, 16 caracteres alfanuméricos)"
@@ -122,9 +124,9 @@ export function AdminCodesImportCard({
           }
           value={codesRaw}
           onChange={(e) => setCodesRaw(e.target.value)}
-          className="min-h-[200px] rounded-xl font-mono text-sm"
+          className="theme-focus-input min-h-[200px] rounded-xl border border-zinc-200/90 bg-white font-mono text-sm shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           {credentialType === "activation_code"
             ? "Aceita apenas letras/números com 16 caracteres. Duplicados são ignorados."
             : 'Separe com vírgula (,) ou ponto e vírgula (;). Ex.: "usuario,senha".'}
@@ -134,8 +136,8 @@ export function AdminCodesImportCard({
         <div
           className={`rounded-xl border px-4 py-3 text-sm font-medium ${
             message.type === "ok"
-              ? "border-emerald-200/80 bg-emerald-50 text-emerald-800"
-              : "border-red-200/80 bg-red-50 text-red-800"
+              ? "border-emerald-200/80 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-950/45 dark:text-emerald-100"
+              : "border-red-200/80 bg-red-50 text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100"
           }`}
         >
           {message.text}

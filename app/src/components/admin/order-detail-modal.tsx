@@ -45,21 +45,21 @@ export function OrderDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 backdrop-blur-sm sm:flex sm:items-center sm:justify-center sm:p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 backdrop-blur-md dark:bg-black/65 sm:flex sm:items-center sm:justify-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="mx-auto w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white shadow-xl sm:my-6"
+        className="mx-auto w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white shadow-[0_24px_64px_-16px_rgba(0,0,0,0.25)] dark:border-zinc-700/90 dark:bg-zinc-900 dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.75)] sm:my-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-4 sm:px-6 sm:py-5">
-          <h3 className="text-lg font-semibold tracking-tight text-zinc-900">
+        <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-4 dark:border-zinc-800 sm:px-6 sm:py-5">
+          <h3 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
             Detalhes do pedido
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+            className="rounded-xl p-2.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
@@ -67,10 +67,10 @@ export function OrderDetailModal({
         </div>
         <div className="max-h-[calc(100dvh-10rem)] space-y-5 overflow-y-auto px-4 py-4 sm:max-h-[70dvh] sm:px-6 sm:py-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
               Nº do pedido (cliente)
             </p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-zinc-900">
+            <p className="mt-1 text-2xl font-bold tabular-nums text-zinc-900 dark:text-white">
               {displayOrderNumber(order.orderNumber)}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -103,7 +103,7 @@ export function OrderDetailModal({
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Cliente
             </p>
-            <p className="mt-1 font-medium text-zinc-900">{order.userEmail}</p>
+            <p className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{order.userEmail}</p>
             {order.userName && (
               <p className="text-sm text-zinc-600">{order.userName}</p>
             )}
@@ -112,13 +112,15 @@ export function OrderDetailModal({
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Plano
             </p>
-            <p className="mt-1 text-zinc-900">{order.planTitle}</p>
+            <p className="mt-1 text-zinc-900 dark:text-zinc-100">{order.planTitle}</p>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Origem da compra
             </p>
-            <p className="mt-1 text-zinc-900">{order.attributionSourceLabel ?? "direto"}</p>
+            <p className="mt-1 text-zinc-900 dark:text-zinc-100">
+              {order.attributionSourceLabel ?? "direto"}
+            </p>
             {order.attributionCampaign ? (
               <p className="mt-1 text-xs text-zinc-600">Campanha: {order.attributionCampaign}</p>
             ) : null}
@@ -135,7 +137,7 @@ export function OrderDetailModal({
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Valor
             </p>
-            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
               {currencyBRL(order.amountCents)}
             </p>
           </div>
@@ -178,14 +180,14 @@ export function OrderDetailModal({
               <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Código entregue
               </p>
-              <p className="mt-1.5 whitespace-pre-wrap rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 font-mono text-sm text-zinc-900">
+              <p className="mt-1.5 whitespace-pre-wrap rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 font-mono text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950/80 dark:text-zinc-100">
                 {order.code}
               </p>
             </div>
           )}
         </div>
         {order.status !== "cancelled" ? (
-          <div className="flex flex-wrap gap-2 border-t border-zinc-100 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-wrap gap-2 border-t border-zinc-100 px-4 py-3 dark:border-zinc-800 sm:px-6 sm:py-4">
             <button
               type="button"
               disabled={approvingId === order.id}

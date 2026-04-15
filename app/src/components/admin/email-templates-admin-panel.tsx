@@ -92,7 +92,7 @@ export function EmailTemplatesAdminPanel() {
 
   if (loadError) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100">
         {loadError}
       </div>
     );
@@ -100,7 +100,7 @@ export function EmailTemplatesAdminPanel() {
 
   if (!meta) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-sm text-zinc-500">
+      <div className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
         Carregando templates…
       </div>
     );
@@ -109,22 +109,22 @@ export function EmailTemplatesAdminPanel() {
   return (
     <div className="space-y-8">
       {!meta.resendConfigured && (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-100">
           <strong>RESEND_API_KEY</strong> não está definida neste ambiente. Configure na Vercel (ou{" "}
-          <code className="rounded bg-amber-100/80 px-1">.env</code> local) e faça redeploy.
+          <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/60">.env</code> local) e faça redeploy.
         </div>
       )}
 
       {!meta.fromConfigured && meta.resendConfigured && (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950">
+        <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950 dark:border-sky-500/35 dark:bg-sky-950/40 dark:text-sky-100">
           Opcional: defina <strong>RESEND_FROM</strong> com um remetente verificado (ex.:{" "}
-          <code className="rounded bg-sky-100/80 px-1">iPlay 5 Plus &lt;noreply@iplay5plus.app&gt;</code>
+          <code className="rounded bg-sky-100/80 px-1 dark:bg-sky-900/50">iPlay 5 Plus &lt;noreply@iplay5plus.app&gt;</code>
           ). Sem isso, o sistema usa um remetente padrão do código.
         </div>
       )}
 
       {!meta.storeNameFromEnv && (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
           Dica: use <strong>EMAIL_STORE_NAME</strong> para o nome da loja nos assuntos e rodapés dos
           e-mails (senão usa o padrão “Loja Digital”).
         </p>
@@ -134,19 +134,19 @@ export function EmailTemplatesAdminPanel() {
         title="Modelos automáticos (código)"
         subtitle="Os HTMLs vivem em email-templates.ts; aqui você só visualiza o propósito e testa o envio via Resend."
       >
-        <ul className="divide-y divide-zinc-100">
+        <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
           {meta.templates.map((t) => (
             <li
               key={t.key}
               className="flex flex-col gap-1 px-6 py-4 first:pt-2 sm:flex-row sm:items-start sm:justify-between"
             >
               <div className="min-w-0">
-                <p className="font-medium text-zinc-900">{t.name}</p>
-                <p className="mt-0.5 text-sm text-zinc-600">{t.description}</p>
-                <p className="mt-1 text-xs text-zinc-500">
-                  <span className="font-medium text-zinc-600">Quando:</span> {t.trigger}
+                <p className="font-medium text-zinc-900 dark:text-zinc-100">{t.name}</p>
+                <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">{t.description}</p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Quando:</span> {t.trigger}
                 </p>
-                <p className="mt-1 font-mono text-[11px] text-zinc-400">{t.internalId}</p>
+                <p className="mt-1 font-mono text-[11px] text-zinc-400 dark:text-zinc-500">{t.internalId}</p>
               </div>
             </li>
           ))}
@@ -164,7 +164,7 @@ export function EmailTemplatesAdminPanel() {
               id="tpl"
               value={template}
               onChange={(e) => setTemplate(e.target.value as EmailTestTemplateKey)}
-              className="theme-focus-input w-full max-w-md rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm"
+              className="theme-focus-input w-full max-w-md rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
             >
               {meta.templates.map((t) => (
                 <option key={t.key} value={t.key}>
@@ -189,8 +189,8 @@ export function EmailTemplatesAdminPanel() {
             <div
               className={
                 feedback.type === "ok"
-                  ? "rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900"
-                  : "rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+                  ? "rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/45 dark:text-emerald-100"
+                  : "rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100"
               }
             >
               {feedback.text}
@@ -209,7 +209,7 @@ export function EmailTemplatesAdminPanel() {
         </form>
       </SectionCard>
 
-      <p className="flex items-start gap-2 text-xs text-zinc-500">
+      <p className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-500">
         <Mail className="mt-0.5 h-4 w-4 shrink-0" />
         Edição do HTML dos templates ainda é feita no código (ou integração futura com templates
         hospedados na Resend).

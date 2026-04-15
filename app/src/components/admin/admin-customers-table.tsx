@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { currencyBRL } from "@/lib/utils";
+import { cn, currencyBRL } from "@/lib/utils";
 import { formatDateShortPtBr, formatDateTimePtBr } from "@/lib/brazil-time";
 import { EmptyState } from "./empty-state";
 import {
@@ -19,6 +19,14 @@ import {
   type CustomerOrderRow,
 } from "./customer-detail-modal";
 import { toAdminPath } from "@/lib/admin-path";
+import {
+  adminFilterBarClass,
+  adminTableMetaBarClass,
+  adminPaginationBtnClass,
+  adminOutlineBtnClass,
+  adminStatsStripClass,
+  adminFieldClass,
+} from "@/lib/admin-ui-classes";
 
 export type AdminCustomerOrderRow = CustomerOrderRow;
 
@@ -123,34 +131,34 @@ export function AdminCustomersTable({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap gap-4 rounded-xl border border-zinc-100 bg-zinc-50/50 px-4 py-3 text-sm">
+      <div className={adminStatsStripClass}>
         <div>
-          <span className="text-zinc-500">Clientes: </span>
-          <span className="font-semibold tabular-nums text-zinc-900">
+          <span className="text-zinc-500 dark:text-zinc-400">Clientes: </span>
+          <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
             {stats.total}
           </span>
         </div>
         <div>
-          <span className="text-zinc-500">Com pedido: </span>
-          <span className="font-semibold tabular-nums text-zinc-900">
+          <span className="text-zinc-500 dark:text-zinc-400">Com pedido: </span>
+          <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
             {stats.withOrder}
           </span>
         </div>
         <div>
-          <span className="text-zinc-500">Já pagaram: </span>
-          <span className="font-semibold tabular-nums text-zinc-900">
+          <span className="text-zinc-500 dark:text-zinc-400">Já pagaram: </span>
+          <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
             {stats.paidEver}
           </span>
         </div>
         <div>
-          <span className="text-zinc-500">Receita (pagos): </span>
-          <span className="font-semibold tabular-nums text-zinc-900">
+          <span className="text-zinc-500 dark:text-zinc-400">Receita (pagos): </span>
+          <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
             {currencyBRL(stats.revenue)}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className={adminFilterBarClass}>
         <label className="sr-only" htmlFor="customer-search">
           Buscar cliente
         </label>
@@ -158,12 +166,12 @@ export function AdminCustomersTable({
           id="customer-search"
           type="search"
           placeholder="Buscar por nome, e-mail ou telefone…"
-          className="min-w-[200px] flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-800 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "min-w-[200px] flex-1")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select
-          className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "w-full sm:w-auto")}
           value={filter}
           onChange={(e) => setFilter(e.target.value as typeof filter)}
           aria-label="Filtrar clientes"
@@ -173,7 +181,7 @@ export function AdminCustomersTable({
           <option value="paid">Com pagamento confirmado</option>
         </select>
         <select
-          className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "w-full min-w-[12rem] sm:w-auto")}
           value={sort}
           onChange={(e) => setSort(e.target.value as typeof sort)}
           aria-label="Ordenar lista"
@@ -183,10 +191,10 @@ export function AdminCustomersTable({
           <option value="orders_desc">Mais pedidos</option>
           <option value="revenue_desc">Maior total pago</option>
         </select>
-        <label className="flex items-center gap-2 text-sm text-zinc-600">
+        <label className="flex w-full items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 sm:w-auto">
           <span className="whitespace-nowrap">Por página</span>
           <select
-            className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-zinc-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className={cn(adminFieldClass, "w-auto min-w-[4.5rem] px-3")}
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
             aria-label="Quantidade de clientes por página"
@@ -198,10 +206,7 @@ export function AdminCustomersTable({
             ))}
           </select>
         </label>
-        <Link
-          href={toAdminPath("orders")}
-          className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-        >
+        <Link href={toAdminPath("orders")} className={adminOutlineBtnClass}>
           Ver pedidos
         </Link>
       </div>
@@ -218,19 +223,19 @@ export function AdminCustomersTable({
         />
       ) : (
         <>
-          <div className="flex flex-col gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <p className="text-zinc-600">
+          <div className={adminTableMetaBarClass}>
+            <p className="text-zinc-600 dark:text-zinc-400">
               Mostrando{" "}
-              <span className="font-semibold tabular-nums text-zinc-900">
+              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
                 {rangeLabel.from}–{rangeLabel.to}
               </span>{" "}
               de{" "}
-              <span className="font-semibold tabular-nums text-zinc-900">
+              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
                 {filtered.length}
               </span>{" "}
               {filtered.length === 1 ? "cliente" : "clientes"}
               {filtered.length !== customers.length ? (
-                <span className="text-zinc-400">
+                <span className="text-zinc-400 dark:text-zinc-500">
                   {" "}
                   (filtro sobre {customers.length} no total)
                 </span>
@@ -241,20 +246,25 @@ export function AdminCustomersTable({
                 type="button"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={adminPaginationBtnClass}
               >
                 Anterior
               </button>
-              <span className="tabular-nums text-zinc-600">
+              <span className="tabular-nums text-zinc-600 dark:text-zinc-400">
                 Página{" "}
-                <span className="font-semibold text-zinc-900">{page}</span> de{" "}
-                <span className="font-semibold text-zinc-900">{pageCount}</span>
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {page}
+                </span>{" "}
+                de{" "}
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {pageCount}
+                </span>
               </span>
               <button
                 type="button"
                 disabled={page >= pageCount}
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={adminPaginationBtnClass}
               >
                 Próxima
               </button>
@@ -285,25 +295,29 @@ export function AdminCustomersTable({
                   onClick={() => setSelected(row)}
                 >
                   <AdminTableCell>
-                    <p className="font-medium text-zinc-900">{row.name}</p>
-                    <p className="text-xs text-zinc-500">{row.email}</p>
+                    <p className="font-medium text-zinc-900 dark:text-zinc-100">
+                      {row.name}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {row.email}
+                    </p>
                   </AdminTableCell>
-                  <AdminTableCell className="text-zinc-600">
+                  <AdminTableCell className="text-zinc-600 dark:text-zinc-400">
                     {row.phone?.trim() || "—"}
                   </AdminTableCell>
-                  <AdminTableCell className="text-zinc-500">
+                  <AdminTableCell className="text-zinc-500 dark:text-zinc-400">
                     {formatDateShortPtBr(row.createdAt)}
                   </AdminTableCell>
-                  <AdminTableCell className="text-right tabular-nums font-medium text-zinc-900">
+                  <AdminTableCell className="text-right tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
                     {row.orderCount}
                   </AdminTableCell>
-                  <AdminTableCell className="text-right tabular-nums text-zinc-700">
+                  <AdminTableCell className="text-right tabular-nums text-zinc-700 dark:text-zinc-300">
                     {row.paidCount}
                   </AdminTableCell>
-                  <AdminTableCell className="text-right tabular-nums font-medium text-zinc-900">
+                  <AdminTableCell className="text-right tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
                     {currencyBRL(row.totalPaidCents)}
                   </AdminTableCell>
-                  <AdminTableCell className="text-zinc-500">
+                  <AdminTableCell className="text-zinc-500 dark:text-zinc-400">
                     {row.lastActivityAt
                       ? formatDateTimePtBr(row.lastActivityAt)
                       : "—"}
@@ -311,7 +325,7 @@ export function AdminCustomersTable({
                   <AdminTableCell>
                     <button
                       type="button"
-                      className="font-medium text-blue-600 hover:text-blue-700"
+                      className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelected(row);

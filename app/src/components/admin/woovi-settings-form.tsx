@@ -108,8 +108,8 @@ export function WooviSettingsForm({
       <div
         className={
           isConfigured
-            ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"
-            : "rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+            ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/45 dark:text-emerald-100"
+            : "rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/35 dark:bg-amber-950/40 dark:text-amber-100"
         }
       >
         <p className="font-medium">
@@ -123,11 +123,11 @@ export function WooviSettingsForm({
       </div>
 
       {form.paymentProvider === "ggpix" ? (
-        <div className="space-y-3 rounded-2xl border border-violet-200/80 bg-violet-50/60 p-4 sm:p-5">
-          <p className="text-sm font-semibold text-violet-950">
+        <div className="space-y-3 rounded-2xl border border-violet-200/80 bg-violet-50/60 p-4 dark:border-violet-500/25 dark:bg-violet-950/35 sm:p-5">
+          <p className="text-sm font-semibold text-violet-950 dark:text-violet-100">
             Como configurar no painel GGPIXAPI (Credenciais e Webhooks)
           </p>
-          <ol className="list-decimal space-y-2 pl-4 text-sm leading-relaxed text-zinc-700">
+          <ol className="list-decimal space-y-2 pl-4 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
             <li>
               Acesse o painel da GGPIXAPI e abra <strong>Credenciais e Webhooks</strong> → aba{" "}
               <strong>Webhooks</strong> → <strong>Configuração</strong>.
@@ -135,14 +135,14 @@ export function WooviSettingsForm({
             <li>
               Em <strong>URL do Webhook</strong>, cole exatamente esta URL (HTTPS):
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                <code className="break-all rounded-lg bg-white px-2 py-1 text-xs text-zinc-900 ring-1 ring-zinc-200">
+                <code className="break-all rounded-lg bg-white px-2 py-1 text-xs text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-zinc-700">
                   {ggpixWebhookUrl}
                 </code>
                 <button
                   type="button"
                   disabled={off}
                   onClick={() => copyText(ggpixWebhookUrl)}
-                  className="rounded-lg border border-violet-300 bg-white px-2 py-1 text-xs font-medium text-violet-900 hover:bg-violet-100 disabled:opacity-50"
+                  className="rounded-lg border border-violet-300 bg-white px-2 py-1 text-xs font-medium text-violet-900 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-500/40 dark:bg-violet-950/50 dark:text-violet-200 dark:hover:bg-violet-900/60"
                 >
                   Copiar URL
                 </button>
@@ -163,51 +163,51 @@ export function WooviSettingsForm({
               <strong>Testar</strong> se disponível.
             </li>
             <li>
-              A <strong>API Key</strong> vem das credenciais GGPIX (formato <code className="rounded bg-white px-1">gk_…</code>).
+              A <strong>API Key</strong> vem das credenciais GGPIX (formato <code className="rounded bg-white px-1 dark:bg-zinc-800 dark:text-zinc-200">gk_…</code>).
               Cole no campo <strong>API Key da GGPIXAPI</strong> e salve neste site.
             </li>
           </ol>
-          <p className="text-xs text-zinc-600">
-            URL base das instruções: <code className="rounded bg-white px-1">{base}</code>. Loja em
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            URL base das instruções: <code className="rounded bg-white px-1 dark:bg-zinc-800 dark:text-zinc-200">{base}</code>. Loja em
             produção:{" "}
             <a
               href={PRODUCTION_PUBLIC_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-violet-800 underline underline-offset-2"
+              className="font-medium text-violet-800 underline underline-offset-2 dark:text-violet-300"
             >
               {PRODUCTION_PUBLIC_SITE_URL}
             </a>
-            . Se <code className="rounded bg-white px-1">APP_URL</code> no servidor for outro domínio
+            . Se <code className="rounded bg-white px-1 dark:bg-zinc-800 dark:text-zinc-200">APP_URL</code> no servidor for outro domínio
             válido (não localhost), ele substitui automaticamente estas URLs.
           </p>
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
             Documentação oficial:{" "}
             <a
               href="https://ggpixapi.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-violet-800 underline underline-offset-2 hover:text-violet-950"
+              className="font-medium text-violet-800 underline underline-offset-2 hover:text-violet-950 dark:text-violet-300 dark:hover:text-violet-200"
             >
               ggpixapi.com
             </a>
           </p>
         </div>
       ) : (
-        <div className="space-y-3 rounded-2xl border border-sky-200/80 bg-sky-50/60 p-4 sm:p-5">
-          <p className="text-sm font-semibold text-sky-950">Como configurar a Woovi (webhook)</p>
-          <ol className="list-decimal space-y-2 pl-4 text-sm leading-relaxed text-zinc-700">
+        <div className="space-y-3 rounded-2xl border border-sky-200/80 bg-sky-50/60 p-4 dark:border-sky-500/25 dark:bg-sky-950/35 sm:p-5">
+          <p className="text-sm font-semibold text-sky-950 dark:text-sky-100">Como configurar a Woovi (webhook)</p>
+          <ol className="list-decimal space-y-2 pl-4 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
             <li>
               No painel Woovi/OpenPix, configure o webhook apontando para:
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                <code className="break-all rounded-lg bg-white px-2 py-1 text-xs text-zinc-900 ring-1 ring-zinc-200">
+                <code className="break-all rounded-lg bg-white px-2 py-1 text-xs text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-zinc-700">
                   {wooviWebhookUrl}
                 </code>
                 <button
                   type="button"
                   disabled={off}
                   onClick={() => copyText(wooviWebhookUrl)}
-                  className="rounded-lg border border-sky-300 bg-white px-2 py-1 text-xs font-medium text-sky-900 hover:bg-sky-100 disabled:opacity-50"
+                  className="rounded-lg border border-sky-300 bg-white px-2 py-1 text-xs font-medium text-sky-900 hover:bg-sky-100 disabled:opacity-50 dark:border-sky-500/40 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/60"
                 >
                   Copiar URL
                 </button>
@@ -218,13 +218,13 @@ export function WooviSettingsForm({
               <strong>Webhook Secret da Woovi</strong> abaixo.
             </li>
           </ol>
-          <p className="text-xs text-zinc-600">
-            URL acima usa <code className="rounded bg-white px-1">{base}</code> — loja em produção:{" "}
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            URL acima usa <code className="rounded bg-white px-1 dark:bg-zinc-800 dark:text-zinc-200">{base}</code> — loja em produção:{" "}
             <a
               href={PRODUCTION_PUBLIC_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-sky-900 underline underline-offset-2"
+              className="font-medium text-sky-900 underline underline-offset-2 dark:text-sky-300"
             >
               {PRODUCTION_PUBLIC_SITE_URL}
             </a>
@@ -246,7 +246,7 @@ export function WooviSettingsForm({
                 paymentProvider: e.target.value as "woovi" | "ggpix",
               }))
             }
-            className="theme-focus-input w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900"
+            className="theme-focus-input w-full rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
           >
             <option value="woovi">Woovi</option>
             <option value="ggpix">GGPIXAPI</option>
@@ -307,14 +307,14 @@ export function WooviSettingsForm({
               setForm((prev) => ({ ...prev, ggpixWebhookBearer: e.target.value }))
             }
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Mesmo valor que o painel mostra para <strong>Bearer Token</strong> quando{" "}
             <strong>Ambos</strong> está ativo. O HMAC continua validado com o campo acima.
           </p>
         </div>
       </div>
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Essas credenciais são usadas para gerar cobranças Pix e validar webhooks no ambiente online.
       </p>
 
@@ -327,8 +327,8 @@ export function WooviSettingsForm({
           role="status"
           className={
             toast === "ok"
-              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl"
-              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl"
+              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl dark:border-emerald-500/30 dark:bg-emerald-950/50 dark:text-emerald-100"
+              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl dark:border-red-500/35 dark:bg-red-950/50 dark:text-red-100"
           }
         >
           {toastMsg}

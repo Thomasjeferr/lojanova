@@ -61,8 +61,8 @@ export function ThemeSwitcherSection({
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-zinc-500">Template atual</p>
-        <p className="mt-1 text-lg font-semibold text-zinc-900">
+        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Template atual</p>
+        <p className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           {THEME_DEFINITIONS[active].label}
         </p>
       </div>
@@ -83,8 +83,8 @@ export function ThemeSwitcherSection({
           role="status"
           className={
             toast === "success"
-              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl"
-              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl"
+              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl dark:border-emerald-500/30 dark:bg-emerald-950/50 dark:text-emerald-100"
+              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl dark:border-red-500/35 dark:bg-red-950/50 dark:text-red-100"
           }
         >
           {toastMsg}

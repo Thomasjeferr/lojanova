@@ -10,12 +10,16 @@ export function AdminTable({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-sm",
+        "relative overflow-hidden rounded-[1.125rem] border border-zinc-200/60 bg-white",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.05),0_22px_50px_-28px_rgba(15,23,42,0.14)]",
+        "dark:border-zinc-600/35 dark:bg-zinc-900/82",
+        "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_28px_56px_-32px_rgba(0,0,0,0.82)]",
+        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-[1] before:h-px before:bg-gradient-to-r before:from-transparent before:via-indigo-500/25 before:to-transparent dark:before:via-indigo-400/15",
         className,
       )}
     >
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-zinc-100 text-left text-sm">
+      <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+        <table className="min-w-full divide-y divide-zinc-100 text-left text-sm dark:divide-zinc-800/90">
           {children}
         </table>
       </div>
@@ -25,7 +29,7 @@ export function AdminTable({
 
 export function AdminTableHead({ children }: { children: React.ReactNode }) {
   return (
-    <thead className="bg-zinc-50/80">
+    <thead className="bg-gradient-to-b from-zinc-50/98 via-zinc-50/70 to-zinc-100/35 dark:from-zinc-900/95 dark:via-zinc-900/75 dark:to-zinc-950/85">
       <tr>{children}</tr>
     </thead>
   );
@@ -41,7 +45,8 @@ export function AdminTableHeaderCell({
   return (
     <th
       className={cn(
-        "px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-zinc-500",
+        "px-4 py-4 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500 sm:px-5",
+        "dark:text-zinc-400",
         className,
       )}
     >
@@ -51,7 +56,11 @@ export function AdminTableHeaderCell({
 }
 
 export function AdminTableBody({ children }: { children: React.ReactNode }) {
-  return <tbody className="divide-y divide-zinc-100">{children}</tbody>;
+  return (
+    <tbody className="relative z-[2] divide-y divide-zinc-100/90 bg-white/[0.65] dark:divide-zinc-800/75 dark:bg-zinc-950/25">
+      {children}
+    </tbody>
+  );
 }
 
 export function AdminTableRow({
@@ -67,8 +76,9 @@ export function AdminTableRow({
     <tr
       onClick={onClick}
       className={cn(
-        "transition-colors",
-        onClick && "cursor-pointer hover:bg-zinc-50/80",
+        "transition-colors duration-150",
+        onClick &&
+          "cursor-pointer hover:bg-indigo-50/50 dark:hover:bg-zinc-800/70",
         className,
       )}
     >
@@ -85,7 +95,12 @@ export function AdminTableCell({
   className?: string;
 }) {
   return (
-    <td className={cn("px-5 py-3.5 text-zinc-700", className)}>
+    <td
+      className={cn(
+        "px-4 py-3.5 align-top text-zinc-700 sm:px-5 dark:text-zinc-300",
+        className,
+      )}
+    >
       {children}
     </td>
   );

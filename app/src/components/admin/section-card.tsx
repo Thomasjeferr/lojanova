@@ -1,4 +1,11 @@
 import { cn } from "@/lib/utils";
+import {
+  adminPremiumCard,
+  adminPremiumCardAccent,
+  adminPremiumCardHeader,
+  adminPremiumHeading,
+  adminPremiumSub,
+} from "@/lib/admin-premium-ui";
 
 type SectionCardProps = {
   title?: string;
@@ -16,30 +23,25 @@ export function SectionCard({
   className,
 }: SectionCardProps) {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-sm",
-        className,
-      )}
-    >
+    <div className={cn(adminPremiumCard, className)}>
+      <div className={adminPremiumCardAccent} aria-hidden />
       {(title || action) && (
-        <div className="flex flex-col gap-1 border-b border-zinc-100 bg-zinc-50/50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            {title && (
-              <h3 className="text-base font-semibold tracking-tight text-zinc-900">
-                {title}
-              </h3>
-            )}
-            {subtitle && (
-              <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>
-            )}
-          </div>
-          {action && (
-            <div className="mt-3 shrink-0 sm:mt-0">{action}</div>
+        <div
+          className={cn(
+            adminPremiumCardHeader,
+            "flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between",
           )}
+        >
+          <div>
+            {title && <h3 className={cn(adminPremiumHeading, "text-base sm:text-[1.0625rem]")}>{title}</h3>}
+            {subtitle && <p className={adminPremiumSub}>{subtitle}</p>}
+          </div>
+          {action && <div className="mt-3 shrink-0 sm:mt-0">{action}</div>}
         </div>
       )}
-      <div className="p-6">{children}</div>
+      <div className="relative z-[2] p-6 text-[15px] leading-relaxed text-zinc-700 dark:text-zinc-200/95">
+        {children}
+      </div>
     </div>
   );
 }

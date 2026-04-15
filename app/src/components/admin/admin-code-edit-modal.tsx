@@ -98,15 +98,15 @@ export function AdminCodeEditModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white shadow-xl"
+        className="w-full max-w-lg rounded-2xl border border-zinc-200/80 bg-white shadow-xl dark:border-zinc-700/90 dark:bg-zinc-900 dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.75)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-5">
-          <h3 className="text-lg font-semibold tracking-tight text-zinc-900">Editar código</h3>
+        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-5 dark:border-zinc-800">
+          <h3 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Editar código</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+            className="rounded-xl p-2.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
@@ -117,7 +117,7 @@ export function AdminCodeEditModal({
             <Label htmlFor="edit-plan">Plano</Label>
             <select
               id="edit-plan"
-              className="theme-focus-input w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-800"
+              className="theme-focus-input w-full rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-800 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
               value={planId}
               onChange={(e) => setPlanId(e.target.value)}
               disabled={loading}
@@ -171,7 +171,7 @@ export function AdminCodeEditModal({
                     type="button"
                     disabled={loading}
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 disabled:pointer-events-none disabled:opacity-40"
+                    className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 disabled:pointer-events-none disabled:opacity-40 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showPassword ? (
@@ -186,7 +186,7 @@ export function AdminCodeEditModal({
           )}
 
           {error && (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100">
               {error}
             </p>
           )}

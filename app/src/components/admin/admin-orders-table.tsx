@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { currencyBRL } from "@/lib/utils";
+import { cn, currencyBRL } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
 import { EmptyState } from "./empty-state";
 import {
@@ -20,6 +20,15 @@ import { copyOrderNumber, displayOrderNumber } from "@/lib/order-ref";
 import { formatDateTimePtBr } from "@/lib/brazil-time";
 import { OrderDetailModal, type OrderRow } from "./order-detail-modal";
 import { toAdminPath } from "@/lib/admin-path";
+import {
+  adminFilterBarClass,
+  adminTableMetaBarClass,
+  adminPaginationBtnClass,
+  adminOutlineBtnClass,
+  adminBannerOkClass,
+  adminBannerErrClass,
+  adminFieldClass,
+} from "@/lib/admin-ui-classes";
 
 export type { OrderRow };
 
@@ -224,7 +233,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
+      <div className={adminFilterBarClass}>
         <label className="sr-only" htmlFor="order-search">
           Buscar pedido
         </label>
@@ -232,7 +241,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
           id="order-search"
           type="search"
           placeholder="Nº do pedido, e-mail ou nome do cliente…"
-          className="min-w-[220px] flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-800 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "min-w-[220px] flex-1")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -241,7 +250,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
         </label>
         <select
           id="filter-order-status"
-          className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className={cn(adminFieldClass, "w-full sm:w-auto")}
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
@@ -251,10 +260,10 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
           <option value="failed">Falhou</option>
           <option value="cancelled">Cancelado</option>
         </select>
-        <label className="flex items-center gap-2 text-sm text-zinc-600">
+        <label className="flex w-full items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 sm:w-auto">
           <span className="whitespace-nowrap">Por página</span>
           <select
-            className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-zinc-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className={cn(adminFieldClass, "w-auto min-w-[4.5rem] px-3")}
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
             aria-label="Pedidos por página"
@@ -266,10 +275,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
             ))}
           </select>
         </label>
-        <Link
-          href={toAdminPath("customers")}
-          className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-        >
+        <Link href={toAdminPath("customers")} className={adminOutlineBtnClass}>
           Ver clientes
         </Link>
       </div>
@@ -277,11 +283,9 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
       {actionBanner ? (
         <div
           role="status"
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            actionBanner.type === "ok"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-red-200 bg-red-50 text-red-800"
-          }`}
+          className={
+            actionBanner.type === "ok" ? adminBannerOkClass : adminBannerErrClass
+          }
         >
           {actionBanner.text}
         </div>
@@ -300,7 +304,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
             orders.length === 0 ? (
               <Link
                 href="/"
-                className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800"
+                className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
               >
                 Ver site
               </Link>
@@ -309,19 +313,19 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
         />
       ) : (
         <>
-          <div className="flex flex-col gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <p className="text-zinc-600">
+          <div className={adminTableMetaBarClass}>
+            <p className="text-zinc-600 dark:text-zinc-400">
               Mostrando{" "}
-              <span className="font-semibold tabular-nums text-zinc-900">
+              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
                 {rangeLabel.from}–{rangeLabel.to}
               </span>{" "}
               de{" "}
-              <span className="font-semibold tabular-nums text-zinc-900">
+              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
                 {filtered.length}
               </span>{" "}
               {filtered.length === 1 ? "pedido" : "pedidos"}
               {filtered.length !== orders.length ? (
-                <span className="text-zinc-400">
+                <span className="text-zinc-400 dark:text-zinc-500">
                   {" "}
                   (filtro sobre {orders.length} no total)
                 </span>
@@ -332,20 +336,25 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                 type="button"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={adminPaginationBtnClass}
               >
                 Anterior
               </button>
-              <span className="tabular-nums text-zinc-600">
+              <span className="tabular-nums text-zinc-600 dark:text-zinc-400">
                 Página{" "}
-                <span className="font-semibold text-zinc-900">{page}</span> de{" "}
-                <span className="font-semibold text-zinc-900">{pageCount}</span>
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {page}
+                </span>{" "}
+                de{" "}
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {pageCount}
+                </span>
               </span>
               <button
                 type="button"
                 disabled={page >= pageCount}
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={adminPaginationBtnClass}
               >
                 Próxima
               </button>
@@ -373,7 +382,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                   onClick={() => setSelectedOrder(row)}
                 >
                   <AdminTableCell className="align-top">
-                    <p className="text-base font-bold tabular-nums text-zinc-900">
+                    <p className="text-base font-bold tabular-nums text-zinc-900 dark:text-white">
                       {displayOrderNumber(row.orderNumber)}
                     </p>
                     <div
@@ -389,15 +398,19 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                     </div>
                   </AdminTableCell>
                   <AdminTableCell>
-                    <p className="font-medium text-zinc-900">{row.userEmail}</p>
+                    <p className="font-medium text-zinc-900 dark:text-zinc-100">
+                      {row.userEmail}
+                    </p>
                     {row.userName && (
-                      <p className="text-xs text-zinc-500">{row.userName}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        {row.userName}
+                      </p>
                     )}
                   </AdminTableCell>
-                  <AdminTableCell className="text-zinc-600">
+                  <AdminTableCell className="text-zinc-600 dark:text-zinc-400">
                     {row.planTitle}
                   </AdminTableCell>
-                  <AdminTableCell className="font-medium text-zinc-900 tabular-nums">
+                  <AdminTableCell className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
                     {currencyBRL(row.amountCents)}
                   </AdminTableCell>
                   <AdminTableCell>
@@ -411,13 +424,13 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                       }
                     />
                   </AdminTableCell>
-                  <AdminTableCell className="text-zinc-500">
+                  <AdminTableCell className="text-zinc-500 dark:text-zinc-400">
                     {formatDateTimePtBr(row.createdAt)}
                   </AdminTableCell>
-                  <AdminTableCell className="text-xs text-zinc-600">
+                  <AdminTableCell className="text-xs text-zinc-600 dark:text-zinc-400">
                     {row.attributionSourceLabel ?? "direto"}
                   </AdminTableCell>
-                  <AdminTableCell className="font-mono text-xs text-zinc-600">
+                  <AdminTableCell className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
                     {row.code
                       ? row.code.replace(/\n/g, " / ").slice(0, 28) + "…"
                       : "—"}
@@ -432,7 +445,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                           type="button"
                           disabled={approvingId === row.id}
                           onClick={() => void handleApprove(row)}
-                          className="text-left text-sm font-semibold text-emerald-700 hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="text-left text-sm font-semibold text-emerald-700 hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400 dark:hover:text-emerald-300"
                         >
                           {approvingId === row.id
                             ? "Processando…"
@@ -446,14 +459,14 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: OrderRow[] 
                           type="button"
                           disabled={cancellingId === row.id}
                           onClick={() => void handleCancel(row)}
-                          className="text-left text-sm font-semibold text-red-700 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="text-left text-sm font-semibold text-red-700 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300"
                         >
                           {cancellingId === row.id ? "Cancelando…" : "Cancelar"}
                         </button>
                       ) : null}
                       <button
                         type="button"
-                        className="text-left text-sm font-medium text-blue-600 hover:text-blue-700"
+                        className="text-left text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                         onClick={() => setSelectedOrder(row)}
                       >
                         Ver

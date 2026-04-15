@@ -131,7 +131,7 @@ export function LowStockAlertSettingsForm({
 
   return (
     <div className={cn("space-y-6", disabled && "opacity-60")}>
-      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5">
+      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/40 p-5 dark:border-zinc-700/50 dark:bg-zinc-800/30">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
@@ -140,14 +140,14 @@ export function LowStockAlertSettingsForm({
             onChange={(e) =>
               setForm((prev) => ({ ...prev, lowStockAlertEnabled: e.target.checked }))
             }
-            className="mt-1 h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/25"
+            className="mt-1 h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/25 dark:border-zinc-600"
           />
           <div>
-            <p className="font-medium text-zinc-900">Ativar alerta de estoque baixo</p>
-            <p className="text-sm text-zinc-500">
+            <p className="font-medium text-zinc-900 dark:text-zinc-50">Ativar alerta de estoque baixo</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Um resumo por e-mail quando <strong>planos ativos</strong> tiverem quantidade de
               códigos <strong>disponíveis</strong> menor ou igual ao limite abaixo. Requer{" "}
-              <code className="rounded bg-zinc-200/60 px-1 text-xs">RESEND_API_KEY</code> e job de
+              <code className="rounded bg-zinc-200/60 px-1 text-xs dark:bg-zinc-700 dark:text-zinc-200">RESEND_API_KEY</code> e job de
               cron (veja README).
             </p>
           </div>
@@ -170,7 +170,7 @@ export function LowStockAlertSettingsForm({
               }))
             }
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Ex.: com limite 5, entram no alerta todos os planos ativos com até 5 códigos livres
             (inclui zero).
           </p>
@@ -188,9 +188,9 @@ export function LowStockAlertSettingsForm({
               setForm((prev) => ({ ...prev, lowStockNotifyEmail: e.target.value }))
             }
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Se vazio, usa{" "}
-            <code className="rounded bg-zinc-100 px-1 text-xs">ADMIN_EMAIL</code>
+            <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800 dark:text-zinc-200">ADMIN_EMAIL</code>
             {fallbackNotifyEmailHint ? (
               <>
                 {" "}
@@ -204,9 +204,9 @@ export function LowStockAlertSettingsForm({
         </div>
       </div>
 
-      <p className="text-sm text-zinc-600">
-        Último envio registrado: <strong className="font-medium">{lastSentLabel}</strong>
-        <span className="text-zinc-400">
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        Último envio registrado: <strong className="font-medium text-zinc-800 dark:text-zinc-200">{lastSentLabel}</strong>
+        <span className="text-zinc-400 dark:text-zinc-500">
           {" "}
           · O job na Vercel roda a cada 15 minutos; enquanto houver plano abaixo do limite, pode
           receber um novo e-mail a cada execução.
@@ -227,7 +227,7 @@ export function LowStockAlertSettingsForm({
           {runLoading ? "Executando…" : "Testar envio agora"}
         </Button>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
         &quot;Testar envio agora&quot; roda a mesma verificação do cron e mostra o motivo se não enviar
         (ex.: sem estoque baixo, Resend ou e-mail).
       </p>
@@ -237,8 +237,8 @@ export function LowStockAlertSettingsForm({
           role="status"
           className={
             toast === "ok"
-              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl"
-              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl"
+              ? "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-900 shadow-xl dark:border-emerald-500/30 dark:bg-emerald-950/50 dark:text-emerald-100"
+              : "fixed bottom-6 left-1/2 z-[100] max-w-md -translate-x-1/2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-900 shadow-xl dark:border-red-500/35 dark:bg-red-950/50 dark:text-red-100"
           }
         >
           {toastMsg}

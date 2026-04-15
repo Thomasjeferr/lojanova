@@ -159,8 +159,8 @@ export function BrandingSettingsForm({
   return (
     <div className={cn("space-y-8", disabled && "opacity-60")}>
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-zinc-900">Nome da loja</h3>
-        <p className="mt-1 text-sm text-zinc-500">
+        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Nome da loja</h3>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           Aparece no lugar do texto da marca quando não há logo, no rodapé e na aba do navegador
           (junto ao favicon).
         </p>
@@ -186,12 +186,12 @@ export function BrandingSettingsForm({
         <Card className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-zinc-900">Logo</h3>
-              <p className="mt-1 text-sm text-zinc-500">
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Logo</h3>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 Site, área do cliente e painel. PNG ou JPG com fundo transparente recomendado.
               </p>
             </div>
-            <ImageIcon className="h-8 w-8 shrink-0 text-zinc-300" />
+            <ImageIcon className="h-8 w-8 shrink-0 text-zinc-300 dark:text-zinc-500" />
           </div>
           <input
             ref={logoInputRef}
@@ -202,8 +202,8 @@ export function BrandingSettingsForm({
           />
           <div
             className={cn(
-              "mt-6 flex min-h-[120px] items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/80 p-4",
-              logoDataUrl && "border-solid border-zinc-200 bg-white",
+              "mt-6 flex min-h-[120px] items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200/90 bg-zinc-50/80 p-4 dark:border-zinc-600/70 dark:bg-zinc-950/35",
+              logoDataUrl && "border-solid border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-900/70",
             )}
           >
             {logoDataUrl ? (
@@ -214,7 +214,7 @@ export function BrandingSettingsForm({
                 className="max-h-24 max-w-full object-contain"
               />
             ) : (
-              <p className="text-sm text-zinc-400">Nenhuma logo enviada</p>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">Nenhuma logo enviada</p>
             )}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -231,7 +231,7 @@ export function BrandingSettingsForm({
               <Button
                 type="button"
                 variant="outline"
-                className="text-red-600 hover:bg-red-50"
+                className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
                 onClick={clearLogo}
                 disabled={off}
               >
@@ -245,12 +245,12 @@ export function BrandingSettingsForm({
         <Card className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-zinc-900">Favicon</h3>
-              <p className="mt-1 text-sm text-zinc-500">
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Favicon</h3>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 Ícone da aba e nos resultados do Google. Use <strong>PNG ou ICO quadrados, 48×48 px ou maior</strong> (ex.: 64, 96, 192). Evite WebP no favicon se quiser máxima compatibilidade com o índice do Google. O arquivo fica em <code className="text-xs">/favicon.ico</code> e <code className="text-xs">/icon</code>.
               </p>
             </div>
-            <ImageIcon className="h-8 w-8 shrink-0 text-zinc-300" />
+            <ImageIcon className="h-8 w-8 shrink-0 text-zinc-300 dark:text-zinc-500" />
           </div>
           <input
             ref={faviconInputRef}
@@ -261,8 +261,8 @@ export function BrandingSettingsForm({
           />
           <div
             className={cn(
-              "mt-6 flex min-h-[120px] items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/80 p-4",
-              faviconDataUrl && "border-solid border-zinc-200 bg-white",
+              "mt-6 flex min-h-[120px] items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200/90 bg-zinc-50/80 p-4 dark:border-zinc-600/70 dark:bg-zinc-950/35",
+              faviconDataUrl && "border-solid border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-900/70",
             )}
           >
             {faviconDataUrl ? (
@@ -273,7 +273,7 @@ export function BrandingSettingsForm({
                 className="h-16 w-16 rounded-lg object-cover shadow-sm"
               />
             ) : (
-              <p className="text-sm text-zinc-400">Nenhum favicon enviado</p>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">Nenhum favicon enviado</p>
             )}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -290,7 +290,7 @@ export function BrandingSettingsForm({
               <Button
                 type="button"
                 variant="outline"
-                className="text-red-600 hover:bg-red-50"
+                className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
                 onClick={clearFavicon}
                 disabled={off}
               >
@@ -302,9 +302,9 @@ export function BrandingSettingsForm({
         </Card>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-emerald-600">{success}</p>}
-      {loading && <p className="text-sm text-zinc-500">Salvando...</p>}
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {success && <p className="text-sm text-emerald-600 dark:text-emerald-400">{success}</p>}
+      {loading && <p className="text-sm text-zinc-500 dark:text-zinc-400">Salvando...</p>}
     </div>
   );
 }

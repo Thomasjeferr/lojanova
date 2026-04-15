@@ -218,7 +218,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-base font-semibold text-zinc-900">Lista de planos</h2>
+        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">Lista de planos</h2>
         <Button
           variant="outline"
           onClick={openNew}
@@ -233,8 +233,8 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
         <div
           className={`rounded-xl border px-4 py-3 text-sm font-medium ${
             message.type === "ok"
-              ? "border-emerald-200/80 bg-emerald-50 text-emerald-800"
-              : "border-red-200/80 bg-red-50 text-red-800"
+              ? "border-emerald-200/80 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-950/45 dark:text-emerald-100"
+              : "border-red-200/80 bg-red-50 text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100"
           }`}
         >
           {message.text}
@@ -245,11 +245,11 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
         {plans.map((plan) => (
           <li
             key={plan.id}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-zinc-100 bg-zinc-50/30 px-4 py-3.5"
+            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-zinc-100/90 bg-zinc-50/40 px-4 py-3.5 dark:border-zinc-800/80 dark:bg-zinc-800/35"
           >
             <div>
-              <p className="font-medium text-zinc-900">{plan.title}</p>
-              <p className="text-sm text-zinc-500">
+              <p className="font-medium text-zinc-900 dark:text-zinc-50">{plan.title}</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 {plan.durationDays} dias · {currencyBRL(plan.priceCents)}
                 {plan.isFeatured && " · Destaque"}
                 {!plan.isActive && " · Inativo"}
@@ -271,7 +271,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
                 size="sm"
                 onClick={() => removePlan(plan)}
                 disabled={deletingId === plan.id}
-                className="gap-1.5 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                className="gap-1.5 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-950/50 dark:hover:text-red-100"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 {deletingId === plan.id ? "Excluindo..." : "Excluir"}
@@ -281,19 +281,19 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
         ))}
       </ul>
 
-      <div className="rounded-2xl border border-zinc-200/80 bg-zinc-50/30 p-6">
-        <h3 className="mb-5 text-base font-semibold text-zinc-900">
+      <div className="rounded-2xl border border-zinc-200/75 bg-zinc-50/40 p-6 dark:border-zinc-700/50 dark:bg-zinc-800/25">
+        <h3 className="mb-5 text-base font-semibold text-zinc-900 dark:text-zinc-50">
           {editingId ? "Editar plano" : "Criar novo plano"}
         </h3>
-        <div className="mb-5 rounded-2xl border border-zinc-200/80 bg-white p-4">
+        <div className="mb-5 rounded-2xl border border-zinc-200/80 bg-white p-4 dark:border-zinc-700/60 dark:bg-zinc-900/60">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-zinc-700">Logo do produto (topo do card)</p>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Logo do produto (topo do card)</p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 Opcional. Aparece no topo do card do plano na landing.
               </p>
             </div>
-            <ImageIcon className="h-6 w-6 shrink-0 text-zinc-300" />
+            <ImageIcon className="h-6 w-6 shrink-0 text-zinc-300 dark:text-zinc-500" />
           </div>
           <input
             ref={logoInputRef}
@@ -302,7 +302,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
             className="hidden"
             onChange={handlePlanLogoFile}
           />
-          <div className="mt-4 flex min-h-[88px] items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50/80 p-3">
+          <div className="mt-4 flex min-h-[88px] items-center justify-center rounded-xl border-2 border-dashed border-zinc-200/90 bg-zinc-50/80 p-3 dark:border-zinc-600/70 dark:bg-zinc-950/40">
             {form.logoDataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -311,7 +311,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
                 className="max-h-16 max-w-full object-contain"
               />
             ) : (
-              <p className="text-xs text-zinc-400">Sem logo para este plano</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">Sem logo para este plano</p>
             )}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -330,7 +330,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="text-red-600 hover:bg-red-50"
+                className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
                 onClick={() => setForm({ ...form, logoDataUrl: null })}
                 disabled={loading}
               >
@@ -342,7 +342,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-zinc-700">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
               Título
             </label>
             <Input
@@ -353,7 +353,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-zinc-700">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
               Slug (URL)
             </label>
             <Input
@@ -364,7 +364,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-zinc-700">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
               Duração (dias)
             </label>
             <Input
@@ -381,7 +381,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-zinc-700">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
               Preço (R$)
             </label>
             <Input
@@ -397,7 +397,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
               placeholder="49,90"
               className="rounded-xl"
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Use <strong>49,90</strong> para reais ou, como no campo antigo, só números em centavos a partir de{" "}
               <strong>1000</strong> (ex.: <strong>4990</strong> = R$ 49,90). Abaixo de 1000 sem vírgula = reais
               inteiros (ex.: <strong>49</strong> = R$ 49,00).
@@ -406,14 +406,14 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
         </div>
 
         <div className="mt-6 space-y-3">
-          <label className="block text-sm font-medium text-zinc-700">
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
             Benefícios
           </label>
           <div className="space-y-2">
             {(form.benefits || [""]).map((b, i) => (
               <div
                 key={i}
-                className="flex gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2"
+                className="flex gap-2 rounded-xl border border-zinc-200/90 bg-white px-3 py-2 dark:border-zinc-700/70 dark:bg-zinc-950/50"
               >
                 <Input
                   value={b}
@@ -426,7 +426,7 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
                   variant="ghost"
                   size="sm"
                   onClick={() => removeBenefit(i)}
-                  className="shrink-0 text-zinc-500 hover:text-zinc-700"
+                  className="shrink-0 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                 >
                   Remover
                 </Button>
@@ -453,9 +453,9 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
               onChange={(e) =>
                 setForm({ ...form, isActive: e.target.checked })
               }
-              className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/20"
+              className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/20 dark:border-zinc-600"
             />
-            <span className="text-sm font-medium text-zinc-700">
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
               Ativo (visível na landing)
             </span>
           </label>
@@ -466,9 +466,9 @@ export function AdminPlanManager({ initialPlans }: { initialPlans: Plan[] }) {
               onChange={(e) =>
                 setForm({ ...form, isFeatured: e.target.checked })
               }
-              className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/20"
+              className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/20 dark:border-zinc-600"
             />
-            <span className="text-sm font-medium text-zinc-700">
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
               Destaque (Mais popular)
             </span>
           </label>

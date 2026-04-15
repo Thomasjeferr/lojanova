@@ -45,7 +45,7 @@ function TextAreaField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400"
+        className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
       />
     </div>
   );
@@ -104,7 +104,7 @@ export function LandingCopySettingsForm({
             value={copy.fontPreset}
             onChange={(e) => setField("fontPreset", e.target.value as LandingCopy["fontPreset"])}
             disabled={off}
-            className="theme-focus-input w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900"
+            className="theme-focus-input w-full rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
           >
             {FONT_OPTIONS.map((f) => (
               <option key={f.value} value={f.value}>
@@ -120,7 +120,7 @@ export function LandingCopySettingsForm({
             value={copy.fontSizePreset}
             onChange={(e) => setField("fontSizePreset", e.target.value as LandingCopy["fontSizePreset"])}
             disabled={off}
-            className="theme-focus-input w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900"
+            className="theme-focus-input w-full rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
           >
             <option value="sm">Pequena</option>
             <option value="md">Média (padrão)</option>
@@ -312,8 +312,8 @@ export function LandingCopySettingsForm({
         disabled={off}
       />
 
-      <div className="space-y-3 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 sm:p-5">
-        <p className="text-sm font-semibold text-zinc-900">Download de apps</p>
+      <div className="space-y-3 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Download de apps</p>
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="downloadAppsTitle">Título da seção</Label>

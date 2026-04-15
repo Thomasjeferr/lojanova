@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 /**
+ * Modo escuro manual (classe `.dark` no shell do admin).
+ * Sem isto, o Tailwind v4 usa só `prefers-color-scheme` e o toggle não aplica `dark:`.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/**
  * Variáveis de tema vêm de config/themes.ts → injetadas no <html> (layout).
  * Aqui só estrutura, classes semânticas e animações.
  */
@@ -1125,6 +1131,39 @@
       0 0 0 3px color-mix(in srgb, var(--theme-ring) 22%, transparent),
       0 1px 2px rgba(0, 0, 0, 0.04);
     outline: none;
+  }
+
+  /**
+   * Admin (escopo `.dark` no shell): campos com `theme-focus-input`.
+   * `!important` em cor/placeholder evita que utilitários Tailwind (`text-zinc-900` etc.)
+   * sobrescrevam no escuro — a camada utilities vem depois de @layer components.
+   */
+  .dark .theme-focus-input {
+    border-color: rgb(63 63 70 / 0.85);
+    background: linear-gradient(
+      165deg,
+      rgb(24 24 27 / 0.94) 0%,
+      rgb(15 15 18 / 0.97) 100%
+    );
+    color: rgb(250 250 250) !important;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.04) inset;
+  }
+  .dark .theme-focus-input::placeholder {
+    color: rgb(161 161 170) !important;
+  }
+  .dark .theme-focus-input:focus {
+    border-color: rgb(129 140 246);
+    box-shadow:
+      0 0 0 3px rgb(129 140 246 / 0.28),
+      0 1px 2px rgba(0, 0, 0, 0.35);
+    outline: none;
+  }
+
+  /** Shell do admin — tipografia e renderização */
+  .admin-app-shell {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   .theme-step-number {

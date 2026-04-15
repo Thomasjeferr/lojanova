@@ -14,39 +14,48 @@ type Status =
 const statusConfig: Record<Status, { label: string; className: string }> = {
   pending: {
     label: "Pendente",
-    className: "border-amber-200/80 bg-amber-50/95 text-amber-900",
+    className:
+      "border-amber-200/80 bg-amber-50/95 text-amber-900 dark:border-amber-500/35 dark:bg-amber-950/50 dark:text-amber-200",
   },
   paid: {
     label: "Pago",
-    className: "border-emerald-200/80 bg-emerald-50/95 text-emerald-900",
+    className:
+      "border-emerald-200/80 bg-emerald-50/95 text-emerald-900 dark:border-emerald-500/35 dark:bg-emerald-950/45 dark:text-emerald-200",
   },
   failed: {
     label: "Falhou",
-    className: "border-red-200/80 bg-red-50/95 text-red-900",
+    className:
+      "border-red-200/80 bg-red-50/95 text-red-900 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-200",
   },
   cancelled: {
     label: "Cancelado",
-    className: "border-zinc-200/90 bg-zinc-100/90 text-zinc-700",
+    className:
+      "border-zinc-200/90 bg-zinc-100/90 text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
   },
   available: {
     label: "Disponível",
-    className: "border-emerald-200/80 bg-emerald-50/95 text-emerald-900",
+    className:
+      "border-emerald-200/80 bg-emerald-50/95 text-emerald-900 dark:border-emerald-500/35 dark:bg-emerald-950/45 dark:text-emerald-200",
   },
   reserved: {
     label: "Reservado (Pix)",
-    className: "border-amber-200/80 bg-amber-50/95 text-amber-950",
+    className:
+      "border-amber-200/80 bg-amber-50/95 text-amber-950 dark:border-amber-500/35 dark:bg-amber-950/55 dark:text-amber-100",
   },
   sold: {
     label: "Vendido",
-    className: "border-blue-200/80 bg-blue-50/95 text-blue-900",
+    className:
+      "border-blue-200/80 bg-blue-50/95 text-blue-900 dark:border-blue-500/35 dark:bg-blue-950/45 dark:text-blue-200",
   },
   blocked: {
     label: "Bloqueado",
-    className: "border-red-200/80 bg-red-50/95 text-red-900",
+    className:
+      "border-red-200/80 bg-red-50/95 text-red-900 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-200",
   },
   delivered: {
     label: "Entregue",
-    className: "border-emerald-200/80 bg-emerald-50/95 text-emerald-900",
+    className:
+      "border-emerald-200/80 bg-emerald-50/95 text-emerald-900 dark:border-emerald-500/35 dark:bg-emerald-950/45 dark:text-emerald-200",
   },
 };
 
@@ -62,7 +71,8 @@ export function StatusBadge({
 }) {
   const config = statusConfig[status] ?? {
     label: String(status),
-    className: "border-zinc-200/80 bg-zinc-100 text-zinc-700",
+    className:
+      "border-zinc-200/80 bg-zinc-100 text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
   };
 
   return (

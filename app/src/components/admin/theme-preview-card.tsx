@@ -26,15 +26,16 @@ export function ThemePreviewCard({
     <div
       className={cn(
         "relative flex flex-col overflow-hidden rounded-3xl border-2 bg-white shadow-sm transition-all duration-300",
+        "dark:border-zinc-700/70 dark:bg-zinc-900/80 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]",
         isActive
-          ? "border-zinc-900 ring-2 ring-zinc-900/10 shadow-lg"
-          : "border-zinc-200/90 hover:border-zinc-300 hover:shadow-md",
+          ? "border-zinc-900 ring-2 ring-zinc-900/10 shadow-lg dark:border-indigo-400/80 dark:ring-indigo-500/25"
+          : "border-zinc-200/90 hover:border-zinc-300 hover:shadow-md dark:hover:border-zinc-500",
         disabled && "pointer-events-none opacity-50",
       )}
     >
       {isActive && (
         <div className="absolute right-4 top-4 z-10">
-          <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white shadow-md">
+          <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white shadow-md dark:bg-indigo-500 dark:text-white">
             <Check className="h-3.5 w-3.5" />
             Ativo
           </span>
@@ -59,9 +60,9 @@ export function ThemePreviewCard({
             className="h-3 w-3 rounded-full ring-2 ring-white shadow"
             style={{ backgroundColor: def.accentHex }}
           />
-          <h3 className="text-lg font-bold text-zinc-900">{def.label}</h3>
+          <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{def.label}</h3>
         </div>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-zinc-600">{def.tagline}</p>
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{def.tagline}</p>
         <button
           type="button"
           disabled={disabled || loading || isActive}
@@ -69,8 +70,8 @@ export function ThemePreviewCard({
           className={cn(
             "mt-6 w-full rounded-2xl py-3 text-sm font-semibold transition-all",
             isActive
-              ? "cursor-default border border-zinc-200 bg-zinc-100 text-zinc-500"
-              : "bg-zinc-900 text-white shadow-lg hover:bg-zinc-800 hover:shadow-xl active:scale-[0.98]",
+              ? "cursor-default border border-zinc-200 bg-zinc-100 text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+              : "bg-zinc-900 text-white shadow-lg hover:bg-zinc-800 hover:shadow-xl active:scale-[0.98] dark:bg-indigo-600 dark:hover:bg-indigo-500",
           )}
         >
           {loading ? "Aplicando…" : isActive ? "Template ativo" : "Ativar template"}

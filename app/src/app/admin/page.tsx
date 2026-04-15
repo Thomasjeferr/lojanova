@@ -28,6 +28,10 @@ import {
 } from "@/lib/activity-admin";
 import { ActivityGlobalSection } from "@/components/admin/activity/activity-global-section";
 import { toAdminPath } from "@/lib/admin-path";
+import { buildDailySalesSeries } from "@/lib/admin-dashboard-analytics";
+import { DashboardAnalyticsCharts } from "@/components/admin/dashboard/dashboard-analytics-charts";
+
+const CHART_LOOKBACK_MS = 42 * 24 * 60 * 60 * 1000;
 
 export default async function AdminDashboardPage() {
   const [
@@ -40,6 +44,8 @@ export default async function AdminDashboardPage() {
       stockByPlan,
       recentOrders,
       codesByStatus,
+      orderStatusGroups,
+      paidOrdersForChart,
     ],
     [activityMapPoints, activitySummary, activityRecent],
   ] = await Promise.all([
@@ -66,6 +72,23 @@ export default async function AdminDashboardPage() {
         take: 10,
       }),
       prisma.activationCode.groupBy({ by: ["status"], _count: { id: true } }),
+      prisma.order.groupBy({
+        by: ["status"],
+        _count: { id: true },
+      }),
+      prisma.order.findMany({
+        where: {
+          status: "paid",
+          paidAt: {
+            gte: (() => {
+              const since = new Date();
+              since.setTime(since.getTime() - CHART_LOOKBACK_MS);
+              return since;
+            })(),
+          },
+        },
+        select: { paidAt: true, amountCents: true },
+      }),
     ]),
     Promise.all([
       getActivityMapPoints(),
@@ -106,10 +129,22 @@ export default async function AdminDashboardPage() {
   const blockedCodes =
     codesByStatus.find((c) => c.status === "blocked")?._count.id ?? 0;
 
+  const dailySales = buildDailySalesSeries(paidOrdersForChart, 30);
+  const orderByStatus = orderStatusGroups.map((g) => ({
+    status: g.status,
+    count: g._count.id,
+  }));
+  const planStockBars = planStockRows.map((p) => ({
+    planId: p.id,
+    title: p.title,
+    durationDays: p.durationDays,
+    available: p.available,
+  }));
+
   return (
     <div className="relative">
       <div
-        className="pointer-events-none absolute inset-x-0 -top-6 h-72 max-w-5xl rounded-full bg-gradient-to-b from-zinc-300/25 via-zinc-200/10 to-transparent blur-3xl sm:-top-10 sm:h-80"
+        className="pointer-events-none absolute inset-x-0 -top-6 h-72 max-w-5xl rounded-full bg-gradient-to-b from-indigo-400/15 via-violet-200/10 to-transparent blur-3xl dark:from-indigo-500/20 dark:via-violet-900/10 sm:-top-10 sm:h-80"
         aria-hidden
       />
 
@@ -160,6 +195,12 @@ export default async function AdminDashboardPage() {
           />
         </section>
 
+        <DashboardAnalyticsCharts
+          dailySales={dailySales}
+          orderByStatus={orderByStatus}
+          planStockBars={planStockBars}
+        />
+
         <ActivityGlobalSection
           points={activityMapPoints}
           summary={activitySummary}
@@ -183,14 +224,14 @@ export default async function AdminDashboardPage() {
         reservedCodes === 0 &&
         soldCodes === 0 &&
         blockedCodes === 0 ? (
-          <section
-            className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-8px_rgba(0,0,0,0.08)]"
-          >
-            <div className="border-b border-zinc-100 bg-gradient-to-b from-zinc-50/90 to-white px-6 py-5 sm:px-7">
-              <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+          <section className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-8px_rgba(0,0,0,0.08)] dark:border-zinc-800/80 dark:bg-zinc-900/60 dark:shadow-[0_12px_48px_-16px_rgba(0,0,0,0.55)]">
+            <div className="border-b border-zinc-100 bg-gradient-to-b from-zinc-50/90 to-white px-6 py-5 dark:border-zinc-800 dark:from-zinc-900/80 dark:to-zinc-900/40 sm:px-7">
+              <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                 Resumo de códigos
               </h2>
-              <p className="mt-1 text-sm text-zinc-500">Distribuição por status</p>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                Distribuição por status
+              </p>
             </div>
             <div className="p-6 sm:p-7">
               <EmptyState
@@ -200,7 +241,7 @@ export default async function AdminDashboardPage() {
                 action={
                   <Link
                     href={toAdminPath("codes")}
-                    className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
+                    className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                   >
                     Ir para códigos
                   </Link>

@@ -26,8 +26,9 @@ export function Button({
         variant === "default" && "bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/20",
         variant === "theme" &&
           "theme-btn-fill text-white focus:outline-none focus:ring-2 focus:ring-[var(--theme-ring)]/40",
-        variant === "outline" && "border border-zinc-200 bg-white hover:bg-zinc-50 focus:ring-2 focus:ring-zinc-300/40",
-        variant === "ghost" && "hover:bg-zinc-100",
+        variant === "outline" &&
+          "border border-zinc-200 bg-white hover:bg-zinc-50 focus:ring-2 focus:ring-zinc-300/40 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:focus:ring-zinc-600/40",
+        variant === "ghost" && "hover:bg-zinc-100 dark:hover:bg-zinc-800",
         className,
       )}
       style={style}

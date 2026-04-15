@@ -16,6 +16,13 @@ import { Key, Loader2, Pencil, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatDateShortPtBr } from "@/lib/brazil-time";
+import { cn } from "@/lib/utils";
+import {
+  adminFilterBarClass,
+  adminTableMetaBarClass,
+  adminPaginationBtnClass,
+  adminFieldClass,
+} from "@/lib/admin-ui-classes";
 
 export type AdminPlanOption = { id: string; title: string; durationDays: number };
 
@@ -221,23 +228,25 @@ export function AdminCodesTable({
           onClick={() => !deleteLoading && setDeleting(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-zinc-900">Excluir código?</h3>
-            <p className="mt-2 text-sm text-zinc-600">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              Excluir código?
+            </h3>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               Esta ação não pode ser desfeita. O registro sai do estoque e você pode importar o mesmo
               código de novo.
             </p>
             {(deleting.status === "sold" || deleting.status === "reserved") && (
-              <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/50 dark:text-amber-100">
                 Este código está vinculado a pedido. Ao excluir, removemos também a entrega no
                 banco; o pedido pode continuar pago, mas o cliente deixa de ver essa credencial na
                 conta.
               </p>
             )}
             {deleteError && (
-              <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-100">
                 {deleteError}
               </p>
             )}
@@ -263,10 +272,10 @@ export function AdminCodesTable({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className={adminFilterBarClass}>
         <div className="relative min-w-[min(100%,320px)] flex-1 sm:max-w-md">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
             aria-hidden
           />
           <Input
@@ -276,24 +285,24 @@ export function AdminCodesTable({
             placeholder="Buscar por usuário, código ou e-mail do cliente…"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="rounded-xl border-zinc-200 py-2.5 pl-10 pr-10 text-sm"
+            className="py-2.5 pl-10 pr-10 text-sm"
             aria-busy={listLoading}
           />
           {listLoading ? (
             <Loader2
-              className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-zinc-400"
+              className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-zinc-400 dark:text-zinc-500"
               aria-hidden
             />
           ) : null}
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-3">
           <label className="sr-only" htmlFor="filter-status">
             Filtrar por status
           </label>
           <select
             id="filter-status"
             disabled={listLoading}
-            className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+            className={cn(adminFieldClass, "disabled:opacity-60")}
             value={filterStatus}
             onChange={(e) => {
               setFilterStatus(e.target.value);
@@ -312,7 +321,10 @@ export function AdminCodesTable({
           <select
             id="filter-plan"
             disabled={listLoading}
-            className="min-w-[min(100%,280px)] rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+            className={cn(
+              adminFieldClass,
+              "min-w-[min(100%,280px)] disabled:opacity-60",
+            )}
             value={filterPlanId}
             onChange={(e) => {
               setFilterPlanId(e.target.value);
@@ -326,10 +338,10 @@ export function AdminCodesTable({
               </option>
             ))}
           </select>
-          <label className="flex items-center gap-2 text-sm text-zinc-600">
+          <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
             <span className="whitespace-nowrap">Por página</span>
             <select
-              className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-zinc-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
+              className={cn(adminFieldClass, "w-auto min-w-[4rem] px-3 disabled:opacity-60")}
               value={pageSize}
               disabled={listLoading}
               onChange={(e) => {
@@ -349,7 +361,7 @@ export function AdminCodesTable({
       </div>
 
       {codes.length === 0 && listLoading ? (
-        <p className="flex items-center justify-center gap-2 py-12 text-sm text-zinc-500">
+        <p className="flex items-center justify-center gap-2 py-12 text-sm text-zinc-500 dark:text-zinc-400">
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
           Carregando lista…
         </p>
@@ -365,14 +377,14 @@ export function AdminCodesTable({
         />
       ) : codes.length > 0 || listLoading ? (
         <>
-          <div className="flex flex-col gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <p className="text-zinc-600">
+          <div className={adminTableMetaBarClass}>
+            <p className="text-zinc-600 dark:text-zinc-400">
               Mostrando{" "}
-              <span className="font-semibold tabular-nums text-zinc-900">
+              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
                 {listLoading && codes.length === 0 ? "—" : `${rangeLabel.from}–${rangeLabel.to}`}
               </span>{" "}
               de{" "}
-              <span className="font-semibold tabular-nums text-zinc-900">
+              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
                 {listLoading && total === 0 ? "—" : total}
               </span>{" "}
               {total === 1 ? "código" : "códigos"}
@@ -382,20 +394,20 @@ export function AdminCodesTable({
                 type="button"
                 disabled={page <= 1 || listLoading}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={adminPaginationBtnClass}
               >
                 Anterior
               </button>
-              <span className="tabular-nums text-zinc-600">
+              <span className="tabular-nums text-zinc-600 dark:text-zinc-400">
                 Página{" "}
-                <span className="font-semibold text-zinc-900">{page}</span> de{" "}
-                <span className="font-semibold text-zinc-900">{pageCount}</span>
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{page}</span> de{" "}
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{pageCount}</span>
               </span>
               <button
                 type="button"
                 disabled={page >= pageCount || listLoading}
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className={adminPaginationBtnClass}
               >
                 Próxima
               </button>
