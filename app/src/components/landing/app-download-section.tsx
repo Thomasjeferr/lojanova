@@ -10,7 +10,22 @@ type DownloadApp = {
   imageUrl: string;
 };
 
-function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
+function parseStepsBlob(text: string): string[] {
+  return text
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function AppVisual({
+  imageUrl,
+  alt,
+  placeholderHint,
+}: {
+  imageUrl: string;
+  alt: string;
+  placeholderHint: string;
+}) {
   if (imageUrl) {
     return (
       <div className="landing-inset-glass relative mb-5 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-1.5 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.4)]">
@@ -30,7 +45,7 @@ function AppVisual({ imageUrl, alt }: { imageUrl: string; alt: string }) {
 
   return (
     <div className="landing-inset-glass mb-5 rounded-2xl border border-[var(--landing-border)] p-3 text-sm text-[var(--landing-text-muted)]">
-      Adicione no admin a imagem oficial do app para melhorar a visualização.
+      {placeholderHint}
     </div>
   );
 }
@@ -39,7 +54,10 @@ function StepsList({ steps }: { steps: string[] }) {
   return (
     <ol className="mt-5 space-y-3.5">
       {steps.map((step, index) => (
-        <li key={step} className="flex items-start gap-3 text-sm leading-relaxed text-[var(--landing-text-secondary)] sm:text-[0.96rem]">
+        <li
+          key={`${index}-${step.slice(0, 24)}`}
+          className="flex items-start gap-3 text-sm leading-relaxed text-[var(--landing-text-secondary)] sm:text-[0.96rem]"
+        >
           <span className="theme-check-dot mt-[2px] inline-flex h-6 min-w-6 items-center justify-center rounded-full text-[11px] font-bold">
             {index + 1}
           </span>
@@ -57,6 +75,8 @@ function MethodCard({
   steps,
   imageUrl,
   imageAlt,
+  placeholderHint,
+  featuredLabel,
   featured = false,
 }: {
   badge: string;
@@ -65,6 +85,8 @@ function MethodCard({
   steps: string[];
   imageUrl: string;
   imageAlt: string;
+  placeholderHint: string;
+  featuredLabel: string;
   featured?: boolean;
 }) {
   return (
@@ -84,12 +106,12 @@ function MethodCard({
       />
       {featured ? (
         <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-[var(--theme-primary)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-md sm:text-[11px]">
-          <BadgeCheck className="h-3.5 w-3.5" />
-          Recomendado
+          <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
+          {featuredLabel}
         </span>
       ) : null}
 
-      <AppVisual imageUrl={imageUrl} alt={imageAlt} />
+      <AppVisual imageUrl={imageUrl} alt={imageAlt} placeholderHint={placeholderHint} />
 
       <p className="landing-inset-glass inline-flex rounded-full border border-[var(--landing-border)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--theme-primary-strong)]">
         {badge}
@@ -104,10 +126,12 @@ function MethodCard({
 function DownloadCTA({
   app,
   buttonLabel,
+  cardDescription,
   index,
 }: {
   app: DownloadApp;
   buttonLabel: string;
+  cardDescription: string;
   index: number;
 }) {
   return (
@@ -124,9 +148,7 @@ function DownloadCTA({
       />
       <div className="relative z-10">
         <h3 className="text-2xl font-black tracking-tight text-[var(--landing-text-primary)]">{app.name}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-[var(--landing-text-secondary)]">
-          Instale o aplicativo oficial e entre com seus dados para liberar seu acesso com rapidez e segurança.
-        </p>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--landing-text-secondary)]">{cardDescription}</p>
         {app.imageUrl ? (
           <div className="landing-inset-glass relative mt-4 aspect-video w-full overflow-hidden rounded-2xl border border-[var(--landing-border)] p-1.5 shadow-[0_14px_32px_-20px_rgba(0,0,0,0.35)]">
             <Image
@@ -147,7 +169,7 @@ function DownloadCTA({
           rel="noopener noreferrer"
           className="theme-btn-primary-lg mt-5 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl px-5 py-3.5 text-base font-semibold shadow-[0_18px_38px_-16px_var(--theme-featured-shadow)] transition-all duration-300 hover:scale-[1.02]"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4" aria-hidden />
           {buttonLabel || "Baixar aplicativo"}
         </a>
       </div>
@@ -176,6 +198,9 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
 
   if (!apps.length) return null;
 
+  const steps1 = parseStepsBlob(copy.downloadMethod1Steps);
+  const steps2 = parseStepsBlob(copy.downloadMethod2Steps);
+
   return (
     <section className="landing-section-alt relative overflow-hidden border-t px-4 py-16 sm:py-20 md:py-24">
       <div
@@ -196,54 +221,55 @@ function DownloadSection({ copy }: { copy: LandingCopy }) {
       <div className="relative mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
           <p className="landing-inset-glass mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--landing-border)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--theme-primary-strong)]">
-            <Sparkles className="h-3.5 w-3.5" />
-            Guia rápido de instalação
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            {copy.downloadInstallationBadge}
           </p>
           <h2 className="landing-heading-lg mt-4">
-            Baixe o <span className="theme-text-gradient">app</span> para assistir
+            {copy.downloadHeroTitlePrefix}
+            <span className="theme-text-gradient">{copy.downloadHeroTitleHighlight}</span>
+            {copy.downloadHeroTitleSuffix}
           </h2>
           <p className="landing-lead mx-auto mt-4 max-w-3xl">{copy.downloadAppsSubtitle}</p>
         </div>
 
         <div className="mt-10 grid gap-5 lg:grid-cols-2 lg:gap-6">
           <MethodCard
-            badge="Método 1 · Downloader"
-            title="Instalação rápida na TV Box / Android TV"
-            subtitle="Fluxo recomendado para instalar com segurança e menos cliques."
+            badge={copy.downloadMethod1Badge}
+            title={copy.downloadMethod1Title}
+            subtitle={copy.downloadMethod1Subtitle}
             imageUrl={copy.downloadApp1ImageUrl.trim()}
-            imageAlt={`Imagem do app ${copy.downloadApp1Name || "IPlay 5 Plus"}`}
+            imageAlt={`Imagem do app ${copy.downloadApp1Name || "app"}`}
+            placeholderHint={copy.downloadPlaceholderHint}
+            featuredLabel={copy.downloadFeaturedLabel}
             featured
-            steps={[
-              "Abra a Play Store da TV e instale o app Downloader (AFTVnews).",
-              "Em Configurações, permita “Instalar apps desconhecidos” para o Downloader.",
-              "Toque em “Baixar aplicativo” abaixo e copie o link do app.",
-              "No Downloader, cole o link, baixe o APK e confirme em “Instalar”.",
-              "Abra o app instalado e faça login com seu acesso.",
-            ]}
+            steps={steps1}
           />
           <MethodCard
-            badge="Método 2 · Chrome"
-            title="Instalação pelo navegador"
-            subtitle="Alternativa para Android TV quando você prefere baixar direto pelo navegador."
+            badge={copy.downloadMethod2Badge}
+            title={copy.downloadMethod2Title}
+            subtitle={copy.downloadMethod2Subtitle}
             imageUrl={copy.downloadApp2ImageUrl.trim()}
-            imageAlt={`Imagem do app ${copy.downloadApp2Name || "UniTV"}`}
-            steps={[
-              "Abra o Chrome (ou navegador disponível) na TV Android.",
-              "Clique em “Baixar aplicativo” para abrir o link oficial.",
-              "Baixe o APK e autorize instalação de fonte externa quando solicitado.",
-              "Conclua a instalação e abra o app para ativar seu acesso.",
-            ]}
+            imageAlt={`Imagem do app ${copy.downloadApp2Name || "app"}`}
+            placeholderHint={copy.downloadPlaceholderHint}
+            featuredLabel={copy.downloadFeaturedLabel}
+            steps={steps2}
           />
         </div>
 
         <div className="landing-inset-glass mt-5 flex items-center gap-2 rounded-xl border border-[var(--landing-border)] px-3 py-2.5 text-xs text-[var(--landing-text-muted)] sm:text-sm">
-          <CheckCircle2 className="h-4 w-4 text-[var(--theme-primary)]" />
-          Dica de segurança: utilize links oficiais e desative apps desconhecidos após instalar.
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--theme-primary)]" aria-hidden />
+          {copy.downloadSecurityTip}
         </div>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {apps.map((app, index) => (
-            <DownloadCTA key={`${app.name}-${index}`} app={app} buttonLabel={copy.downloadAppsButtonLabel || "Baixar aplicativo"} index={index} />
+            <DownloadCTA
+              key={`${app.name}-${index}`}
+              app={app}
+              cardDescription={copy.downloadAppCardDescription}
+              buttonLabel={copy.downloadAppsButtonLabel || "Baixar aplicativo"}
+              index={index}
+            />
           ))}
         </div>
       </div>

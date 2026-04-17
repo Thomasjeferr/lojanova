@@ -68,9 +68,9 @@ export function LandingPage({
           <LandingInnerHero mode={landingMode === "planos" ? "planos" : "comprar"} branding={branding} />
         )}
         <PlansSection plans={plans} onSelectPlan={setSelectedPlan} copy={branding.landingCopy} />
-        <BenefitsSection />
-        <TrustSeoSection />
-        <HowItWorksSection />
+        <BenefitsSection copy={branding.landingCopy} />
+        <TrustSeoSection copy={branding.landingCopy} />
+        <HowItWorksSection copy={branding.landingCopy} />
         <AppDownloadSection copy={branding.landingCopy} />
         <FAQSection copy={branding.landingCopy} />
         <LandingFooter branding={branding} />

@@ -4,10 +4,10 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LandingCopy } from "@/lib/site-branding";
-import { LANDING_FAQ_ITEMS } from "@/lib/seo/faq-data";
 
 export function FAQSection({ copy }: { copy: LandingCopy }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const faqItems = copy.faqItems;
 
   return (
     <section className="landing-section-alt border-t px-4 py-16 sm:py-20 md:py-24">
@@ -17,11 +17,11 @@ export function FAQSection({ copy }: { copy: LandingCopy }) {
           <p className="landing-lead mt-5">{copy.faqSubtitle}</p>
         </div>
         <div className="mt-10 space-y-3">
-          {LANDING_FAQ_ITEMS.map((faq, index) => {
+          {faqItems.map((faq, index) => {
             const open = openIndex === index;
             return (
               <div
-                key={faq.question}
+                key={`${index}-${faq.question.slice(0, 48)}`}
                 className={cn(
                   "landing-card-surface landing-faq-card overflow-hidden rounded-2xl transition-all duration-300",
                   open && "theme-faq-open",

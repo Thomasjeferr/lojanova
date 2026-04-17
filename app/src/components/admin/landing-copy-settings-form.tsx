@@ -67,16 +67,45 @@ export function LandingCopySettingsForm({
     setCopy((prev) => ({ ...prev, [key]: value }));
   }
 
+  function updateFaqItem(index: number, field: "question" | "answer", value: string) {
+    setCopy((p) => {
+      const next = [...p.faqItems];
+      const cur = next[index];
+      if (!cur) return p;
+      next[index] = { ...cur, [field]: value };
+      return { ...p, faqItems: next };
+    });
+  }
+
+  function addFaqItem() {
+    setCopy((p) => ({
+      ...p,
+      faqItems: [...p.faqItems, { question: "Nova pergunta", answer: "Resposta." }],
+    }));
+  }
+
+  function removeFaqItem(index: number) {
+    setCopy((p) => ({
+      ...p,
+      faqItems: p.faqItems.filter((_, i) => i !== index),
+    }));
+  }
+
   async function save() {
     if (disabled) return;
     setLoading(true);
     setError("");
     setSuccess("");
     try {
+      const composedTitle = `${copy.downloadHeroTitlePrefix}${copy.downloadHeroTitleHighlight}${copy.downloadHeroTitleSuffix}`.trim();
+      const payload = {
+        ...copy,
+        downloadAppsTitle: composedTitle || copy.downloadAppsTitle,
+      };
       const res = await fetch("/api/admin/branding", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ landingCopy: copy }),
+        body: JSON.stringify({ landingCopy: payload }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -85,6 +114,9 @@ export function LandingCopySettingsForm({
       }
       setSuccess("Textos salvos. Recarregue a home para ver as alterações.");
       setTimeout(() => setSuccess(""), 3500);
+      if (composedTitle) {
+        setCopy((c) => ({ ...c, downloadAppsTitle: composedTitle }));
+      }
     } catch {
       setError("Erro de conexão.");
     } finally {
@@ -303,6 +335,50 @@ export function LandingCopySettingsForm({
         />
       </div>
 
+      <div className="space-y-3 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">FAQ: perguntas e respostas</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Alimentam a seção na home e o JSON-LD de FAQ (SEO).
+        </p>
+        {copy.faqItems.map((item, index) => (
+          <div key={index} className="space-y-2 rounded-xl border border-zinc-200/60 p-3 dark:border-zinc-600/50">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Item {index + 1}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-red-600 dark:text-red-400"
+                disabled={off || copy.faqItems.length <= 1}
+                onClick={() => removeFaqItem(index)}
+              >
+                Remover
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`faq-q-${index}`}>Pergunta</Label>
+              <Input
+                id={`faq-q-${index}`}
+                value={item.question}
+                onChange={(e) => updateFaqItem(index, "question", e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <TextAreaField
+              id={`faq-a-${index}`}
+              label="Resposta"
+              value={item.answer}
+              onChange={(v) => updateFaqItem(index, "answer", v)}
+              rows={3}
+              disabled={off}
+            />
+          </div>
+        ))}
+        <Button type="button" variant="outline" disabled={off} onClick={addFaqItem}>
+          Adicionar pergunta
+        </Button>
+      </div>
+
       <TextAreaField
         id="footerTagline"
         label="Rodapé: frase da marca"
@@ -312,36 +388,379 @@ export function LandingCopySettingsForm({
         disabled={off}
       />
 
-      <div className="space-y-3 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
-        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Download de apps</p>
-        <div className="grid gap-5 lg:grid-cols-2">
+      <div className="space-y-4 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Seção: Por que escolher (4 cards)</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Use <code className="rounded bg-zinc-200/80 px-1 dark:bg-zinc-700">**assim**</code> no subtítulo para negrito.
+        </p>
+        <div className="space-y-1.5">
+          <Label htmlFor="benefitsTitle">Título da seção</Label>
+          <Input
+            id="benefitsTitle"
+            value={copy.benefitsTitle}
+            onChange={(e) => setField("benefitsTitle", e.target.value)}
+            disabled={off}
+          />
+        </div>
+        <TextAreaField
+          id="benefitsSubtitle"
+          label="Subtítulo (abaixo do título)"
+          value={copy.benefitsSubtitle}
+          onChange={(v) => setField("benefitsSubtitle", v)}
+          rows={3}
+          disabled={off}
+        />
+        {[1, 2, 3, 4].map((n) => (
+          <div key={n} className="grid gap-3 rounded-xl border border-zinc-200/60 p-3 dark:border-zinc-600/50 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor={`benefit${n}Title`}>Card {n}: título</Label>
+              <Input
+                id={`benefit${n}Title`}
+                value={copy[`benefit${n}Title` as keyof LandingCopy] as string}
+                onChange={(e) => setField(`benefit${n}Title` as keyof LandingCopy, e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <TextAreaField
+              id={`benefit${n}Description`}
+              label={`Card ${n}: texto`}
+              value={copy[`benefit${n}Description` as keyof LandingCopy] as string}
+              onChange={(v) => setField(`benefit${n}Description` as keyof LandingCopy, v)}
+              rows={2}
+              disabled={off}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-4 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Bloco SEO (Pix / confiança)</p>
+        <div className="space-y-1.5">
+          <Label htmlFor="trustSeoTitle">Título (H2)</Label>
+          <Input
+            id="trustSeoTitle"
+            value={copy.trustSeoTitle}
+            onChange={(e) => setField("trustSeoTitle", e.target.value)}
+            disabled={off}
+          />
+        </div>
+        <TextAreaField
+          id="trustSeoParagraph1"
+          label="Parágrafo 1 (**negrito**)"
+          value={copy.trustSeoParagraph1}
+          onChange={(v) => setField("trustSeoParagraph1", v)}
+          rows={4}
+          disabled={off}
+        />
+        <TextAreaField
+          id="trustSeoParagraph2"
+          label="Parágrafo 2"
+          value={copy.trustSeoParagraph2}
+          onChange={(v) => setField("trustSeoParagraph2", v)}
+          rows={4}
+          disabled={off}
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="downloadAppsTitle">Título da seção</Label>
+            <Label htmlFor="trustSeoLink1Label">Link 1 — texto</Label>
             <Input
-              id="downloadAppsTitle"
-              value={copy.downloadAppsTitle}
-              onChange={(e) => setField("downloadAppsTitle", e.target.value)}
+              id="trustSeoLink1Label"
+              value={copy.trustSeoLink1Label}
+              onChange={(e) => setField("trustSeoLink1Label", e.target.value)}
               disabled={off}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="downloadAppsButtonLabel">Texto do botão</Label>
+            <Label htmlFor="trustSeoLink1Href">Link 1 — URL ou caminho</Label>
             <Input
-              id="downloadAppsButtonLabel"
-              value={copy.downloadAppsButtonLabel}
-              onChange={(e) => setField("downloadAppsButtonLabel", e.target.value)}
+              id="trustSeoLink1Href"
+              value={copy.trustSeoLink1Href}
+              onChange={(e) => setField("trustSeoLink1Href", e.target.value)}
+              placeholder="/comprar-iptv"
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="trustSeoLink2Label">Link 2 — texto</Label>
+            <Input
+              id="trustSeoLink2Label"
+              value={copy.trustSeoLink2Label}
+              onChange={(e) => setField("trustSeoLink2Label", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="trustSeoLink2Href">Link 2 — URL ou caminho</Label>
+            <Input
+              id="trustSeoLink2Href"
+              value={copy.trustSeoLink2Href}
+              onChange={(e) => setField("trustSeoLink2Href", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="trustSeoLink3Label">Link 3 — texto</Label>
+            <Input
+              id="trustSeoLink3Label"
+              value={copy.trustSeoLink3Label}
+              onChange={(e) => setField("trustSeoLink3Label", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="trustSeoLink3Href">Link 3 — URL ou caminho</Label>
+            <Input
+              id="trustSeoLink3Href"
+              value={copy.trustSeoLink3Href}
+              onChange={(e) => setField("trustSeoLink3Href", e.target.value)}
+              disabled={off}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Seção: Como funciona</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="howItWorksTitlePrefix">Título — antes do destaque</Label>
+            <Input
+              id="howItWorksTitlePrefix"
+              value={copy.howItWorksTitlePrefix}
+              onChange={(e) => setField("howItWorksTitlePrefix", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="howItWorksTitleHighlight">Palavra em laranja</Label>
+            <Input
+              id="howItWorksTitleHighlight"
+              value={copy.howItWorksTitleHighlight}
+              onChange={(e) => setField("howItWorksTitleHighlight", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="howItWorksTitleSuffix">Título — depois do destaque</Label>
+            <Input
+              id="howItWorksTitleSuffix"
+              value={copy.howItWorksTitleSuffix}
+              onChange={(e) => setField("howItWorksTitleSuffix", e.target.value)}
               disabled={off}
             />
           </div>
         </div>
         <TextAreaField
-          id="downloadAppsSubtitle"
+          id="howItWorksSubtitle"
           label="Subtítulo da seção"
+          value={copy.howItWorksSubtitle}
+          onChange={(v) => setField("howItWorksSubtitle", v)}
+          rows={2}
+          disabled={off}
+        />
+        {[1, 2, 3, 4].map((n) => (
+          <div key={n} className="grid gap-3 rounded-xl border border-zinc-200/60 p-3 dark:border-zinc-600/50 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor={`howItWorksStep${n}Title`}>Passo {n}: título</Label>
+              <Input
+                id={`howItWorksStep${n}Title`}
+                value={copy[`howItWorksStep${n}Title` as keyof LandingCopy] as string}
+                onChange={(e) => setField(`howItWorksStep${n}Title` as keyof LandingCopy, e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <TextAreaField
+              id={`howItWorksStep${n}Description`}
+              label={`Passo ${n}: descrição`}
+              value={copy[`howItWorksStep${n}Description` as keyof LandingCopy] as string}
+              onChange={(v) => setField(`howItWorksStep${n}Description` as keyof LandingCopy, v)}
+              rows={2}
+              disabled={off}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 dark:border-zinc-700/50 dark:bg-zinc-800/30 sm:p-5">
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Download de apps</p>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="downloadInstallationBadge">Selo acima do título (ex.: Guia rápido)</Label>
+            <Input
+              id="downloadInstallationBadge"
+              value={copy.downloadInstallationBadge}
+              onChange={(e) => setField("downloadInstallationBadge", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="downloadFeaturedLabel">Selo &quot;Recomendado&quot; no método 1</Label>
+            <Input
+              id="downloadFeaturedLabel"
+              value={copy.downloadFeaturedLabel}
+              onChange={(e) => setField("downloadFeaturedLabel", e.target.value)}
+              disabled={off}
+            />
+          </div>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="downloadHeroTitlePrefix">Título grande — antes do destaque</Label>
+            <Input
+              id="downloadHeroTitlePrefix"
+              value={copy.downloadHeroTitlePrefix}
+              onChange={(e) => setField("downloadHeroTitlePrefix", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="downloadHeroTitleHighlight">Palavra em gradiente</Label>
+            <Input
+              id="downloadHeroTitleHighlight"
+              value={copy.downloadHeroTitleHighlight}
+              onChange={(e) => setField("downloadHeroTitleHighlight", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="downloadHeroTitleSuffix">Título — após o destaque</Label>
+            <Input
+              id="downloadHeroTitleSuffix"
+              value={copy.downloadHeroTitleSuffix}
+              onChange={(e) => setField("downloadHeroTitleSuffix", e.target.value)}
+              disabled={off}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Pré-visualização do título:{" "}
+          <span className="font-mono text-zinc-700 dark:text-zinc-300">
+            {`${copy.downloadHeroTitlePrefix}${copy.downloadHeroTitleHighlight}${copy.downloadHeroTitleSuffix}`.trim() ||
+              copy.downloadAppsTitle}
+          </span>
+        </p>
+        <TextAreaField
+          id="downloadAppsSubtitle"
+          label="Subtítulo da seção (abaixo do título)"
           value={copy.downloadAppsSubtitle}
           onChange={(v) => setField("downloadAppsSubtitle", v)}
           rows={2}
           disabled={off}
         />
+        <div className="space-y-1.5">
+          <Label htmlFor="downloadAppsButtonLabel">Texto do botão &quot;Baixar&quot; nos cards de app</Label>
+          <Input
+            id="downloadAppsButtonLabel"
+            value={copy.downloadAppsButtonLabel}
+            onChange={(e) => setField("downloadAppsButtonLabel", e.target.value)}
+            disabled={off}
+          />
+        </div>
+
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Método 1 e 2 (cards de instalação)</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Passos: um por linha (mesma ordem da landing).
+        </p>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div className="space-y-3 rounded-xl border border-zinc-200/60 p-3 dark:border-zinc-600/50">
+            <div className="space-y-1.5">
+              <Label htmlFor="downloadMethod1Badge">Método 1 — selo</Label>
+              <Input
+                id="downloadMethod1Badge"
+                value={copy.downloadMethod1Badge}
+                onChange={(e) => setField("downloadMethod1Badge", e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="downloadMethod1Title">Método 1 — título</Label>
+              <Input
+                id="downloadMethod1Title"
+                value={copy.downloadMethod1Title}
+                onChange={(e) => setField("downloadMethod1Title", e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <TextAreaField
+              id="downloadMethod1Subtitle"
+              label="Método 1 — subtítulo"
+              value={copy.downloadMethod1Subtitle}
+              onChange={(v) => setField("downloadMethod1Subtitle", v)}
+              rows={2}
+              disabled={off}
+            />
+            <TextAreaField
+              id="downloadMethod1Steps"
+              label="Método 1 — passos (um por linha)"
+              value={copy.downloadMethod1Steps}
+              onChange={(v) => setField("downloadMethod1Steps", v)}
+              rows={6}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-3 rounded-xl border border-zinc-200/60 p-3 dark:border-zinc-600/50">
+            <div className="space-y-1.5">
+              <Label htmlFor="downloadMethod2Badge">Método 2 — selo</Label>
+              <Input
+                id="downloadMethod2Badge"
+                value={copy.downloadMethod2Badge}
+                onChange={(e) => setField("downloadMethod2Badge", e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="downloadMethod2Title">Método 2 — título</Label>
+              <Input
+                id="downloadMethod2Title"
+                value={copy.downloadMethod2Title}
+                onChange={(e) => setField("downloadMethod2Title", e.target.value)}
+                disabled={off}
+              />
+            </div>
+            <TextAreaField
+              id="downloadMethod2Subtitle"
+              label="Método 2 — subtítulo"
+              value={copy.downloadMethod2Subtitle}
+              onChange={(v) => setField("downloadMethod2Subtitle", v)}
+              rows={2}
+              disabled={off}
+            />
+            <TextAreaField
+              id="downloadMethod2Steps"
+              label="Método 2 — passos (um por linha)"
+              value={copy.downloadMethod2Steps}
+              onChange={(v) => setField("downloadMethod2Steps", v)}
+              rows={5}
+              disabled={off}
+            />
+          </div>
+        </div>
+        <TextAreaField
+          id="downloadPlaceholderHint"
+          label="Texto quando não há imagem do app nos cards"
+          value={copy.downloadPlaceholderHint}
+          onChange={(v) => setField("downloadPlaceholderHint", v)}
+          rows={2}
+          disabled={off}
+        />
+        <TextAreaField
+          id="downloadSecurityTip"
+          label="Barra de dica de segurança (abaixo dos métodos)"
+          value={copy.downloadSecurityTip}
+          onChange={(v) => setField("downloadSecurityTip", v)}
+          rows={2}
+          disabled={off}
+        />
+        <TextAreaField
+          id="downloadAppCardDescription"
+          label="Descrição nos cards de app (lista inferior)"
+          value={copy.downloadAppCardDescription}
+          onChange={(v) => setField("downloadAppCardDescription", v)}
+          rows={2}
+          disabled={off}
+        />
+
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Apps (até 3)</p>
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="downloadApp1Name">App 1: nome</Label>

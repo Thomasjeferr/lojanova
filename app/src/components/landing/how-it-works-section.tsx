@@ -1,38 +1,14 @@
 "use client";
 
 import { ShoppingCart, LogIn, QrCode, Gift } from "lucide-react";
+import type { LandingCopy } from "@/lib/site-branding";
+import { LandingRichText } from "@/components/landing/landing-rich-text";
 
-const steps = [
-  {
-    step: 1,
-    icon: ShoppingCart,
-    title: "Escolha o plano",
-    description: "Selecione o período de acesso que melhor combina com você.",
-  },
-  {
-    step: 2,
-    icon: LogIn,
-    title: "Faça login ou crie conta",
-    description: "Entre com sua conta ou cadastre-se em poucos segundos.",
-  },
-  {
-    step: 3,
-    icon: QrCode,
-    title: "Pague via Pix",
-    description: "Gere o QR Code ou copie o código e pague no app do seu banco.",
-  },
-  {
-    step: 4,
-    icon: Gift,
-    title: "Receba automaticamente",
-    description: "O código de ativação é liberado assim que o pagamento é confirmado.",
-  },
-];
+const icons = [ShoppingCart, LogIn, QrCode, Gift] as const;
 
 function StepConnector() {
   return (
     <>
-      {/* Desktop: linha de fluxo atrás dos cards */}
       <div
         className="pointer-events-none absolute left-14 right-14 top-[8.75rem] z-0 hidden h-px lg:block"
         style={{
@@ -41,7 +17,6 @@ function StepConnector() {
         }}
         aria-hidden
       />
-      {/* Mobile/tablet: linha vertical lateral */}
       <div
         className="pointer-events-none absolute bottom-8 left-6 top-40 z-0 w-px lg:hidden"
         style={{
@@ -58,7 +33,7 @@ function StepCard({
   item,
   index,
 }: {
-  item: (typeof steps)[number];
+  item: { step: number; icon: (typeof icons)[number]; title: string; description: string };
   index: number;
 }) {
   const Icon = item.icon;
@@ -81,7 +56,7 @@ function StepCard({
             {item.step}
           </span>
           <div className="theme-icon-tile relative inline-flex h-12 w-12 items-center justify-center rounded-xl shadow-sm">
-            <Icon className="h-5 w-5" />
+            <Icon className="h-5 w-5" aria-hidden />
           </div>
         </div>
 
@@ -102,10 +77,36 @@ function StepCard({
   );
 }
 
-export function HowItWorksSection() {
+export function HowItWorksSection({ copy }: { copy: LandingCopy }) {
+  const steps = [
+    {
+      step: 1,
+      icon: icons[0],
+      title: copy.howItWorksStep1Title,
+      description: copy.howItWorksStep1Description,
+    },
+    {
+      step: 2,
+      icon: icons[1],
+      title: copy.howItWorksStep2Title,
+      description: copy.howItWorksStep2Description,
+    },
+    {
+      step: 3,
+      icon: icons[2],
+      title: copy.howItWorksStep3Title,
+      description: copy.howItWorksStep3Description,
+    },
+    {
+      step: 4,
+      icon: icons[3],
+      title: copy.howItWorksStep4Title,
+      description: copy.howItWorksStep4Description,
+    },
+  ];
+
   return (
     <section className="relative overflow-hidden px-4 py-16 sm:py-20 md:py-24">
-      {/* Fundo premium com glow suave */}
       <div
         className="pointer-events-none absolute left-1/2 top-12 h-72 w-[min(90%,780px)] -translate-x-1/2 rounded-full blur-3xl"
         style={{
@@ -126,15 +127,17 @@ export function HowItWorksSection() {
       <div className="mx-auto max-w-6xl">
         <div className="text-center landing-reveal">
           <h2 className="landing-heading-lg text-balance">
-            Como funciona a <span className="font-extrabold text-[var(--theme-primary)]">compra</span>{" "}
-            de acesso e a ativação via Pix
+            {copy.howItWorksTitlePrefix}
+            <span className="font-extrabold text-[var(--theme-primary)]">
+              {copy.howItWorksTitleHighlight}
+            </span>
+            {copy.howItWorksTitleSuffix}
           </h2>
           <p
             className="mx-auto mt-4 max-w-2xl text-balance text-[15px] leading-relaxed sm:text-base"
             style={{ color: "var(--landing-text-muted)" }}
           >
-            Em poucos passos você sai do checkout com o <strong>código de ativação</strong> na conta:
-            escolha do plano, login, Pix e <strong>ativação automática</strong> após confirmação.
+            <LandingRichText text={copy.howItWorksSubtitle} />
           </p>
         </div>
 

@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import type { LandingCopy } from "@/lib/site-branding";
+import { LandingRichText } from "@/components/landing/landing-rich-text";
 
 /**
  * Bloco de texto rico para SEO on-page (Brasil, Pix, código de ativação) + conversão.
  */
-export function TrustSeoSection() {
+export function TrustSeoSection({ copy }: { copy: LandingCopy }) {
   return (
     <section
       aria-labelledby="seo-trust-heading"
@@ -21,46 +23,38 @@ export function TrustSeoSection() {
           className="landing-heading-lg text-balance"
           style={{ color: "var(--landing-text-primary)" }}
         >
-          Entrega imediata via Pix e ativação automática no Brasil
+          {copy.trustSeoTitle}
         </h2>
         <div
           className="mt-8 space-y-5 text-left text-[15px] leading-relaxed sm:text-base"
           style={{ color: "var(--landing-text-secondary)" }}
         >
           <p>
-            Aqui você faz a <strong>compra de acesso</strong> com pagamento nacional: o{" "}
-            <strong>Pix</strong> confirma em instantes e você{" "}
-            <strong>recebe acesso na hora</strong> — sem esperar atendimento manual. O fluxo foi
-            pensado para <strong>ativação rápida</strong>: escolha o plano, pague e use seu{" "}
-            <strong>código de ativação</strong> assim que o banco validar o Pix.
+            <LandingRichText text={copy.trustSeoParagraph1} />
           </p>
           <p>
-            Se você busca <strong>ativação imediata</strong> e transparência, este é o caminho:{" "}
-            <strong>pagamento seguro</strong> no ecossistema financeiro brasileiro,{" "}
-            <strong>entrega automática</strong> do código na sua conta e histórico de pedidos sempre
-            disponível. Ideal para quem quer ativar streaming com método simples e suporte quando
-            precisar.
+            <LandingRichText text={copy.trustSeoParagraph2} />
           </p>
           <p className="text-center sm:text-left">
             <Link
-              href="/comprar-iptv"
+              href={copy.trustSeoLink1Href}
               className="font-semibold text-[var(--theme-primary)] underline-offset-2 hover:underline"
             >
-              Guia para comprar IPTV com Pix
+              {copy.trustSeoLink1Label}
             </Link>
             {" · "}
             <Link
-              href="/como-funciona-iptv"
+              href={copy.trustSeoLink2Href}
               className="font-semibold text-[var(--theme-primary)] underline-offset-2 hover:underline"
             >
-              Como funciona
+              {copy.trustSeoLink2Label}
             </Link>
             {" · "}
             <Link
-              href="/iptv-e-confiavel"
+              href={copy.trustSeoLink3Href}
               className="font-semibold text-[var(--theme-primary)] underline-offset-2 hover:underline"
             >
-              IPTV é confiável?
+              {copy.trustSeoLink3Label}
             </Link>
           </p>
         </div>

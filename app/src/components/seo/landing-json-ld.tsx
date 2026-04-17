@@ -1,5 +1,5 @@
 import type { SiteBrandingPublic } from "@/lib/site-branding";
-import { LANDING_FAQ_ITEMS } from "@/lib/seo/faq-data";
+import { getLandingFaqItems } from "@/lib/site-branding";
 import { buildCanonical } from "@/lib/seo/metadata-builders";
 
 type PlanForSchema = {
@@ -69,10 +69,11 @@ export function LandingJsonLd({
     },
   };
 
+  const faqItems = getLandingFaqItems(branding.landingCopy);
   const faq = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: LANDING_FAQ_ITEMS.map((item) => ({
+    mainEntity: faqItems.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: {
