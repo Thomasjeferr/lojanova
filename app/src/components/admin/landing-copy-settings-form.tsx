@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,117 @@ function TextAreaField({
         disabled={disabled}
         className="theme-focus-input w-full resize-y rounded-xl border border-zinc-200/90 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
       />
+    </div>
+  );
+}
+
+const ACCEPT_LANDING_APP_IMAGE = "image/png,image/jpeg,image/jpg,image/webp,image/gif";
+const MAX_LANDING_APP_IMAGE_BYTES = 1_800_000;
+const MIME_LANDING_APP = /^data:image\/(png|jpeg|jpg|webp|gif);base64,/i;
+
+function readLandingAppImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (file.size > MAX_LANDING_APP_IMAGE_BYTES) {
+      reject(
+        new Error(`Arquivo muito grande (máx. ${Math.round(MAX_LANDING_APP_IMAGE_BYTES / 1024)} KB)`),
+      );
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== "string") {
+        reject(new Error("Falha ao ler o arquivo"));
+        return;
+      }
+      if (!MIME_LANDING_APP.test(result)) {
+        reject(new Error("Formato não suportado. Use PNG, JPG, WebP ou GIF."));
+        return;
+      }
+      resolve(result);
+    };
+    reader.onerror = () => reject(new Error("Erro ao ler o arquivo"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function LandingAppImageUrlRow({
+  id,
+  label,
+  value,
+  disabled,
+  onChange,
+  onUploadError,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  disabled: boolean;
+  onChange: (v: string) => void;
+  onUploadError: (message: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const isDataUrl = value.startsWith("data:image/");
+
+  async function onFilePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || disabled) return;
+    try {
+      const dataUrl = await readLandingAppImageFile(file);
+      onChange(dataUrl);
+    } catch (err) {
+      onUploadError(err instanceof Error ? err.message : "Erro no upload");
+    }
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+        <Input
+          id={id}
+          type="text"
+          className="min-w-0 flex-1 font-mono text-xs sm:text-sm"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="https://... ou “Enviar imagem”"
+          disabled={disabled}
+          title={isDataUrl ? "Imagem embutida (salva no banco ao clicar em Salvar)" : value || undefined}
+        />
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ACCEPT_LANDING_APP_IMAGE}
+            className="sr-only"
+            onChange={(e) => void onFilePick(e)}
+            tabIndex={-1}
+            aria-hidden
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="touch-manipulation"
+            disabled={disabled}
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload className="mr-1.5 h-4 w-4 shrink-0" aria-hidden />
+            Enviar imagem
+          </Button>
+          {value ? (
+            <Button type="button" variant="ghost" size="sm" disabled={disabled} onClick={() => onChange("")}>
+              Limpar
+            </Button>
+          ) : null}
+        </div>
+      </div>
+      {isDataUrl ? (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Imagem carregada — clique em &quot;Salvar textos da landing&quot; para persistir.
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -782,17 +894,14 @@ export function LandingCopySettingsForm({
               disabled={off}
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="downloadApp1ImageUrl">App 1: imagem (URL)</Label>
-            <Input
-              id="downloadApp1ImageUrl"
-              type="url"
-              value={copy.downloadApp1ImageUrl}
-              onChange={(e) => setField("downloadApp1ImageUrl", e.target.value)}
-              placeholder="https://..."
-              disabled={off}
-            />
-          </div>
+          <LandingAppImageUrlRow
+            id="downloadApp1ImageUrl"
+            label="App 1: imagem (URL ou upload)"
+            value={copy.downloadApp1ImageUrl}
+            disabled={off}
+            onChange={(v) => setField("downloadApp1ImageUrl", v)}
+            onUploadError={setError}
+          />
           <div className="space-y-1.5">
             <Label htmlFor="downloadApp2Name">App 2: nome</Label>
             <Input
@@ -813,17 +922,14 @@ export function LandingCopySettingsForm({
               disabled={off}
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="downloadApp2ImageUrl">App 2: imagem (URL)</Label>
-            <Input
-              id="downloadApp2ImageUrl"
-              type="url"
-              value={copy.downloadApp2ImageUrl}
-              onChange={(e) => setField("downloadApp2ImageUrl", e.target.value)}
-              placeholder="https://..."
-              disabled={off}
-            />
-          </div>
+          <LandingAppImageUrlRow
+            id="downloadApp2ImageUrl"
+            label="App 2: imagem (URL ou upload)"
+            value={copy.downloadApp2ImageUrl}
+            disabled={off}
+            onChange={(v) => setField("downloadApp2ImageUrl", v)}
+            onUploadError={setError}
+          />
           <div className="space-y-1.5">
             <Label htmlFor="downloadApp3Name">App 3: nome</Label>
             <Input
@@ -844,17 +950,14 @@ export function LandingCopySettingsForm({
               disabled={off}
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="downloadApp3ImageUrl">App 3: imagem (URL)</Label>
-            <Input
-              id="downloadApp3ImageUrl"
-              type="url"
-              value={copy.downloadApp3ImageUrl}
-              onChange={(e) => setField("downloadApp3ImageUrl", e.target.value)}
-              placeholder="https://..."
-              disabled={off}
-            />
-          </div>
+          <LandingAppImageUrlRow
+            id="downloadApp3ImageUrl"
+            label="App 3: imagem (URL ou upload)"
+            value={copy.downloadApp3ImageUrl}
+            disabled={off}
+            onChange={(v) => setField("downloadApp3ImageUrl", v)}
+            onUploadError={setError}
+          />
         </div>
       </div>
 

@@ -138,6 +138,16 @@ const pathOrUrl = z
     "Use caminho (/pagina) ou URL",
   );
 
+/** URL https ou imagem enviada pelo admin (data URL), alinhado ao logo da marca. */
+const landingAppImageUrlField = z.union([
+  z.literal(""),
+  z.string().url("Informe uma URL válida"),
+  z
+    .string()
+    .regex(/^data:image\/(png|jpeg|jpg|webp|gif);base64,/i, "Use PNG, JPG, WebP ou GIF")
+    .max(2_500_000, "Imagem muito grande (máx. ~1,8 MB em base64)"),
+]);
+
 /** Payload completo dos textos da landing (admin). */
 export const landingCopyPatchSchema = z.object({
   heroEyebrow: z.string().min(4).max(120),
@@ -177,13 +187,13 @@ export const landingCopyPatchSchema = z.object({
   downloadAppsButtonLabel: z.string().min(2).max(32),
   downloadApp1Name: z.string().max(50),
   downloadApp1Url: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
-  downloadApp1ImageUrl: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
+  downloadApp1ImageUrl: landingAppImageUrlField,
   downloadApp2Name: z.string().max(50),
   downloadApp2Url: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
-  downloadApp2ImageUrl: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
+  downloadApp2ImageUrl: landingAppImageUrlField,
   downloadApp3Name: z.string().max(50),
   downloadApp3Url: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
-  downloadApp3ImageUrl: z.union([z.string().url("Informe uma URL válida"), z.literal("")]),
+  downloadApp3ImageUrl: landingAppImageUrlField,
 
   benefitsTitle: z.string().min(8).max(200),
   benefitsSubtitle: z.string().min(20).max(600),
