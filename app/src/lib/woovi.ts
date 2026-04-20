@@ -67,7 +67,26 @@ export async function createWooviPixCharge({
   });
 
   if (!response.ok) {
-    throw new Error("Falha ao gerar cobrança Pix");
+    const raw = await response.text();
+    let detail = raw.slice(0, 280);
+    try {
+      const parsed = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+      const parts = [
+        parsed.error,
+        parsed.message,
+        parsed.msg,
+        parsed.detail,
+      ].filter((v) => typeof v === "string" && v.trim()) as string[];
+      if (parts.length > 0) detail = parts.join(" — ");
+    } catch {
+      /* mantém detail textual */
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        `Woovi (${response.status}): chave inválida/sem permissão. Verifique AppID e escopos CHARGE_POST + CHARGE_GET.`,
+      );
+    }
+    throw new Error(`Woovi (${response.status}): ${detail || "falha ao gerar cobrança Pix"}`);
   }
 
   const data = (await response.json()) as Record<string, unknown>;
