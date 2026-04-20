@@ -51,10 +51,14 @@ export async function createPixChargeByActiveProvider({
   }
 
   const correlationID = randomUUID();
+  const wooviDoc = normalizePayerDocument(payerDocument ?? "");
   const charge = await createWooviPixCharge({
     amountCents,
     payerName,
     correlationID,
+    payerDocument: wooviDoc,
+    payerEmail,
+    payerPhone,
   });
   return { ...charge, correlationID };
 }

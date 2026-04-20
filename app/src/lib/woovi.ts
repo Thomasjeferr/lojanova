@@ -32,10 +32,16 @@ export async function createWooviPixCharge({
   amountCents,
   payerName,
   correlationID,
+  payerDocument,
+  payerEmail,
+  payerPhone,
 }: {
   amountCents: number;
   payerName: string;
   correlationID: string;
+  payerDocument?: string;
+  payerEmail?: string | null;
+  payerPhone?: string | null;
 }): Promise<PixChargeResponse> {
   const settings = await getWooviSettings();
   const apiKey = settings.wooviApiKey || process.env.WOOVI_API_KEY || "";
@@ -50,6 +56,15 @@ export async function createWooviPixCharge({
     };
   }
 
+  const email = (payerEmail ?? "").trim().toLowerCase();
+  const phone = (payerPhone ?? "").replace(/\D/g, "");
+  const taxID = (payerDocument ?? "").replace(/\D/g, "");
+  if (!taxID && !email && !phone) {
+    throw new Error(
+      "Woovi: informe CPF/CNPJ, e-mail ou telefone do cliente para gerar a cobrança Pix.",
+    );
+  }
+
   const response = await fetch("https://api.woovi.com/api/v1/charge", {
     method: "POST",
     headers: {
@@ -62,6 +77,9 @@ export async function createWooviPixCharge({
       comment: "Compra de plano digital",
       customer: {
         name: payerName,
+        ...(taxID ? { taxID } : {}),
+        ...(email ? { email } : {}),
+        ...(phone ? { phone } : {}),
       },
     }),
   });
