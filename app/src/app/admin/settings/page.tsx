@@ -13,7 +13,7 @@ import { WooviSettingsForm } from "@/components/admin/woovi-settings-form";
 import { EvolutionWhatsAppSettings } from "@/components/admin/evolution-whatsapp-settings";
 import { CONTACT_FALLBACK } from "@/lib/contact-settings";
 import { env } from "@/lib/env";
-import { resolvePublicSiteUrlForAdminDocs } from "@/lib/public-site-url";
+import { PRODUCTION_PUBLIC_SITE_URL } from "@/lib/public-site-url";
 import { PAYMENT_GATEWAY_FALLBACK } from "@/lib/woovi-settings";
 
 async function siteBrandingTableExists(): Promise<boolean> {
@@ -173,7 +173,7 @@ export default async function AdminSettingsPage() {
         </p>
         <WooviSettingsForm
           disabled={!contactTableOk}
-          publicBaseUrl={resolvePublicSiteUrlForAdminDocs(env.APP_URL)}
+          publicBaseUrl={PRODUCTION_PUBLIC_SITE_URL}
           initial={{
             paymentProvider:
               (contactRow?.paymentProvider as "woovi" | "ggpix" | undefined) ||
