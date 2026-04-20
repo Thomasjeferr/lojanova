@@ -77,8 +77,12 @@ function isWooviWebhookPaid(
   pix: Record<string, unknown> | undefined,
 ): boolean {
   const ev = eventName.toUpperCase();
-  if (ev.includes("CHARGE_COMPLETED")) return true;
-  if (ev.includes("MOVEMENT_CONFIRMED")) return true;
+  // Eventos sem dados de transação (ex.: "teste de webhook") não devem ser tratados como pagamento.
+  const refs = collectWooviTransactionRefs(payload);
+  const hasChargeLikeData = Boolean(charge || pix || asObj(payload.payment));
+  if ((ev.includes("CHARGE_COMPLETED") || ev.includes("MOVEMENT_CONFIRMED")) && (refs.length > 0 || hasChargeLikeData)) {
+    return true;
+  }
 
   const chargeSt = str(charge?.status).toUpperCase();
   const pixSt = str(pix?.status).toUpperCase();
@@ -145,13 +149,21 @@ export async function POST(request: Request) {
     str(payload.eventId) ||
     str(payload.eventID) ||
     str(payload._id) ||
-    (primaryRef ? `${eventName}:${primaryRef}` : "");
+    (primaryRef ? `${eventName}:${primaryRef}` : "") ||
+    str(payload.data_criacao) ||
+    str(payload.createdAt);
+
+  const paid = isWooviWebhookPaid(payload, eventName, charge, pix);
+
+  // Compatibilidade com payload mínimo de teste documentado pela OpenPix (event + data_criacao).
+  // Também cobre cenários em que o painel envia somente "event" sem dados da cobrança.
+  if (!paid && refs.length === 0) {
+    return ok({ message: "Webhook teste/minimal recebido" });
+  }
 
   if (!eventId) {
     return badRequest("Payload de webhook inválido: falta identificador do evento");
   }
-
-  const paid = isWooviWebhookPaid(payload, eventName, charge, pix);
 
   const existing = await prisma.webhookLog.findUnique({ where: { eventId } });
   if (existing?.processed) {
