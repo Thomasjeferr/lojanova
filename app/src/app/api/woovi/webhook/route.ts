@@ -125,6 +125,13 @@ export async function POST(request: Request) {
 
   const payload = payloadRaw as Record<string, unknown>;
   const payloadJson = payloadRaw as Prisma.InputJsonValue;
+
+  // Alguns painéis disparam "teste de webhook" com body vazio ({}).
+  // Nesse caso respondemos 200 para validar conectividade, sem processar evento.
+  if (Object.keys(payload).length === 0) {
+    return ok({ message: "Webhook teste recebido (payload vazio)" });
+  }
+
   const charge = asObj(payload.charge);
   const pix = asObj(payload.pix);
 
