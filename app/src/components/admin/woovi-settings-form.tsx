@@ -94,12 +94,43 @@ export function WooviSettingsForm({
   const base = normalizeBaseUrl(publicBaseUrl.trim() || PRODUCTION_PUBLIC_SITE_URL);
   const ggpixWebhookUrl = `${base}/api/ggpix/webhook`;
   const wooviWebhookUrl = `${base}/api/woovi/webhook`;
+  const wooviWebhookAliasUrl = `${base}/api/webhooks/woovi`;
+
+  function copyTextLegacy(text: string): boolean {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
 
   async function copyText(text: string) {
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else if (!copyTextLegacy(text)) {
+        throw new Error("fallback-failed");
+      }
+      setToast("ok");
+      setToastMsg("URL copiada.");
     } catch {
-      /* ignore */
+      setToast("err");
+      setToastMsg("Não foi possível copiar automaticamente.");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+        setToastMsg("");
+      }, 2500);
     }
   }
 
@@ -212,6 +243,22 @@ export function WooviSettingsForm({
                   Copiar URL
                 </button>
               </div>
+              <p className="mt-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                Alternativa compatível:{" "}
+                <code className="break-all rounded bg-white px-1 dark:bg-zinc-800 dark:text-zinc-200">
+                  {wooviWebhookAliasUrl}
+                </code>
+                {" "}(
+                <button
+                  type="button"
+                  disabled={off}
+                  onClick={() => copyText(wooviWebhookAliasUrl)}
+                  className="rounded border border-sky-300 bg-white px-1.5 py-0.5 text-[11px] font-medium text-sky-900 hover:bg-sky-100 disabled:opacity-50 dark:border-sky-500/40 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/60"
+                >
+                  copiar
+                </button>
+                ).
+              </p>
             </li>
             <li>
               Use o mesmo <strong>Webhook Secret</strong> configurado na Woovi no campo{" "}
@@ -228,7 +275,8 @@ export function WooviSettingsForm({
             >
               {PRODUCTION_PUBLIC_SITE_URL}
             </a>
-            .
+            . Domínio oficial para configurar no painel:{" "}
+            <code className="rounded bg-white px-1 dark:bg-zinc-800 dark:text-zinc-200">iplay5plus.app</code>.
           </p>
         </div>
       )}
