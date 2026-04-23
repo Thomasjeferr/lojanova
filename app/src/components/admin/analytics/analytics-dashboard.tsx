@@ -309,7 +309,11 @@ export function AnalyticsDashboard({
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-5 xl:gap-8 xl:gap-10">
         <div className="relative xl:col-span-3">
           <div className="pointer-events-none absolute -inset-3 -z-10 rounded-[1.35rem] bg-gradient-to-b from-violet-500/8 via-transparent to-cyan-500/6 blur-xl" />
-          <WorldMapAdvanced points={points} minHeight={mapMinHeight} />
+          <WorldMapAdvanced
+            points={points}
+            minHeight={mapMinHeight}
+            fitBoundsKey={`${query.range}-${query.type}-${query.countryCode ?? "all"}`}
+          />
         </div>
         <div className="xl:col-span-2">
           <ActivityFeed

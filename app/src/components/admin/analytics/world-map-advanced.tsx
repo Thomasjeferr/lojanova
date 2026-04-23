@@ -1,25 +1,29 @@
 "use client";
 
-import type { ComponentProps } from "react";
-import { ActivityGlobe } from "@/components/admin/activity/activity-globe";
+import { ActivityMaplibreCore } from "@/components/admin/activity/activity-maplibre-core";
+import type { ActivityMapPointDTO } from "@/lib/activity-admin";
 import { cn } from "@/lib/utils";
 
-type WorldMapAdvancedProps = Omit<
-  ComponentProps<typeof ActivityGlobe>,
-  "showHeatmap" | "liveMode"
-> & {
+type WorldMapAdvancedProps = {
+  points: ActivityMapPointDTO[];
+  className?: string;
+  minHeight?: number;
   showHeatmap?: boolean;
   liveMode?: boolean;
+  /** Muda com filtros de analytics → novo enquadramento automático */
+  fitBoundsKey?: string;
 };
 
 /**
- * Globo 3D (COBE) com halo exterior, arcos e rotação; legenda alinhada ao mapa plano.
+ * Mapa de atividade avançado (MapLibre): vetor, clusters, heatmap opcional.
  */
 export function WorldMapAdvanced({
   className,
   showHeatmap = true,
-  liveMode = true,
-  ...rest
+  minHeight = 460,
+  points,
+  liveMode: _liveMode = true,
+  fitBoundsKey,
 }: WorldMapAdvancedProps) {
   return (
     <div className={cn("relative", className)}>
@@ -40,11 +44,14 @@ export function WorldMapAdvanced({
         className="pointer-events-none absolute -inset-px rounded-[1.05rem] bg-gradient-to-tr from-white/[0.06] via-transparent to-violet-400/10 opacity-90"
         aria-hidden
       />
-      <div className="relative rounded-2xl shadow-[0_0_100px_-18px_rgba(139,92,246,0.55),0_0_60px_-12px_rgba(34,211,238,0.12),0_32px_64px_-28px_rgba(0,0,0,0.88)] ring-1 ring-white/[0.14]">
-        <ActivityGlobe
-          {...rest}
+      <div className="relative overflow-hidden rounded-2xl shadow-[0_0_100px_-18px_rgba(139,92,246,0.55),0_0_60px_-12px_rgba(34,211,238,0.12),0_32px_64px_-28px_rgba(0,0,0,0.88)] ring-1 ring-white/[0.14]">
+        <ActivityMaplibreCore
+          points={points}
+          minHeight={minHeight}
+          variant="dark"
           showHeatmap={showHeatmap}
-          liveMode={liveMode}
+          showLegend
+          fitBoundsKey={fitBoundsKey}
         />
       </div>
     </div>

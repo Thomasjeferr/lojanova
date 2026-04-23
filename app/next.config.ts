@@ -6,8 +6,11 @@ import type { NextConfig } from "next";
  * Vercel: não definimos, pois a plataforma controla `outputFileTracingRoot`.
  */
 const nextConfig: NextConfig = process.env.VERCEL
-  ? {}
+  ? {
+      transpilePackages: ["maplibre-gl"],
+    }
   : {
+      transpilePackages: ["maplibre-gl"],
       turbopack: {
         root: __dirname,
       },

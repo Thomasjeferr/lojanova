@@ -66,11 +66,15 @@ export function ActivityGlobalSection({
 
         <ActivityStatsRow summary={summary} />
 
-        <div className="grid min-w-0 grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-8">
-          <div className="flex min-h-0 min-w-0 flex-col">
-            <ActivityWorldMap points={points} minHeight={280} embedded />
+        {/*
+          Mapa com mais destaque: ~60% no desktop, altura mín. maior; feed ao lado.
+          Em telas médias, mapa ainda com prioridade (min. altura vh leve).
+        */}
+        <div className="grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-stretch lg:gap-6 xl:grid-cols-[1.45fr_1fr] xl:gap-8 2xl:grid-cols-[1.5fr_1fr]">
+          <div className="order-1 flex min-h-0 min-w-0 flex-col min-h-[min(44vh,420px)] lg:min-h-[min(58vh,600px)]">
+            <ActivityWorldMap points={points} minHeight={400} embedded />
           </div>
-          <div className="flex min-h-0 min-w-0 flex-col">
+          <div className="order-2 flex min-h-0 min-w-0 flex-col">
             <div className="mb-2.5 flex items-center gap-2 sm:mb-3">
               <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100/90 text-violet-600 ring-1 ring-violet-200/80 dark:bg-violet-950/50 dark:text-violet-300 dark:ring-violet-500/30">
                 <Globe2 className="h-4 w-4" aria-hidden />
