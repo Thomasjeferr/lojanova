@@ -13,6 +13,7 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { TrustSeoSection } from "@/components/landing/trust-seo-section";
 import { LandingInnerHero } from "@/components/landing/landing-inner-hero";
 import { FloatingWhatsAppButton } from "@/components/floating-whatsapp-button";
+import { PrePurchaseWarningModal } from "@/components/pre-purchase-warning-modal";
 import { LandingGlobalBackdrop } from "@/components/landing/landing-global-backdrop";
 import type { Plan } from "@/components/landing/plan-card";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
@@ -37,6 +38,23 @@ export function LandingPage({
   landingMode?: LandingMode;
 }) {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [prePurchasePlan, setPrePurchasePlan] = useState<Plan | null>(null);
+  const preWarnOn = branding.landingCopy.prePurchaseWarningEnabled;
+
+  function handleSelectPlan(plan: Plan) {
+    if (preWarnOn) {
+      setPrePurchasePlan(plan);
+    } else {
+      setSelectedPlan(plan);
+    }
+  }
+
+  function confirmPrePurchase() {
+    if (prePurchasePlan) {
+      setSelectedPlan(prePurchasePlan);
+    }
+    setPrePurchasePlan(null);
+  }
 
   return (
     <main
@@ -67,7 +85,7 @@ export function LandingPage({
         ) : (
           <LandingInnerHero mode={landingMode === "planos" ? "planos" : "comprar"} branding={branding} />
         )}
-        <PlansSection plans={plans} onSelectPlan={setSelectedPlan} copy={branding.landingCopy} />
+        <PlansSection plans={plans} onSelectPlan={handleSelectPlan} copy={branding.landingCopy} />
         <BenefitsSection copy={branding.landingCopy} />
         <TrustSeoSection copy={branding.landingCopy} />
         <HowItWorksSection copy={branding.landingCopy} />
@@ -76,6 +94,14 @@ export function LandingPage({
         <LandingFooter branding={branding} />
       </div>
       <FloatingWhatsAppButton settings={contactSettings} />
+      <PrePurchaseWarningModal
+        plan={prePurchasePlan}
+        storeDisplayName={branding.storeDisplayName}
+        open={Boolean(prePurchasePlan)}
+        onClose={() => setPrePurchasePlan(null)}
+        onConfirm={confirmPrePurchase}
+        copy={branding.landingCopy}
+      />
       <CheckoutModal
         plan={selectedPlan}
         allPlans={plans}

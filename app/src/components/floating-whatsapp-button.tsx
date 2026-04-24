@@ -24,7 +24,7 @@ export function FloatingWhatsAppButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="group fixed right-4 bottom-4 z-[70] inline-flex items-center gap-2 rounded-full bg-[#25D366] px-3 py-3 text-white shadow-[0_14px_30px_-10px_rgba(37,211,102,0.65)] transition-all duration-300 hover:scale-[1.04] hover:bg-[#22c55e] hover:shadow-[0_20px_42px_-12px_rgba(37,211,102,0.72)] sm:right-6 sm:bottom-6 sm:px-4"
+      className="group fixed bottom-4 right-4 z-[70] inline-flex items-center gap-2 rounded-full bg-[#25D366] px-3 py-3 text-white shadow-[0_14px_30px_-10px_rgba(37,211,102,0.65)] transition-all duration-300 hover:scale-[1.04] hover:bg-[#22c55e] hover:shadow-[0_20px_42px_-12px_rgba(37,211,102,0.72)] sm:bottom-6 sm:right-6 sm:px-4"
       title={label}
     >
       <WhatsAppIcon />

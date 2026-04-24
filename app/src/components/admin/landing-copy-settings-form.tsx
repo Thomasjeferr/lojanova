@@ -427,6 +427,67 @@ export function LandingCopySettingsForm({
         </div>
       </div>
 
+      <div className="space-y-4 rounded-2xl border border-amber-200/80 bg-amber-50/40 p-4 dark:border-amber-500/25 dark:bg-amber-950/20 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              Aviso antes de comprar o plano
+            </p>
+            <p className="mt-1 max-w-2xl text-xs text-zinc-600 dark:text-zinc-400">
+              Ao ativar, ao clicar em &quot;Comprar&quot; abre primeiro um aviso grande; só depois abre o
+              checkout. O WhatsApp continua no canto inferior direito, como de costume.
+            </p>
+          </div>
+          <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-zinc-200/90 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500"
+              checked={copy.prePurchaseWarningEnabled}
+              onChange={(e) => setField("prePurchaseWarningEnabled", e.target.checked)}
+              disabled={off}
+            />
+            Ativo
+          </label>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="prePurchaseWarningTitle">Título do aviso</Label>
+          <Input
+            id="prePurchaseWarningTitle"
+            value={copy.prePurchaseWarningTitle}
+            onChange={(e) => setField("prePurchaseWarningTitle", e.target.value)}
+            disabled={off}
+          />
+        </div>
+        <TextAreaField
+          id="prePurchaseWarningBody"
+          label="Texto do aviso (quebras de linha = novo parágrafo)"
+          value={copy.prePurchaseWarningBody}
+          onChange={(v) => setField("prePurchaseWarningBody", v)}
+          rows={8}
+          disabled={off}
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="prePurchaseWarningConfirmLabel">Botão confirmar</Label>
+            <Input
+              id="prePurchaseWarningConfirmLabel"
+              value={copy.prePurchaseWarningConfirmLabel}
+              onChange={(e) => setField("prePurchaseWarningConfirmLabel", e.target.value)}
+              disabled={off}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="prePurchaseWarningBackLabel">Botão voltar</Label>
+            <Input
+              id="prePurchaseWarningBackLabel"
+              value={copy.prePurchaseWarningBackLabel}
+              onChange={(e) => setField("prePurchaseWarningBackLabel", e.target.value)}
+              disabled={off}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="faqTitle">FAQ: título</Label>

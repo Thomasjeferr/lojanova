@@ -17,6 +17,12 @@ export type LandingCopy = {
   planBadgePopular: string;
   planPriceCaption: string;
   planBuyButton: string;
+  /** Aviso grande antes de abrir o checkout ao clicar em comprar plano */
+  prePurchaseWarningEnabled: boolean;
+  prePurchaseWarningTitle: string;
+  prePurchaseWarningBody: string;
+  prePurchaseWarningConfirmLabel: string;
+  prePurchaseWarningBackLabel: string;
   faqTitle: string;
   faqSubtitle: string;
   footerTagline: string;
@@ -126,6 +132,14 @@ export const DEFAULT_LANDING_COPY: LandingCopy = {
   planBadgePopular: "Mais popular",
   planPriceCaption: "Pagamento único",
   planBuyButton: "Comprar plano",
+  prePurchaseWarningEnabled: false,
+  prePurchaseWarningTitle: "Confirme se é o plano certo",
+  prePurchaseWarningBody:
+    "Antes de continuar, confirme com atenção se este é mesmo o plano que pretende comprar.\n\n" +
+    "Se comprou o plano errado, não solicite o MED (contestação no banco). Fale connosco primeiro pelo WhatsApp, no canto inferior direito do site — ajudamos a regularizar a situação.\n\n" +
+    "Obrigado por não acionar o MED sem nos contactar antes.",
+  prePurchaseWarningConfirmLabel: "Sim, é o plano certo — continuar",
+  prePurchaseWarningBackLabel: "Não, voltar",
   faqTitle: "Perguntas frequentes",
   faqSubtitle: "Tire suas dúvidas antes de comprar.",
   footerTagline: "Ativação de acesso via Pix com entrega automática.",
@@ -291,6 +305,28 @@ function mergeLandingCopy(raw: unknown): LandingCopy {
       typeof obj.planBuyButton === "string" && obj.planBuyButton.trim()
         ? obj.planBuyButton
         : DEFAULT_LANDING_COPY.planBuyButton,
+    prePurchaseWarningEnabled:
+      typeof obj.prePurchaseWarningEnabled === "boolean"
+        ? obj.prePurchaseWarningEnabled
+        : DEFAULT_LANDING_COPY.prePurchaseWarningEnabled,
+    prePurchaseWarningTitle:
+      typeof obj.prePurchaseWarningTitle === "string" && obj.prePurchaseWarningTitle.trim()
+        ? obj.prePurchaseWarningTitle
+        : DEFAULT_LANDING_COPY.prePurchaseWarningTitle,
+    prePurchaseWarningBody:
+      typeof obj.prePurchaseWarningBody === "string" && obj.prePurchaseWarningBody.trim()
+        ? obj.prePurchaseWarningBody
+        : DEFAULT_LANDING_COPY.prePurchaseWarningBody,
+    prePurchaseWarningConfirmLabel:
+      typeof obj.prePurchaseWarningConfirmLabel === "string" &&
+      obj.prePurchaseWarningConfirmLabel.trim()
+        ? obj.prePurchaseWarningConfirmLabel
+        : DEFAULT_LANDING_COPY.prePurchaseWarningConfirmLabel,
+    prePurchaseWarningBackLabel:
+      typeof obj.prePurchaseWarningBackLabel === "string" &&
+      obj.prePurchaseWarningBackLabel.trim()
+        ? obj.prePurchaseWarningBackLabel
+        : DEFAULT_LANDING_COPY.prePurchaseWarningBackLabel,
     faqTitle:
       typeof obj.faqTitle === "string" && obj.faqTitle.trim()
         ? obj.faqTitle
