@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./admin-design-system.css";
 
 /**
  * Modo escuro manual (classe `.dark` no shell do admin).

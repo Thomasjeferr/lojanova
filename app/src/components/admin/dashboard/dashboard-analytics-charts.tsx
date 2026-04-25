@@ -1,14 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -34,9 +31,6 @@ const ORDER_STATUS_LABEL: Record<string, string> = {
   cancelled: "Cancelados",
 };
 
-const PIE_COLORS_LIGHT = ["#6366f1", "#059669", "#d97706", "#64748b"];
-const PIE_COLORS_DARK = ["#a5b4fc", "#34d399", "#fbbf24", "#94a3b8"];
-
 export type OrderStatusSlice = {
   status: string;
   count: number;
@@ -55,26 +49,128 @@ type DashboardAnalyticsChartsProps = {
   planStockBars: PlanStockBar[];
 };
 
+type PeriodKey = 7 | 30 | 90;
+
 function ChartShell({
   title,
   subtitle,
   children,
+  headerRight,
   className,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  headerRight?: React.ReactNode;
   className?: string;
 }) {
   return (
-    <section className={cn(adminPremiumCard, "transition hover:shadow-[0_20px_56px_-28px_rgba(15,23,42,0.2)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07)_inset,0_36px_72px_-36px_rgba(0,0,0,0.9)]", className)}>
+    <section
+      className={cn(
+        adminPremiumCard,
+        "hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-hover)]",
+        className,
+      )}
+    >
       <div className={adminPremiumCardAccent} aria-hidden />
-      <div className={cn(adminPremiumCardHeader, "px-5 py-4 sm:px-6 sm:py-5")}>
-        <h2 className={cn(adminPremiumHeading, "text-[1.0625rem]")}>{title}</h2>
-        {subtitle ? <p className={cn(adminPremiumSub, "mt-1 text-[12px]")}>{subtitle}</p> : null}
+      <div
+        className={cn(
+          adminPremiumCardHeader,
+          "flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6 sm:py-5",
+        )}
+      >
+        <div>
+          <h2 className={cn(adminPremiumHeading, "text-[var(--font-lg)]")}>{title}</h2>
+          {subtitle ? <p className={cn(adminPremiumSub, "mt-1 text-[var(--font-xs)]")}>{subtitle}</p> : null}
+        </div>
+        {headerRight}
       </div>
       <div className="relative z-[2] p-4 sm:p-6">{children}</div>
     </section>
+  );
+}
+
+function periodTabs(active: PeriodKey, onChange: (p: PeriodKey) => void) {
+  const opts: PeriodKey[] = [7, 30, 90];
+  return (
+    <div
+      className="inline-flex rounded-full border border-[var(--border-default)] bg-[var(--bg-surface-3)]/50 p-0.5"
+      role="tablist"
+      aria-label="Período do gráfico"
+    >
+      {opts.map((d) => {
+        const isOn = active === d;
+        return (
+          <button
+            key={d}
+            type="button"
+            role="tab"
+            aria-selected={isOn}
+            className={cn(
+              "cursor-pointer rounded-full px-3 py-1.5 text-[var(--font-xs)] font-semibold uppercase tracking-wide transition-all duration-150",
+              isOn
+                ? "bg-[var(--accent-purple)] text-[var(--text-inverse)] shadow-[var(--shadow-glow-purple)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
+            )}
+            onClick={() => onChange(d)}
+          >
+            {d}d
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function donutColor(status: string, theme: "light" | "dark") {
+  const isDark = theme === "dark";
+  if (status === "paid") return isDark ? "#00D4A1" : "#059669";
+  if (status === "cancelled") return isDark ? "#FF4D6A" : "#e11d48";
+  if (status === "pending") return isDark ? "#F59E0B" : "#d97706";
+  if (status === "failed") return isDark ? "#3B82F6" : "#2563eb";
+  return isDark ? "#8B90A7" : "#64748b";
+}
+
+function PlanStockBarsBlock({ rows }: { rows: Array<{ nome: string; disponiveis: number; fullTitle: string }> }) {
+  const maxVal = useMemo(() => Math.max(1, ...rows.map((r) => r.disponiveis)), [rows]);
+  return (
+    <div className="space-y-5">
+      {rows.map((row) => {
+        const pct = Math.round((row.disponiveis / maxVal) * 100);
+        const w = `${(row.disponiveis / maxVal) * 100}%`;
+        const showInside = row.disponiveis / maxVal >= 0.14;
+        return (
+          <div key={row.fullTitle} className="min-w-0">
+            <div className="mb-2 flex items-baseline justify-between gap-3 text-[var(--font-sm)] text-[var(--text-primary)]">
+              <span className="min-w-0 truncate font-medium" title={row.fullTitle}>
+                {row.nome}
+              </span>
+              <span className="shrink-0 text-sm font-bold tabular-nums text-[var(--text-primary)]">
+                {row.disponiveis}
+              </span>
+            </div>
+            <div
+              className="relative h-7 w-full overflow-hidden rounded-[var(--radius-full)] bg-[var(--bg-surface-3)]"
+              title={row.fullTitle}
+            >
+              <div
+                className="absolute inset-y-0 left-0 rounded-[var(--radius-full)] bg-[linear-gradient(90deg,var(--accent-purple),#A78BFA)] transition-[width] duration-700 ease-out"
+                style={{ width: w }}
+              />
+              {showInside ? (
+                <span className="absolute inset-y-0 left-3 flex items-center text-xs font-bold tabular-nums text-white mix-blend-normal drop-shadow-sm">
+                  {pct}%
+                </span>
+              ) : (
+                <span className="absolute inset-y-0 right-2 flex items-center text-xs font-semibold tabular-nums text-[var(--text-secondary)]">
+                  {pct}%
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -85,16 +181,15 @@ export function DashboardAnalyticsCharts({
 }: DashboardAnalyticsChartsProps) {
   const { theme } = useAdminTheme();
   const isDark = theme === "dark";
+  const [period, setPeriod] = useState<PeriodKey>(30);
 
-  const gridStroke = isDark ? "rgba(63,63,70,0.45)" : "rgba(228,228,231,0.85)";
-  const axisColor = isDark ? "#a1a1aa" : "#52525b";
-  const tooltipBg = isDark ? "rgba(24,24,27,0.96)" : "#ffffff";
-  const tooltipBorder = isDark ? "rgba(82,82,91,0.65)" : "rgba(228,228,231,0.95)";
-  const tooltipShadow = isDark
-    ? "0 24px 48px -12px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06)"
-    : "0 20px 40px -16px rgba(15,23,42,0.18), 0 0 0 1px rgba(0,0,0,0.04)";
-  const strokePrimary = isDark ? "#a5b4fc" : "#4f46e5";
-  const gradientTop = isDark ? "rgba(165,180,252,0.5)" : "rgba(79,70,229,0.4)";
+  const gridStroke = "rgba(255,255,255,0.04)";
+  const gridStrokeLight = "rgba(15,23,42,0.06)";
+  const axisColor = "var(--text-muted)";
+  const strokePrimary = "var(--accent-purple)";
+  const tooltipBg = isDark ? "rgba(14,17,24,0.9)" : "rgba(255,255,255,0.96)";
+  const tooltipBorder = "var(--border-default)";
+  const tooltipShadow = "var(--shadow-card)";
 
   const salesData = useMemo(
     () =>
@@ -104,6 +199,11 @@ export function DashboardAnalyticsCharts({
       })),
     [dailySales],
   );
+
+  const salesWindow = useMemo(() => {
+    const n = period === 7 ? 7 : period === 30 ? 30 : Math.min(90, salesData.length);
+    return salesData.slice(-n);
+  }, [salesData, period]);
 
   const pieData = useMemo(
     () =>
@@ -117,7 +217,7 @@ export function DashboardAnalyticsCharts({
     [orderByStatus],
   );
 
-  const pieColors = isDark ? PIE_COLORS_DARK : PIE_COLORS_LIGHT;
+  const pieTotal = useMemo(() => pieData.reduce((a, b) => a + b.value, 0), [pieData]);
 
   const barData = useMemo(() => {
     const keyCounts = new Map<string, number>();
@@ -128,14 +228,10 @@ export function DashboardAnalyticsCharts({
     return planStockBars.map((p) => {
       const k = `${p.title.trim().toLowerCase()}|${p.durationDays}`;
       const duplicateTitleAndDuration = (keyCounts.get(k) ?? 0) > 1;
-      const durationLabel =
-        p.durationDays === 1 ? "1 dia" : `${p.durationDays} dias`;
+      const durationLabel = p.durationDays === 1 ? "1 dia" : `${p.durationDays} dias`;
       const base = `${p.title.trim()} · ${durationLabel}`;
-      const fullTitle = duplicateTitleAndDuration
-        ? `${base} · id ${p.planId.slice(0, 8)}…`
-        : base;
-      const nome =
-        fullTitle.length > 44 ? `${fullTitle.slice(0, 42)}…` : fullTitle;
+      const fullTitle = duplicateTitleAndDuration ? `${base} · id ${p.planId.slice(0, 8)}…` : base;
+      const nome = fullTitle.length > 44 ? `${fullTitle.slice(0, 42)}…` : fullTitle;
       return {
         nome,
         fullTitle,
@@ -144,41 +240,45 @@ export function DashboardAnalyticsCharts({
     });
   }, [planStockBars]);
 
-  const hasSales = salesData.some((d) => d.totalCents > 0);
+  const hasSales = salesWindow.some((d) => d.totalCents > 0);
   const hasOrders = pieData.length > 0;
   const hasPlans = planStockBars.length > 0;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
         <ChartShell
           title="Vendas por dia"
-          subtitle="Últimos 30 dias · fuso de Brasília · pedidos pagos"
-          className="xl:col-span-3"
+          subtitle="Pedidos pagos · fuso de Brasília"
+          className="xl:col-span-2"
+          headerRight={periodTabs(period, setPeriod)}
         >
           <div className="h-[300px] w-full min-w-0">
             {!hasSales ? (
-              <p className="flex h-full items-center justify-center px-4 text-center text-[13px] font-medium leading-relaxed text-zinc-500 dark:text-zinc-400">
+              <p className="flex h-full items-center justify-center px-4 text-center text-[var(--font-sm)] font-medium text-[var(--text-secondary)]">
                 Ainda não há vendas registradas neste período.
               </p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={salesData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <AreaChart data={salesWindow} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="adminSalesFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={strokePrimary} stopOpacity={isDark ? 0.42 : 0.32} />
-                      <stop offset="55%" stopColor={strokePrimary} stopOpacity={isDark ? 0.12 : 0.08} />
-                      <stop offset="100%" stopColor={strokePrimary} stopOpacity={0} />
+                    <linearGradient id="adminSalesFillPremium" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#7B61FF" stopOpacity={isDark ? 0.25 : 0.2} />
+                      <stop offset="100%" stopColor="#7B61FF" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="4 6" stroke={gridStroke} vertical={false} strokeOpacity={0.9} />
+                  <CartesianGrid
+                    strokeDasharray="4 4"
+                    stroke={isDark ? gridStroke : gridStrokeLight}
+                    vertical={false}
+                  />
                   <XAxis
                     dataKey="label"
                     tick={{ fill: axisColor, fontSize: 11 }}
                     tickLine={false}
-                    axisLine={{ stroke: gridStroke }}
+                    axisLine={{ stroke: isDark ? gridStroke : gridStrokeLight }}
                     interval="preserveStartEnd"
-                    minTickGap={24}
+                    minTickGap={20}
                   />
                   <YAxis
                     tick={{ fill: axisColor, fontSize: 11 }}
@@ -194,14 +294,17 @@ export function DashboardAnalyticsCharts({
                   <Tooltip
                     contentStyle={{
                       background: tooltipBg,
+                      backdropFilter: "blur(12px)",
+                      WebkitBackdropFilter: "blur(12px)",
                       border: `1px solid ${tooltipBorder}`,
-                      borderRadius: "14px",
-                      fontSize: "13px",
-                      fontWeight: 500,
+                      borderRadius: "var(--radius-md)",
+                      fontSize: "var(--font-sm)",
+                      fontWeight: 600,
                       boxShadow: tooltipShadow,
                       padding: "12px 14px",
+                      color: "var(--text-primary)",
                     }}
-                    labelStyle={{ color: axisColor, fontWeight: 600, marginBottom: 4 }}
+                    labelStyle={{ color: "var(--text-muted)", fontWeight: 600, marginBottom: 4 }}
                     formatter={(value: number) => [currencyBRL(Math.round(value * 100)), "Vendas"]}
                   />
                   <Area
@@ -209,13 +312,17 @@ export function DashboardAnalyticsCharts({
                     dataKey="totalReais"
                     name="Vendas"
                     stroke={strokePrimary}
-                    strokeWidth={isDark ? 2.25 : 2}
-                    fill="url(#adminSalesFill)"
+                    strokeWidth={2.5}
+                    fill="url(#adminSalesFillPremium)"
+                    isAnimationActive
+                    animationDuration={1200}
+                    animationEasing="ease-out"
+                    dot={false}
                     activeDot={{
-                      r: 6,
+                      r: 5,
                       strokeWidth: 2,
-                      stroke: isDark ? "#18181b" : "#fff",
-                      fill: gradientTop,
+                      stroke: "var(--bg-surface-2)",
+                      fill: "#7B61FF",
                     }}
                   />
                 </AreaChart>
@@ -224,133 +331,100 @@ export function DashboardAnalyticsCharts({
           </div>
         </ChartShell>
 
-        <ChartShell
-          title="Pedidos por status"
-          subtitle="Distribuição no catálogo completo"
-          className="xl:col-span-2"
-        >
-          <div className="h-[300px] w-full min-w-0">
-            {!hasOrders ? (
-              <p className="flex h-full items-center justify-center text-center text-sm text-zinc-500 dark:text-zinc-400">
-                Nenhum pedido para exibir.
-              </p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={58}
-                    outerRadius={90}
-                    paddingAngle={2.5}
-                    cornerRadius={6}
-                    stroke={isDark ? "#18181b" : "#fafafa"}
-                    strokeWidth={2}
-                  >
-                    {pieData.map((row, i) => (
-                      <Cell key={row.key} fill={pieColors[i % pieColors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: tooltipBg,
-                      border: `1px solid ${tooltipBorder}`,
-                      borderRadius: "14px",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      boxShadow: tooltipShadow,
-                      padding: "10px 12px",
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    formatter={(value) => (
-                      <span className="text-xs text-zinc-600 dark:text-zinc-300">{value}</span>
-                    )}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
+        <ChartShell title="Pedidos por status" subtitle="Distribuição no catálogo completo">
+          <div className="flex flex-col gap-4">
+            <div className="relative mx-auto h-[240px] w-full max-w-[280px] min-w-0">
+              {!hasOrders ? (
+                <p className="flex h-full items-center justify-center text-center text-[var(--font-sm)] text-[var(--text-secondary)]">
+                  Nenhum pedido para exibir.
+                </p>
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={58}
+                        outerRadius={86}
+                        paddingAngle={3}
+                        cornerRadius={4}
+                        stroke={isDark ? "#13161F" : "#f8fafc"}
+                        strokeWidth={3}
+                        isAnimationActive
+                        animationDuration={800}
+                        animationEasing="ease-out"
+                      >
+                        {pieData.map((row) => (
+                          <Cell key={row.key} fill={donutColor(row.key, theme)} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          background: tooltipBg,
+                          backdropFilter: "blur(12px)",
+                          border: `1px solid ${tooltipBorder}`,
+                          borderRadius: "var(--radius-md)",
+                          fontSize: "var(--font-sm)",
+                          boxShadow: tooltipShadow,
+                          padding: "10px 12px",
+                          color: "var(--text-primary)",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pb-1">
+                    <span className="text-[28px] font-bold leading-none text-[var(--text-primary)] tabular-nums">
+                      {pieTotal}
+                    </span>
+                    <span className="mt-1 text-[12px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                      Total
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+            {hasOrders ? (
+              <ul className="space-y-2 border-t border-[var(--border-subtle)] pt-4">
+                {pieData.map((row) => {
+                  const pct = pieTotal > 0 ? Math.round((row.value / pieTotal) * 100) : 0;
+                  return (
+                    <li
+                      key={row.key}
+                      className="flex items-center justify-between gap-3 rounded-[var(--radius-full)] border border-[var(--border-subtle)] bg-[var(--bg-surface-3)]/40 px-3 py-2 text-[var(--font-sm)]"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ background: donutColor(row.key, theme) }}
+                          aria-hidden
+                        />
+                        <span className="truncate font-medium text-[var(--text-primary)]">{row.name}</span>
+                      </span>
+                      <span className="shrink-0 tabular-nums font-semibold text-[var(--text-secondary)]">
+                        {row.value}{" "}
+                        <span className="text-[var(--text-muted)]">({pct}%)</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
           </div>
         </ChartShell>
       </div>
 
-      <ChartShell
-        title="Estoque por plano"
-        subtitle="Códigos disponíveis para venda"
-      >
+      <ChartShell title="Estoque por plano" subtitle="Códigos disponíveis para venda">
         <div className="w-full min-w-0">
           {!hasPlans ? (
-            <p className="py-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="py-12 text-center text-[var(--font-sm)] text-[var(--text-secondary)]">
               Nenhum plano cadastrado.
             </p>
           ) : (
-            <div
-              className="w-full"
-              style={{
-                height: Math.min(420, Math.max(240, barData.length * 48)),
-              }}
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={barData}
-                  layout="vertical"
-                  margin={{ top: 8, right: 20, left: 4, bottom: 8 }}
-                >
-                  <defs>
-                    <linearGradient id="adminBarFill" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor={isDark ? "#6366f1" : "#4f46e5"} stopOpacity={0.92} />
-                      <stop offset="100%" stopColor={isDark ? "#a855f7" : "#7c3aed"} stopOpacity={0.88} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="4 6" stroke={gridStroke} horizontal={false} strokeOpacity={0.85} />
-                  <XAxis
-                    type="number"
-                    tick={{ fill: axisColor, fontSize: 11 }}
-                    tickLine={false}
-                    allowDecimals={false}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="nome"
-                    width={200}
-                    tick={{ fill: axisColor, fontSize: 11 }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval={0}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: tooltipBg,
-                      border: `1px solid ${tooltipBorder}`,
-                      borderRadius: "14px",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      boxShadow: tooltipShadow,
-                      padding: "10px 12px",
-                    }}
-                    formatter={(value: number) => [value, "Disponíveis"]}
-                    labelFormatter={(_, payload) => {
-                      const p = payload as
-                        | Array<{ payload?: { fullTitle?: string } }>
-                        | undefined;
-                      return p?.[0]?.payload?.fullTitle ?? "";
-                    }}
-                  />
-                  <Bar
-                    dataKey="disponiveis"
-                    name="Disponíveis"
-                    fill="url(#adminBarFill)"
-                    radius={[0, 8, 8, 0]}
-                    maxBarSize={24}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <PlanStockBarsBlock rows={barData} />
           )}
         </div>
       </ChartShell>

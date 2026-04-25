@@ -33,12 +33,12 @@ export function DashboardStockCard({ plans }: DashboardStockCardProps) {
         )}
       >
         <div>
-          <h2 className={cn(adminPremiumHeading, "text-[1.0625rem]")}>Estoque por plano</h2>
+          <h2 className={cn(adminPremiumHeading, "text-[var(--font-lg)]")}>Estoque por plano</h2>
           <p className={adminPremiumSub}>Códigos disponíveis para venda</p>
         </div>
         <Link
           href={toAdminPath("codes")}
-          className="group inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="group inline-flex items-center gap-1 text-[var(--font-sm)] font-semibold text-[var(--accent-purple)] transition hover:brightness-110"
         >
           Gerenciar
           <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -54,7 +54,7 @@ export function DashboardStockCard({ plans }: DashboardStockCardProps) {
             action={
               <Link
                 href={toAdminPath("plans")}
-                className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="inline-flex items-center rounded-[var(--radius-md)] bg-[var(--accent-purple)] px-4 py-2.5 text-[var(--font-sm)] font-semibold text-white shadow-[var(--shadow-glow-purple)] transition hover:brightness-110"
               >
                 Criar plano
               </Link>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe2, ChevronRight, Sparkles } from "lucide-react";
+import { Globe2, ChevronRight } from "lucide-react";
 import type {
   ActivityDashboardSummaryDTO,
   ActivityMapPointDTO,
@@ -25,75 +25,62 @@ export function ActivityGlobalSection({
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-zinc-200/75",
-        "bg-gradient-to-br from-zinc-50/95 via-white to-violet-50/25",
-        "p-5 shadow-[0_24px_64px_-32px_rgba(15,23,42,0.12),0_0_0_1px_rgba(15,23,42,0.02)]",
-        "dark:border-zinc-800/90 dark:from-zinc-900/90 dark:via-zinc-950 dark:to-violet-950/30 dark:shadow-[0_24px_64px_-28px_rgba(0,0,0,0.65)]",
-        "sm:p-7 lg:p-8",
+        "relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface-2)] p-5 shadow-[var(--shadow-card)] sm:p-7 lg:p-8",
       )}
     >
-      <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-400/12 blur-3xl dark:bg-violet-500/10" />
-      <div className="pointer-events-none absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-blue-400/8 blur-3xl dark:bg-blue-500/8" />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-purple)]/35 to-transparent"
+        aria-hidden
+      />
 
       <div className="relative space-y-6 sm:space-y-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
-          <div className="min-w-0 max-w-2xl space-y-2">
-            <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600/85 dark:text-violet-400/90">
-              <Sparkles className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" aria-hidden />
-              Tempo quase real
-            </p>
-            <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-2xl lg:text-[1.65rem] lg:leading-tight">
-              Atividade global
-            </h2>
-            <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-[15px]">
-              Origem aproximada de logins, acessos e compras. Abra a visão
-              completa para lista ao vivo e filtros avançados.
-            </p>
+        <div className="admin-section-head !mb-5 flex flex-col gap-4 sm:!mb-6 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 flex-1 gap-4">
+            <div className="admin-section-head__accent" aria-hidden />
+            <div className="min-w-0">
+              <p className="mb-2 inline-flex items-center gap-2 text-[var(--font-xs)] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">
+                <span className="admin-pulse-dot" aria-hidden />
+                Tempo quase real
+              </p>
+              <h2 className="admin-section-head__title text-[var(--font-xl)] sm:text-2xl">Atividade global</h2>
+              <p className="admin-section-head__sub max-w-2xl text-[var(--font-md)]">
+                Origem aproximada de logins, acessos e compras. Abra a visão completa para lista ao vivo e
+                filtros avançados.
+              </p>
+            </div>
           </div>
           <Link
             href={toAdminPath("atividade")}
             className={cn(
-              "inline-flex shrink-0 items-center justify-center gap-1.5 self-start rounded-xl px-4 py-2.5 text-sm font-semibold text-white",
-              "bg-zinc-900 shadow-lg shadow-zinc-900/20 transition-all duration-200",
-              "hover:bg-zinc-800 hover:shadow-xl hover:shadow-zinc-900/25 active:scale-[0.98]",
-              "dark:bg-zinc-100 dark:text-zinc-900 dark:shadow-zinc-100/20 dark:hover:bg-white",
+              "inline-flex shrink-0 items-center justify-center gap-1.5 self-start rounded-[var(--radius-md)] px-4 py-2.5 text-[var(--font-sm)] font-semibold text-[var(--text-inverse)] sm:self-auto",
+              "bg-[linear-gradient(135deg,var(--accent-purple),#A78BFA)] shadow-[var(--shadow-glow-purple)] transition hover:translate-y-[-1px] hover:brightness-110",
             )}
           >
             Mapa completo
-            <ChevronRight className="h-4 w-4 opacity-90" />
+            <ChevronRight className="h-4 w-4 opacity-90" strokeWidth={2} />
           </Link>
         </div>
 
         <ActivityStatsRow summary={summary} />
 
-        {/*
-          Mapa com mais destaque: ~60% no desktop, altura mín. maior; feed ao lado.
-          Em telas médias, mapa ainda com prioridade (min. altura vh leve).
-        */}
         <div className="grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-stretch lg:gap-6 xl:grid-cols-[1.45fr_1fr] xl:gap-8 2xl:grid-cols-[1.5fr_1fr]">
           <div className="order-1 flex min-h-0 min-w-0 flex-col min-h-[min(44vh,420px)] lg:min-h-[min(58vh,600px)]">
             <ActivityWorldMap points={points} minHeight={400} embedded />
           </div>
           <div className="order-2 flex min-h-0 min-w-0 flex-col">
             <div className="mb-2.5 flex items-center gap-2 sm:mb-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100/90 text-violet-600 ring-1 ring-violet-200/80 dark:bg-violet-950/50 dark:text-violet-300 dark:ring-violet-500/30">
-                <Globe2 className="h-4 w-4" aria-hidden />
+              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] bg-[var(--accent-purple-dim)] text-[var(--accent-purple)] ring-1 ring-[var(--border-subtle)]">
+                <Globe2 className="h-4 w-4" strokeWidth={2} aria-hidden />
               </span>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-600/80 dark:text-violet-400/90">
+                <p className="text-[var(--font-xs)] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">
                   Feed resumido
                 </p>
-                <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                  Últimos eventos
-                </p>
+                <p className="text-[var(--font-sm)] font-semibold text-[var(--text-primary)]">Últimos eventos</p>
               </div>
             </div>
             <div className="min-h-0 min-w-0 flex-1">
-              <ActivityRecentFeed
-                initialEvents={initialRecent}
-                pollMs={32000}
-                compact
-              />
+              <ActivityRecentFeed initialEvents={initialRecent} pollMs={32000} compact />
             </div>
           </div>
         </div>

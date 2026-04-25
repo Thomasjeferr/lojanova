@@ -2,15 +2,22 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalLink, LogOut, Menu } from "lucide-react";
+import { BarChart3, ChevronDown, ExternalLink, LogOut, Menu, RefreshCw } from "lucide-react";
 import { useAdminLayout } from "./admin-layout-context";
 import { AdminThemeToggle } from "./admin-theme-toggle";
+import { cn } from "@/lib/utils";
+import { toAdminPath } from "@/lib/admin-path";
 
 type AdminHeaderProps = {
   title: string;
   subtitle?: string;
   userEmail?: string;
 };
+
+function initialsFromEmail(email: string | undefined) {
+  if (!email) return "A";
+  return email.trim().slice(0, 1).toUpperCase();
+}
 
 export function AdminHeader({ title, subtitle, userEmail }: AdminHeaderProps) {
   const router = useRouter();
@@ -23,58 +30,131 @@ export function AdminHeader({ title, subtitle, userEmail }: AdminHeaderProps) {
   }
 
   return (
-    <header className="relative sticky top-0 z-20 flex h-[4.25rem] min-h-[4.25rem] items-center justify-between gap-3 border-b border-zinc-200/70 bg-white/[0.88] px-3 shadow-[0_1px_0_rgba(255,255,255,0.65)_inset,0_8px_32px_-20px_rgba(15,23,42,0.12)] backdrop-blur-2xl backdrop-saturate-150 dark:border-zinc-800/70 dark:bg-zinc-950/[0.92] dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_12px_40px_-24px_rgba(0,0,0,0.65)] sm:gap-4 sm:px-7">
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-500/25 to-transparent dark:via-indigo-400/20"
-        aria-hidden
-      />
+    <header
+      className={cn(
+        "sticky top-0 z-50 flex h-16 min-h-16 shrink-0 items-center justify-between gap-3 border-b border-[var(--border-subtle)]",
+        "bg-[color-mix(in_srgb,var(--bg-base)_82%,transparent)] px-3 backdrop-blur-[20px] backdrop-saturate-[180%] sm:gap-4 sm:px-6",
+      )}
+    >
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <button
           type="button"
           onClick={() => setSidebarMobileOpen(true)}
-          className="rounded-xl p-2.5 text-zinc-600 transition hover:bg-zinc-100/90 dark:text-zinc-300 dark:hover:bg-white/[0.06] lg:hidden"
+          className={cn(
+            "flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-md)] lg:hidden",
+            "border border-[var(--border-default)] bg-[var(--bg-overlay)] text-[var(--text-secondary)] transition-colors duration-150",
+            "hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]",
+          )}
           aria-label="Abrir menu"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
         <div className="min-w-0">
-          <h2 className="truncate text-[1.125rem] font-semibold leading-tight tracking-[-0.02em] text-zinc-950 dark:text-white sm:text-xl">
+          <h2 className="truncate text-[var(--font-lg)] font-semibold leading-tight tracking-[-0.02em] text-[var(--text-primary)]">
             {title}
           </h2>
-          {subtitle && (
-            <p className="truncate text-[13px] font-medium leading-snug tracking-tight text-zinc-500 dark:text-zinc-400">
-              {subtitle}
-            </p>
-          )}
+          {subtitle ? (
+            <p className="truncate text-[var(--font-sm)] leading-snug text-[var(--text-secondary)]">{subtitle}</p>
+          ) : null}
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
-        {userEmail && (
-          <span
-            className="hidden max-w-[220px] truncate rounded-xl border border-zinc-200/75 bg-gradient-to-b from-white to-zinc-50/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-600 shadow-sm dark:border-zinc-700/80 dark:from-zinc-900/90 dark:to-zinc-950/90 dark:text-zinc-300 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] lg:inline"
-            title={userEmail}
-          >
-            {userEmail}
-          </span>
-        )}
-        <AdminThemeToggle />
+
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-2.5">
+        <AdminThemeToggle
+          className={cn(
+            "h-9 w-9 cursor-pointer rounded-full border border-[var(--border-default)] bg-[var(--bg-overlay)] p-0 shadow-none",
+            "text-[var(--text-secondary)] hover:border-[var(--accent-purple)] hover:text-[var(--accent-purple)]",
+          )}
+        />
         <Link
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-xl border border-transparent px-3 py-2.5 text-sm font-semibold tracking-tight text-zinc-600 transition hover:border-zinc-200/80 hover:bg-white hover:text-zinc-900 dark:text-zinc-300 dark:hover:border-white/[0.08] dark:hover:bg-white/[0.05] dark:hover:text-white"
+          className={cn(
+            "hidden cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] px-3 py-2 text-[var(--font-sm)] font-semibold",
+            "text-[var(--text-secondary)] transition-all duration-150 sm:inline-flex",
+            "hover:border-[var(--accent-purple)] hover:text-[var(--accent-purple)]",
+          )}
         >
-          <ExternalLink className="h-4 w-4 shrink-0 opacity-80" />
-          <span className="hidden sm:inline">Ver site</span>
+          <ExternalLink className="h-4 w-4 shrink-0 opacity-90" strokeWidth={2} />
+          Ver site
         </Link>
         <button
           type="button"
-          onClick={handleLogout}
-          className="inline-flex items-center gap-2 rounded-xl border border-transparent px-3 py-2.5 text-sm font-semibold tracking-tight text-zinc-600 transition hover:border-zinc-200/80 hover:bg-white hover:text-zinc-900 dark:text-zinc-300 dark:hover:border-white/[0.08] dark:hover:bg-white/[0.05] dark:hover:text-white"
+          onClick={() => router.refresh()}
+          className={cn(
+            "hidden cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3.5 py-2 text-[var(--font-sm)] font-semibold text-[var(--text-inverse)] transition sm:inline-flex",
+            "bg-[var(--accent-purple)] shadow-[var(--shadow-glow-purple)] hover:brightness-110",
+          )}
+          aria-label="Atualizar página"
         >
-          <LogOut className="h-4 w-4 shrink-0" />
-          <span className="hidden sm:inline">Sair</span>
+          <RefreshCw className="h-4 w-4 shrink-0 opacity-95" strokeWidth={2} />
+          Atualizar
         </button>
+        <Link
+          href={toAdminPath("orders")}
+          className={cn(
+            "hidden cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3.5 py-2 text-[var(--font-sm)] font-semibold text-white transition sm:inline-flex",
+            "bg-[linear-gradient(135deg,var(--accent-purple),#A78BFA)] shadow-[var(--shadow-glow-purple)]",
+            "hover:translate-y-[-1px] hover:brightness-110",
+          )}
+        >
+          <BarChart3 className="h-4 w-4 opacity-95" strokeWidth={2} />
+          Ver pedidos
+        </Link>
+
+        {userEmail ? (
+          <details className="relative hidden sm:block">
+            <summary
+              className={cn(
+                "flex cursor-pointer list-none items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--bg-surface-2)] py-1.5 pl-1.5 pr-2.5",
+                "text-[var(--font-sm)] font-medium text-[var(--text-primary)] transition-colors hover:border-[var(--border-strong)]",
+                "[&::-webkit-details-marker]:hidden",
+              )}
+            >
+              <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg-surface-3)] text-xs font-semibold text-[var(--text-primary)]">
+                {initialsFromEmail(userEmail)}
+                <span
+                  className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-[#22C55E] ring-2 ring-[var(--bg-surface-2)]"
+                  aria-hidden
+                />
+              </span>
+              <span className="max-w-[140px] truncate text-[12px] font-medium text-[var(--text-secondary)] lg:max-w-[200px]">
+                {userEmail}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-[var(--text-muted)]" strokeWidth={2} aria-hidden />
+            </summary>
+            <div
+              className={cn(
+                "absolute right-0 z-[60] mt-2 min-w-[200px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-surface-1)_92%,transparent)] p-1 shadow-[var(--shadow-card)] backdrop-blur-xl",
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className={cn(
+                  "flex w-full cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-3 py-2.5 text-left text-[var(--font-sm)] font-semibold text-[var(--text-primary)] transition-colors",
+                  "hover:bg-[var(--bg-overlay)]",
+                )}
+              >
+                <LogOut className="h-4 w-4 text-[var(--text-muted)]" strokeWidth={2} />
+                Sair
+              </button>
+            </div>
+          </details>
+        ) : (
+          <button
+            type="button"
+            onClick={() => void handleLogout()}
+            className={cn(
+              "hidden cursor-pointer items-center gap-2 rounded-full border border-[var(--border-default)] px-3 py-2 text-[var(--font-sm)] font-semibold sm:inline-flex",
+              "text-[var(--text-secondary)] hover:border-[var(--accent-purple)] hover:text-[var(--accent-purple)]",
+            )}
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </button>
+        )}
       </div>
     </header>
   );

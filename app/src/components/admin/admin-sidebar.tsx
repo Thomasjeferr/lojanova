@@ -19,19 +19,100 @@ import { useAdminLayout } from "./admin-layout-context";
 import { BrandingLogo } from "@/components/branding-logo";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
 import { normalizeAdminPathname, toAdminPath } from "@/lib/admin-path";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
-const navItems = [
-  { href: toAdminPath(), internalPath: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: toAdminPath("atividade"), internalPath: "/admin/atividade", label: "Atividade global", icon: Globe2 },
-  { href: toAdminPath("plans"), internalPath: "/admin/plans", label: "Planos", icon: Package },
-  { href: toAdminPath("codes"), internalPath: "/admin/codes", label: "Códigos", icon: Key },
-  { href: toAdminPath("orders"), internalPath: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
-  { href: toAdminPath("customers"), internalPath: "/admin/customers", label: "Clientes", icon: Users },
-  { href: toAdminPath("emails"), internalPath: "/admin/emails", label: "E-mails", icon: Mail },
-  { href: toAdminPath("settings"), internalPath: "/admin/settings", label: "Configurações", icon: Settings },
+type NavEntry = {
+  href: string;
+  internalPath: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+};
+
+type NavGroup = { id: string; label: string; items: NavEntry[] };
+
+const navGroups: NavGroup[] = [
+  {
+    id: "overview",
+    label: "Visão geral",
+    items: [
+      { href: toAdminPath(), internalPath: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    items: [
+      {
+        href: toAdminPath("atividade"),
+        internalPath: "/admin/atividade",
+        label: "Atividade global",
+        icon: Globe2,
+      },
+    ],
+  },
+  {
+    id: "catalog",
+    label: "Catálogo",
+    items: [
+      { href: toAdminPath("plans"), internalPath: "/admin/plans", label: "Planos", icon: Package },
+      { href: toAdminPath("codes"), internalPath: "/admin/codes", label: "Códigos", icon: Key },
+    ],
+  },
+  {
+    id: "sales",
+    label: "Vendas",
+    items: [
+      { href: toAdminPath("orders"), internalPath: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
+      { href: toAdminPath("customers"), internalPath: "/admin/customers", label: "Clientes", icon: Users },
+    ],
+  },
+  {
+    id: "system",
+    label: "Sistema",
+    items: [
+      { href: toAdminPath("emails"), internalPath: "/admin/emails", label: "E-mails", icon: Mail },
+      { href: toAdminPath("settings"), internalPath: "/admin/settings", label: "Configurações", icon: Settings },
+    ],
+  },
 ];
 
-export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
+function flattenNavWithStaggerIndex(): Array<NavEntry & { staggerClass: string }> {
+  const classes = [
+    "admin-nav-stagger-1",
+    "admin-nav-stagger-2",
+    "admin-nav-stagger-3",
+    "admin-nav-stagger-4",
+    "admin-nav-stagger-5",
+    "admin-nav-stagger-6",
+    "admin-nav-stagger-7",
+    "admin-nav-stagger-8",
+  ];
+  let i = 0;
+  const out: Array<NavEntry & { staggerClass: string }> = [];
+  for (const g of navGroups) {
+    for (const item of g.items) {
+      out.push({ ...item, staggerClass: classes[Math.min(i, classes.length - 1)]! });
+      i += 1;
+    }
+  }
+  return out;
+}
+
+function initialsFromEmail(email: string | undefined) {
+  if (!email) return "A";
+  const head = email.trim().split("@")[0] ?? "A";
+  return head.slice(0, 1).toUpperCase();
+}
+
+export function AdminSidebar({
+  branding,
+  userEmail,
+  compactNav,
+}: {
+  branding: SiteBrandingPublic;
+  userEmail?: string;
+  compactNav: boolean;
+}) {
   const pathname = normalizeAdminPathname(usePathname() ?? "");
   const {
     sidebarCollapsed: collapsed,
@@ -39,13 +120,16 @@ export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
     sidebarMobileOpen,
     setSidebarMobileOpen,
   } = useAdminLayout();
+  const isLg = useMediaQuery("(min-width: 1024px)");
+  const effectiveCollapsed = collapsed || compactNav;
+  const flatStagger = flattenNavWithStaggerIndex();
 
   return (
     <>
       <div
         id="admin-sidebar-backdrop"
         className={cn(
-          "fixed inset-0 z-30 bg-black/50 backdrop-blur-sm transition-opacity duration-200 dark:bg-black/70 lg:hidden",
+          "fixed inset-0 z-30 bg-black/50 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
           sidebarMobileOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => setSidebarMobileOpen(false)}
@@ -53,89 +137,140 @@ export function AdminSidebar({ branding }: { branding: SiteBrandingPublic }) {
       />
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-zinc-200/65 bg-gradient-to-b from-white/[0.99] to-zinc-50/[0.97] shadow-[6px_0_40px_-18px_rgba(15,23,42,0.18)] backdrop-blur-2xl transition-[width,transform] duration-200 dark:border-zinc-800/80 dark:from-zinc-950/[0.98] dark:to-[#050508] dark:shadow-[8px_0_48px_-12px_rgba(0,0,0,0.85)] lg:translate-x-0",
-          "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-px before:bg-gradient-to-b before:from-indigo-500/50 before:via-violet-500/25 before:to-fuchsia-500/15",
-          collapsed ? "w-[72px]" : "w-64",
-          "max-lg:w-64 max-lg:transition-transform",
+          "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-[var(--border-subtle)]",
+          "bg-[linear-gradient(180deg,#0C0F18_0%,#080B12_100%)]",
+          "transition-[width,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0",
+          effectiveCollapsed ? "w-[var(--admin-sidebar-w-collapsed)]" : "w-[var(--admin-sidebar-w)]",
+          "max-lg:w-[var(--admin-sidebar-w)] max-lg:transition-transform",
           !sidebarMobileOpen && "max-lg:-translate-x-full",
         )}
       >
-        <div className="relative flex h-[4.25rem] min-h-[4.25rem] items-center justify-between gap-2 border-b border-zinc-200/60 bg-white/50 px-2 dark:border-zinc-800/80 dark:bg-zinc-950/40 sm:px-4">
+        <div
+          className={cn(
+            "relative flex h-16 min-h-16 shrink-0 items-center border-b border-[var(--border-subtle)]",
+            effectiveCollapsed ? "justify-center px-2" : "justify-between gap-2 px-5",
+          )}
+        >
           <div
-            className={cn(
-              "min-w-0 flex-1",
-              collapsed && "flex justify-center",
-            )}
+            className={cn("min-w-0", effectiveCollapsed ? "flex justify-center" : "flex-1")}
+            onClick={() => setSidebarMobileOpen(false)}
           >
-            {collapsed && branding.logoDataUrl ? (
+            {effectiveCollapsed && branding.logoDataUrl ? (
               <Link href={toAdminPath()} className="block py-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={branding.logoDataUrl}
                   alt={branding.storeDisplayName}
-                  className="mx-auto h-8 max-w-[44px] object-contain"
+                  className="mx-auto h-8 max-w-9 object-contain [filter:drop-shadow(0_0_10px_var(--accent-purple-glow))]"
                 />
               </Link>
-            ) : collapsed ? (
+            ) : effectiveCollapsed ? (
               <span className="sr-only">{branding.storeDisplayName}</span>
             ) : (
-              <BrandingLogo
-                branding={branding}
-                href={toAdminPath()}
-                textClassName="text-[1.05rem] font-semibold tracking-[-0.02em]"
-                imgClassName="h-8 max-h-9"
-              />
+              <div className="[filter:drop-shadow(0_0_12px_var(--accent-purple-glow))]">
+                <BrandingLogo
+                  branding={branding}
+                  href={toAdminPath()}
+                  textClassName="text-[15px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]"
+                  imgClassName="h-8 max-h-9"
+                />
+              </div>
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => setCollapsed((c) => !c)}
-            className="rounded-xl p-2.5 text-zinc-500 transition hover:bg-zinc-100/90 hover:text-zinc-800 dark:text-zinc-500 dark:hover:bg-white/[0.06] dark:hover:text-zinc-100"
-            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
-          >
-            {collapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <ChevronLeft className="h-5 w-5" />
-            )}
-          </button>
+          {isLg && !compactNav ? (
+            <button
+              type="button"
+              onClick={() => setCollapsed((c) => !c)}
+              className={cn(
+                "flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-md)]",
+                "border border-[var(--border-default)] bg-[var(--bg-overlay)] text-[var(--text-secondary)] transition-all duration-150 ease-out",
+                "hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]",
+              )}
+              aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+            >
+              {collapsed ? (
+                <ChevronRight className="h-[18px] w-[18px]" strokeWidth={2} />
+              ) : (
+                <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2} />
+              )}
+            </button>
+          ) : null}
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3 pb-6">
-          {navItems.map((item) => {
-            const isActive =
-              item.internalPath === "/admin"
-                ? pathname === "/admin"
-                : pathname.startsWith(item.internalPath);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarMobileOpen(false)}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-xl py-3 pl-3 pr-3 text-[13px] font-semibold tracking-[-0.01em] transition-all duration-200",
-                  collapsed && "justify-center px-0",
-                  isActive
-                    ? "bg-gradient-to-r from-indigo-500/[0.14] via-violet-500/[0.08] to-transparent text-indigo-800 shadow-[0_0_0_1px_rgba(99,102,241,0.12),0_8px_28px_-12px_rgba(99,102,241,0.35)] dark:from-indigo-500/20 dark:via-violet-600/12 dark:to-transparent dark:text-indigo-100 dark:shadow-[0_0_0_1px_rgba(129,140,246,0.2),0_12px_40px_-16px_rgba(79,70,229,0.45)]"
-                    : "text-zinc-600 hover:bg-zinc-100/90 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/[0.05] dark:hover:text-white",
-                  isActive &&
-                    !collapsed &&
-                    "before:absolute before:left-1 before:top-1/2 before:h-8 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-gradient-to-b before:from-indigo-400 before:to-violet-500 before:shadow-[0_0_12px_rgba(99,102,241,0.6)]",
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "h-[1.125rem] w-[1.125rem] shrink-0 transition-transform duration-200",
-                    !isActive && "opacity-85 group-hover:scale-[1.04]",
-                    isActive && "text-indigo-600 dark:text-indigo-300",
-                  )}
-                  strokeWidth={2}
-                />
-                {!collapsed && <span className="leading-snug">{item.label}</span>}
-              </Link>
-            );
-          })}
+
+        <nav className="admin-scrollbar flex flex-1 flex-col gap-1 overflow-y-auto px-2 pb-2 pt-3">
+          {navGroups.map((group) => (
+            <div key={group.id}>
+              {!effectiveCollapsed ? (
+                <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)] first:pt-2">
+                  {group.label}
+                </p>
+              ) : (
+                <div className="mx-2 my-2 h-px bg-[var(--border-subtle)] first:mt-0" aria-hidden />
+              )}
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive =
+                    item.internalPath === "/admin"
+                      ? pathname === "/admin"
+                      : pathname.startsWith(item.internalPath);
+                  const Icon = item.icon;
+                  const stagger =
+                    flatStagger.find((x) => x.internalPath === item.internalPath)?.staggerClass ??
+                    "";
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarMobileOpen(false)}
+                      className={cn(
+                        "admin-anim-slide-in group relative flex h-10 cursor-pointer items-center rounded-[var(--radius-md)] px-3 transition-all duration-150 ease-out",
+                        "mx-2 my-0.5",
+                        effectiveCollapsed && "mx-1 justify-center px-0",
+                        stagger,
+                        isActive
+                          ? "bg-[var(--accent-purple-dim)] font-semibold text-[var(--accent-purple)] [box-shadow:inset_3px_0_0_0_var(--accent-purple)]"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-primary)]",
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-[18px] w-[18px] shrink-0",
+                          isActive ? "text-[var(--accent-purple)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-primary)]",
+                        )}
+                        strokeWidth={2}
+                      />
+                      {!effectiveCollapsed ? (
+                        <span className="ml-3 text-[13px] font-medium leading-none">{item.label}</span>
+                      ) : null}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
+
+        <div className="mt-auto h-16 shrink-0 border-t border-[var(--border-subtle)] px-3">
+          <div className={cn("flex h-full items-center gap-3", effectiveCollapsed && "justify-center px-0")}>
+            <div className="relative shrink-0">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-surface-3)] text-sm font-semibold text-[var(--text-primary)] ring-2 ring-[var(--bg-base)]">
+                {initialsFromEmail(userEmail)}
+              </span>
+              <span
+                className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-[#22C55E] ring-2 ring-[var(--bg-base)]"
+                aria-hidden
+              />
+            </div>
+            {!effectiveCollapsed ? (
+              <div className="min-w-0 flex-1 leading-tight">
+                <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
+                  {userEmail?.split("@")[0] ?? "Conta"}
+                </p>
+                <p className="truncate text-[11px] font-medium text-[var(--text-muted)]">Administrador</p>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </aside>
     </>
   );

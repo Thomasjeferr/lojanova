@@ -1,119 +1,224 @@
-import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
+"use client";
 
-export type DashboardMetricAccent =
-  | "violet"
-  | "emerald"
-  | "blue"
-  | "amber"
-  | "slate"
-  | "rose";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { cn, currencyBRL } from "@/lib/utils";
+import {
+  Clock,
+  DollarSign,
+  Layers,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 
-const accentMap: Record<
+/** Identificadores serializáveis (Server → Client); o componente resolve o ícone Lucide aqui. */
+export type DashboardMetricIconId =
+  | "dollar-sign"
+  | "trending-up"
+  | "shopping-cart"
+  | "clock"
+  | "package"
+  | "layers";
+
+const METRIC_ICONS: Record<DashboardMetricIconId, LucideIcon> = {
+  "dollar-sign": DollarSign,
+  "trending-up": TrendingUp,
+  "shopping-cart": ShoppingCart,
+  clock: Clock,
+  package: Package,
+  layers: Layers,
+};
+
+export type DashboardMetricAccent = "purple" | "teal" | "blue" | "amber" | "purpleMuted" | "tealMuted";
+
+const stripeByAccent: Record<DashboardMetricAccent, string> = {
+  purple: "linear-gradient(90deg, var(--accent-purple), #A78BFA)",
+  teal: "linear-gradient(90deg, var(--accent-teal), #34d399)",
+  blue: "linear-gradient(90deg, var(--accent-blue), #60a5fa)",
+  amber: "linear-gradient(90deg, var(--accent-amber), #fbbf24)",
+  purpleMuted: "linear-gradient(90deg, var(--accent-purple), #94a3b8)",
+  tealMuted: "linear-gradient(90deg, var(--accent-teal), var(--accent-purple))",
+};
+
+const iconToneByAccent: Record<
   DashboardMetricAccent,
-  { iconWrap: string; icon: string; glow: string }
+  { wrap: string; icon: string; glow: string }
 > = {
-  violet: {
-    iconWrap:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/8 to-transparent ring-1 ring-violet-500/10 dark:from-violet-500/25 dark:via-violet-500/10 dark:ring-violet-500/25",
-    icon: "text-violet-600 dark:text-violet-300",
-    glow: "from-violet-500/[0.07] to-transparent dark:from-violet-500/15",
+  purple: {
+    wrap: "bg-[var(--accent-purple-dim)] shadow-[inset_0_0_24px_var(--accent-purple-glow)]",
+    icon: "text-[var(--accent-purple)]",
+    glow: "",
   },
-  emerald: {
-    iconWrap:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/8 to-transparent ring-1 ring-emerald-500/10 dark:from-emerald-500/25 dark:via-emerald-500/10 dark:ring-emerald-500/25",
-    icon: "text-emerald-600 dark:text-emerald-300",
-    glow: "from-emerald-500/[0.07] to-transparent dark:from-emerald-500/15",
+  teal: {
+    wrap: "bg-[var(--accent-teal-dim)] shadow-[inset_0_0_24px_rgba(0,212,161,0.18)]",
+    icon: "text-[var(--accent-teal)]",
+    glow: "",
   },
   blue: {
-    iconWrap:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/8 to-transparent ring-1 ring-blue-500/10 dark:from-blue-500/25 dark:via-blue-500/10 dark:ring-blue-500/25",
-    icon: "text-blue-600 dark:text-blue-300",
-    glow: "from-blue-500/[0.07] to-transparent dark:from-blue-500/15",
+    wrap: "bg-[var(--accent-blue-dim)] shadow-[inset_0_0_20px_rgba(59,130,246,0.2)]",
+    icon: "text-[var(--accent-blue)]",
+    glow: "",
   },
   amber: {
-    iconWrap:
-      "bg-gradient-to-br from-amber-500/18 via-amber-500/8 to-transparent ring-1 ring-amber-500/12 dark:from-amber-500/25 dark:via-amber-500/10 dark:ring-amber-500/25",
-    icon: "text-amber-600 dark:text-amber-300",
-    glow: "from-amber-500/[0.07] to-transparent dark:from-amber-500/15",
+    wrap: "bg-[var(--accent-amber-dim)] shadow-[inset_0_0_20px_rgba(245,158,11,0.18)]",
+    icon: "text-[var(--accent-amber)]",
+    glow: "",
   },
-  slate: {
-    iconWrap:
-      "bg-gradient-to-br from-zinc-400/20 via-zinc-400/10 to-transparent ring-1 ring-zinc-300/40 dark:from-zinc-500/25 dark:via-zinc-600/15 dark:ring-zinc-600/40",
-    icon: "text-zinc-600 dark:text-zinc-300",
-    glow: "from-zinc-500/[0.05] to-transparent dark:from-zinc-500/15",
+  purpleMuted: {
+    wrap: "bg-[var(--accent-purple-dim)] shadow-[inset_0_0_24px_var(--accent-purple-glow)]",
+    icon: "text-[var(--accent-purple)]",
+    glow: "",
   },
-  rose: {
-    iconWrap:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/8 to-transparent ring-1 ring-rose-500/10 dark:from-rose-500/25 dark:via-rose-500/10 dark:ring-rose-500/25",
-    icon: "text-rose-600 dark:text-rose-300",
-    glow: "from-rose-500/[0.06] to-transparent dark:from-rose-500/15",
+  tealMuted: {
+    wrap: "bg-[var(--accent-teal-dim)] shadow-[inset_0_0_24px_rgba(0,212,161,0.18)]",
+    icon: "text-[var(--accent-teal)]",
+    glow: "",
   },
 };
+
+export type DashboardMetricCountUp =
+  | { kind: "cents"; cents: number }
+  | { kind: "int"; value: number };
+
+function easeOutCubic(t: number) {
+  return 1 - (1 - t) ** 3;
+}
+
+function useCountUp(target: number, enabled: boolean, durationMs = 1200) {
+  const [v, setV] = useState(() => (enabled ? 0 : target));
+  const raf = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!enabled) {
+      queueMicrotask(() => setV(target));
+      return;
+    }
+    queueMicrotask(() => setV(0));
+    const start = performance.now();
+    const from = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = easeOutCubic(t);
+      setV(Math.round(from + (target - from) * eased));
+      if (t < 1) {
+        raf.current = requestAnimationFrame(tick);
+      }
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, [target, enabled, durationMs]);
+
+  return v;
+}
+
+function subscribeReducedMotion(cb: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getReducedMotionClient() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServer() {
+  return false;
+}
 
 type DashboardMetricCardProps = {
   label: string;
   value: string | number;
   hint?: string;
-  icon: LucideIcon;
+  icon: DashboardMetricIconId;
   accent: DashboardMetricAccent;
   className?: string;
+  countUp?: DashboardMetricCountUp;
+  trend?: { direction: "up" | "down"; label: string };
 };
 
 export function DashboardMetricCard({
   label,
   value,
   hint,
-  icon: Icon,
+  icon,
   accent,
   className,
+  countUp,
+  trend,
 }: DashboardMetricCardProps) {
-  const a = accentMap[accent];
+  const Icon = METRIC_ICONS[icon];
+  const tone = iconToneByAccent[accent];
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionClient,
+    getReducedMotionServer,
+  );
+  const allowMotion = !reducedMotion;
+
+  const targetNumber = countUp?.kind === "cents" ? countUp.cents : countUp?.kind === "int" ? countUp.value : null;
+  const animated = useCountUp(
+    targetNumber ?? 0,
+    Boolean(countUp && targetNumber != null && allowMotion),
+  );
+
+  const displayValue = useMemo(() => {
+    if (!countUp) return value;
+    if (countUp.kind === "cents") return currencyBRL(animated);
+    return animated;
+  }, [animated, countUp, value]);
 
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-[1.25rem] border border-zinc-200/60 bg-white p-6",
-        "shadow-[0_1px_2px_rgba(0,0,0,0.05),0_20px_48px_-28px_rgba(15,23,42,0.18)]",
-        "transition duration-300 hover:-translate-y-1 hover:border-zinc-300/80 hover:shadow-[0_12px_40px_-20px_rgba(15,23,42,0.2)]",
-        "dark:border-zinc-600/35 dark:bg-zinc-900/88",
-        "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.055)_inset,0_28px_56px_-32px_rgba(0,0,0,0.82)]",
-        "dark:hover:border-zinc-500/40 dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07)_inset,0_32px_64px_-28px_rgba(0,0,0,0.88)]",
-        "sm:p-7",
+        "admin-anim-fade-up group relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface-2)] p-6 shadow-[var(--shadow-card)]",
+        "transition-[transform,box-shadow,border-color] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]",
+        "hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-hover)]",
         className,
       )}
     >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-70 dark:via-white/12"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-0.5"
+        style={{ background: stripeByAccent[accent] }}
         aria-hidden
       />
-      <div
-        className={cn(
-          "pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-gradient-to-br opacity-95 blur-3xl transition duration-500 group-hover:opacity-100",
-          a.glow,
-        )}
-      />
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
+      <div className="relative flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-[var(--font-xs)] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
             {label}
           </p>
-          <p className="text-[1.75rem] font-semibold tracking-[-0.03em] text-zinc-950 tabular-nums dark:text-white sm:text-[2.125rem] sm:leading-[1.05]">
-            {value}
+          <div
+            className={cn(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] transition-transform duration-200 group-hover:scale-[1.03]",
+              tone.wrap,
+            )}
+          >
+            <Icon className={cn("h-5 w-5", tone.icon)} strokeWidth={2} aria-hidden />
+          </div>
+        </div>
+        <div>
+          <p className="text-[var(--font-2xl)] font-bold leading-none tracking-[-0.03em] text-[var(--text-primary)] tabular-nums">
+            {displayValue}
           </p>
           {hint ? (
-            <p className="text-[13px] font-medium leading-snug tracking-tight text-zinc-500 dark:text-zinc-400">
-              {hint}
-            </p>
+            <p className="mt-1 text-[var(--font-sm)] text-[var(--text-secondary)]">{hint}</p>
           ) : null}
-        </div>
-        <div
-          className={cn(
-            "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition duration-300 group-hover:scale-[1.03]",
-            a.iconWrap,
-          )}
-        >
-          <Icon className={cn("h-6 w-6", a.icon)} strokeWidth={1.75} aria-hidden />
+          {trend ? (
+            <span
+              className={cn(
+                "mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[var(--font-xs)] font-semibold",
+                trend.direction === "up"
+                  ? "bg-[var(--accent-teal-dim)] text-[var(--accent-teal)]"
+                  : "bg-[var(--accent-red-dim)] text-[var(--accent-red)]",
+              )}
+            >
+              {trend.direction === "up" ? "↑" : "↓"}
+              {trend.label}
+            </span>
+          ) : null}
         </div>
       </div>
     </div>

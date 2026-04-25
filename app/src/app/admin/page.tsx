@@ -1,15 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { currencyBRL } from "@/lib/utils";
 import { EmptyState } from "@/components/admin/empty-state";
-import {
-  DollarSign,
-  ShoppingCart,
-  Package,
-  TrendingUp,
-} from "lucide-react";
+import { Package } from "lucide-react";
 import Link from "next/link";
 import { getBrazilTodayStartUtc } from "@/lib/brazil-time";
-import { DashboardPageHeader } from "@/components/admin/dashboard/dashboard-page-header";
 import { DashboardMetricCard } from "@/components/admin/dashboard/dashboard-metric-card";
 import {
   DashboardOrdersCard,
@@ -31,7 +25,8 @@ import { toAdminPath } from "@/lib/admin-path";
 import { buildDailySalesSeries } from "@/lib/admin-dashboard-analytics";
 import { DashboardAnalyticsCharts } from "@/components/admin/dashboard/dashboard-analytics-charts";
 
-const CHART_LOOKBACK_MS = 42 * 24 * 60 * 60 * 1000;
+/** Janela de pedidos pagos alimentando o gráfico (≥ série de 90 dias no calendário). */
+const CHART_LOOKBACK_MS = 96 * 24 * 60 * 60 * 1000;
 
 export default async function AdminDashboardPage() {
   const [
@@ -129,7 +124,7 @@ export default async function AdminDashboardPage() {
   const blockedCodes =
     codesByStatus.find((c) => c.status === "blocked")?._count.id ?? 0;
 
-  const dailySales = buildDailySalesSeries(paidOrdersForChart, 30);
+  const dailySales = buildDailySalesSeries(paidOrdersForChart, 90);
   const orderByStatus = orderStatusGroups.map((g) => ({
     status: g.status,
     count: g._count.id,
@@ -143,55 +138,69 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="relative">
-      <div
-        className="pointer-events-none absolute inset-x-0 -top-6 h-72 max-w-5xl rounded-full bg-gradient-to-b from-indigo-400/15 via-violet-200/10 to-transparent blur-3xl dark:from-indigo-500/20 dark:via-violet-900/10 sm:-top-10 sm:h-80"
-        aria-hidden
-      />
+      <div className="relative space-y-5">
+        <header className="admin-section-head">
+          <div className="admin-section-head__accent" aria-hidden />
+          <div>
+            <h1 className="admin-section-head__title">Visão geral</h1>
+            <p className="admin-section-head__sub">
+              Acompanhe vendas, pedidos, estoque e performance da loja em tempo real.
+            </p>
+          </div>
+        </header>
 
-      <div className="relative space-y-8 lg:space-y-10">
-        <DashboardPageHeader />
-
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:gap-6">
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <DashboardMetricCard
             label="Total de vendas"
             value={currencyBRL(totalSales._sum.amountCents ?? 0)}
-            icon={DollarSign}
-            accent="violet"
+            icon="dollar-sign"
+            accent="purple"
+            countUp={{ kind: "cents", cents: totalSales._sum.amountCents ?? 0 }}
+            className="admin-stagger-1"
           />
           <DashboardMetricCard
             label="Vendas hoje"
             value={currencyBRL(todaySales._sum.amountCents ?? 0)}
             hint="Fuso de Brasília"
-            icon={TrendingUp}
-            accent="emerald"
+            icon="trending-up"
+            accent="teal"
+            countUp={{ kind: "cents", cents: todaySales._sum.amountCents ?? 0 }}
+            className="admin-stagger-2"
           />
           <DashboardMetricCard
             label="Pedidos pagos"
             value={ordersPaidCount}
             hint="Total histórico"
-            icon={ShoppingCart}
+            icon="shopping-cart"
             accent="blue"
+            countUp={{ kind: "int", value: ordersPaidCount }}
+            className="admin-stagger-3"
           />
           <DashboardMetricCard
             label="Pedidos pendentes"
             value={ordersPendingCount}
             hint="Aguardando pagamento"
-            icon={ShoppingCart}
+            icon="clock"
             accent="amber"
+            countUp={{ kind: "int", value: ordersPendingCount }}
+            className="admin-stagger-4"
           />
           <DashboardMetricCard
             label="Estoque disponível"
             value={totalStock}
             hint="Códigos prontos para venda"
-            icon={Package}
-            accent="slate"
+            icon="package"
+            accent="purpleMuted"
+            countUp={{ kind: "int", value: totalStock }}
+            className="admin-stagger-5"
           />
           <DashboardMetricCard
             label="Planos ativos"
             value={`${activePlans} / ${plans.length}`}
             hint="Ativos no catálogo"
-            icon={Package}
-            accent="rose"
+            icon="layers"
+            accent="tealMuted"
+            className="admin-stagger-6"
           />
         </section>
 

@@ -14,14 +14,14 @@ const STORAGE_KEY = "admin-ui-theme";
 const THEME_EVENT = "admin-ui-theme-change";
 
 function readStoredTheme(): AdminTheme {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   try {
     const s = localStorage.getItem(STORAGE_KEY) as AdminTheme | null;
     if (s === "dark" || s === "light") return s;
   } catch {
     /* ignore */
   }
-  return "light";
+  return "dark";
 }
 
 function subscribeTheme(onChange: () => void) {
@@ -36,7 +36,7 @@ function subscribeTheme(onChange: () => void) {
 }
 
 function getServerTheme(): AdminTheme {
-  return "light";
+  return "dark";
 }
 
 function getClientTheme(): AdminTheme {

@@ -6,6 +6,7 @@ import { AdminLayoutProvider, useAdminLayout } from "./admin-layout-context";
 import { AdminThemeProvider } from "./admin-theme-context";
 import { cn } from "@/lib/utils";
 import type { SiteBrandingPublic } from "@/lib/site-branding";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 type AdminShellProps = {
   children: React.ReactNode;
@@ -23,40 +24,35 @@ function AdminShellInner({
   branding,
 }: AdminShellProps) {
   const { sidebarCollapsed } = useAdminLayout();
+  const compactNav = useMediaQuery("(max-width: 1279px)");
+  const effectiveCollapsed = sidebarCollapsed || compactNav;
+
   return (
-    <div className="admin-app-shell relative min-h-screen min-h-[100dvh] bg-[#f4f4f6] text-zinc-900 dark:bg-[#020203] dark:text-zinc-100">
+    <div
+      className={cn(
+        "admin-design-system admin-app-shell relative min-h-screen min-h-[100dvh]",
+        "bg-[var(--bg-base)] text-[var(--text-primary)] antialiased",
+      )}
+    >
       <div
-        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_100%_70%_at_50%_-15%,rgba(99,102,241,0.11),transparent_58%)] dark:bg-[radial-gradient(ellipse_95%_65%_at_50%_-12%,rgba(99,102,241,0.2),transparent_55%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_100%_0%,rgba(168,85,247,0.06),transparent_50%)] dark:bg-[radial-gradient(ellipse_70%_45%_at_100%_0%,rgba(168,85,247,0.12),transparent_48%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-[0.42] dark:opacity-[0.28]"
+        className="pointer-events-none fixed inset-0 -z-10 opacity-[0.35] dark:opacity-[0.22]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(99,102,241,0.045) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99,102,241,0.045) 1px, transparent 1px)
+            radial-gradient(ellipse 90% 55% at 50% -8%, var(--accent-purple-glow), transparent 52%),
+            radial-gradient(ellipse 55% 40% at 100% 0%, rgba(167,139,250,0.08), transparent 45%)
           `,
-          backgroundSize: "64px 64px",
         }}
         aria-hidden
       />
-      <AdminSidebar branding={branding} />
+      <AdminSidebar branding={branding} userEmail={userEmail} compactNav={compactNav} />
       <div
         className={cn(
-          "transition-[padding] duration-200 max-lg:pl-0",
-          sidebarCollapsed ? "pl-[72px]" : "pl-64",
+          "transition-[padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] max-lg:pl-0",
+          effectiveCollapsed ? "lg:pl-[var(--admin-sidebar-w-collapsed)]" : "lg:pl-[var(--admin-sidebar-w)]",
         )}
       >
-        <AdminHeader
-          title={title}
-          subtitle={subtitle}
-          userEmail={userEmail}
-        />
-        <main className="min-h-[calc(100vh-4.25rem)] min-h-[calc(100dvh-4.25rem)] p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-6 sm:pb-8 lg:p-9 lg:pb-10">
+        <AdminHeader title={title} subtitle={subtitle} userEmail={userEmail} />
+        <main className="min-h-[calc(100dvh-4rem)] px-[var(--space-6)] pb-[max(var(--space-6),env(safe-area-inset-bottom))] pt-[var(--space-6)]">
           <div className="mx-auto w-full max-w-[1620px]">{children}</div>
         </main>
       </div>
